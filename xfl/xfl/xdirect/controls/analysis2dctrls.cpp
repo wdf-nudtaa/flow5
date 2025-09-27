@@ -30,18 +30,18 @@ Analysis2dCtrls::Analysis2dCtrls(QWidget *pParent) : QWidget(pParent)
 
 void Analysis2dCtrls::connectSignals()
 {
-    connect(m_pchStoreOpp,   SIGNAL(clicked()),      SLOT(onStoreOpp()));
-    connect(m_pRangeTable, SIGNAL(pressed(QModelIndex)), SLOT(onSetControls()));
+    connect(m_pchStoreOpp,   SIGNAL(clicked()),             SLOT(onStoreOpp()));
+    connect(m_pRangeTable,   SIGNAL(pressed(QModelIndex)),  SLOT(onSetControls()));
 
 
-    connect(m_pchInitBL,     SIGNAL(clicked()),      SLOT(onReadAnalysisData()));
+    connect(m_pchInitBL,     SIGNAL(clicked()),             SLOT(onReadAnalysisData()));
 
-    connect(m_prbSpec1,      SIGNAL(clicked()),      SLOT(onSpec()));
-    connect(m_prbSpec2,      SIGNAL(clicked()),      SLOT(onSpec()));
+    connect(m_prbSpec1,      SIGNAL(clicked()),             SLOT(onSpec()));
+    connect(m_prbSpec2,      SIGNAL(clicked()),             SLOT(onSpec()));
 
-    connect(m_pchViscous,    SIGNAL(clicked()),      SLOT(onViscous()));
-    connect(m_pchStoreOpp,   SIGNAL(clicked()),      SLOT(onStoreOpp()));
-    connect(m_ppbAnalyze,    SIGNAL(clicked()),      s_pXDirect, SLOT(onAnalyze()));
+    connect(m_pchViscous,    SIGNAL(clicked()),             SLOT(onViscous()));
+    connect(m_pchStoreOpp,   SIGNAL(clicked()),             SLOT(onStoreOpp()));
+    connect(m_ppbAnalyze,    SIGNAL(clicked()), s_pXDirect, SLOT(onAnalyze()));
 }
 
 
@@ -60,12 +60,14 @@ void Analysis2dCtrls::setupLayout()
         {
             m_prbSpec1 = new QRadioButton(ALPHACHAR);
             m_prbSpec2 = new QRadioButton("Cl");
-            m_prbSpec3 = new QRadioButton("Re");
+            m_prbSpec3 = new QRadioButton("Reynolds");
             m_prbSpec4 = new QRadioButton(THETACHAR);
+            pSpecVarsLayout->addStretch();
             pSpecVarsLayout->addWidget(m_prbSpec1);
             pSpecVarsLayout->addWidget(m_prbSpec2);
             pSpecVarsLayout->addWidget(m_prbSpec3);
             pSpecVarsLayout->addWidget(m_prbSpec4);
+            pSpecVarsLayout->addStretch();
         }
 
         m_pRangeTable = new AnalysisRangeTable(this);

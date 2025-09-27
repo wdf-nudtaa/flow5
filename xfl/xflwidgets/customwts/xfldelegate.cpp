@@ -335,8 +335,11 @@ void XflDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, c
             if (index.data(Qt::DisplayRole).canConvert<LineStyle>())
             {
                 QColor linecolor;
+/** @todo gcc signals a potential out of bounds issue */
+//                LineStyle ls = qvariant_cast<LineStyle>(index.data());
+                LineStyle ls = index.data().value<LineStyle>();
 
-                LineStyle ls = qvariant_cast<LineStyle>(index.data());
+
                 QRect r = option.rect;
 
                 QStyledItemDelegate::paint(painter, option, index); // paint the background, using palette colors, including stylesheet mods

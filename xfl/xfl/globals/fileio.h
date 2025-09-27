@@ -41,13 +41,6 @@ class FileIO : public QObject
 
         bool storeFoilsFl5(QVector<Foil*>const &FoilSelection, QDataStream &ar, bool bAll);
 
-        void readFoilFile(QFile &xFoilFile, Foil *pFoil);
-        bool readPolarFile(QFile &plrFile, QVector<Foil*> &foilList, QVector<Polar*> &polarList);
-
-        bool serializeFoil(Foil*pFoil, QDataStream &ar, bool bIsStoring);
-        bool serializePolarv6(Polar *pPolar, QDataStream &ar, bool bIsStoring);
-
-        Polar *importXFoilPolar(QFile & txtFile, QString &logmsg);
 
         bool storePlaneFl5(Plane *pPlane, QDataStream &ar);
 

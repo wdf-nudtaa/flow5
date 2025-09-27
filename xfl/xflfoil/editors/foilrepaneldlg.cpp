@@ -210,7 +210,7 @@ void FoilRepanelDlg::onApply()
         m_pBufferFoil->m_BaseNode[i] = m_pCS->outputPt(i);
     }
 
-    m_pBufferFoil->initGeometry();
+    m_pBufferFoil->initGeometry(true);
 
     update();
 

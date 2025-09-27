@@ -71,11 +71,11 @@ void FastGraphWt::setupLayout()
         {
             m_pcptData = new CPTableView;
             {
-                m_pcptData->setToolTip("Enter the variable names in the first line, and the data in the following lines."
+                m_pcptData->setToolTip("<p>Enter the variable names in the first line, and the data in the following lines."
                                            "The separators recognized to separate the fields when pasting data are "
                                            "the tab, the comma and the semi-colon.<br>"
                                            "Double click on the graph to edit the curves\' style.<br>"
-                                           "Activate the in-graph legend in the graph's settings.");
+                                           "Activate the in-graph legend in the graph's settings.</p>");
                 m_pcptData->setCharSize(3,5);
                 m_pcptData->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
                 m_pcptData->setEditable(true);

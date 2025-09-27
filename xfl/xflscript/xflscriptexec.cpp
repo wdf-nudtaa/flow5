@@ -21,25 +21,29 @@
 
 #include <xfl/globals/mainframe.h>
 
-#include <xflobjects/analysis3d/panelanalysis.h>
-#include <xflobjects/analysis3d/planetask.h>
-#include <xflobjects/analysis3d/boattask.h>
-#include <xflcore/analysisrange.h>
 
-#include <xflcore/xflcore.h>
-#include <xflfoil/globals/objects2d_globals.h>
+
 #include <xfl/globals/fileio.h>
-#include <xflobjects/objects3d/analysis/boatopp.h>
-#include <xflobjects/objects3d/analysis/boatpolar.h>
-#include <xflobjects/objects3d/analysis/planeopp.h>
-#include <xflobjects/objects3d/analysis/wpolar.h>
-#include <xflfoil/objects2d/polarnamemaker.h>
+
+#include <xflcore/analysisrange.h>
+#include <xflcore/xflcore.h>
+
 #include <xflfoil/analysis2d/xfoiltask.h>
-#include <xflobjects/objects3d/analysis/wpolarnamemaker.h>
+#include <xflfoil/globals/objects2d_globals.h>
 #include <xflfoil/objects2d/foil.h>
 #include <xflfoil/objects2d/objects2d.h>
 #include <xflfoil/objects2d/oppoint.h>
 #include <xflfoil/objects2d/polar.h>
+#include <xflfoil/objects2d/polarnamemaker.h>
+
+#include <xflobjects/analysis3d/boattask.h>
+#include <xflobjects/analysis3d/panelanalysis.h>
+#include <xflobjects/analysis3d/planetask.h>
+#include <xflobjects/objects3d/analysis/boatopp.h>
+#include <xflobjects/objects3d/analysis/boatpolar.h>
+#include <xflobjects/objects3d/analysis/planeopp.h>
+#include <xflobjects/objects3d/analysis/wpolar.h>
+#include <xflobjects/objects3d/analysis/wpolarnamemaker.h>
 #include <xflobjects/objects3d/objects3d.h>
 #include <xflobjects/objects3d/plane/planexfl.h>
 #include <xflobjects/objects_globals/objects_global.h>
@@ -313,7 +317,7 @@ bool XflScriptExec::loadFoilPolarFiles()
             QVector<Foil*>foilList;
             QVector<Polar*> polarList;
 
-            fileio.readPolarFile(plrFile, foilList, polarList);
+            readPolarFile(plrFile, foilList, polarList);
 
             for (int ifoil=0;ifoil<foilList.size(); ifoil++)
             {
@@ -347,7 +351,6 @@ bool XflScriptExec::loadXFoilPolarFiles()
 
     traceLog("Adding XFoil polars from the .txt files\n");
 
-    FileIO fileio;
     QString logmsg;
     QString strange;
     QStringList XFoilPolarList;
@@ -374,7 +377,7 @@ bool XflScriptExec::loadXFoilPolarFiles()
 
         XFoilFile.setFileName(XFoilPolarList.at(ifo));
 
-        Polar *pPolar = fileio.importXFoilPolar(XFoilFile, logmsg);
+        Polar *pPolar = importXFoilPolar(XFoilFile, logmsg);
         if(pPolar)
         {
             pPolar->setLineWidth(Curve::defaultLineWidth());
@@ -408,7 +411,6 @@ bool XflScriptExec::loadXFoilPolarFiles()
 bool XflScriptExec::makeFoils()
 {
     traceLog("Reading foil .dat files\n");
-    FileIO fileio;
 
     if(m_pScriptReader->m_bLoadAllFoils)
     {
@@ -464,7 +466,7 @@ bool XflScriptExec::makeFoils()
         else
         {
             Foil *pFoil = new Foil();
-            fileio.readFoilFile(datFile, pFoil);
+            readFoilFile(datFile, pFoil);
             if(pFoil)
             {
                 pFoil->setLineWidth(Curve::defaultLineWidth());

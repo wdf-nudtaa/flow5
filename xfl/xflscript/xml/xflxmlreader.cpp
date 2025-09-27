@@ -13,19 +13,21 @@
 #include <QDir>
 
 #include "xflxmlreader.h"
-#include <xfl/globals/fileio.h>
+
 #include <xflcore/xflcore.h>
+
 #include <xflfoil/globals/objects2d_globals.h>
+#include <xflfoil/objects2d/foil.h>
+#include <xflfoil/objects2d/objects2d.h>
+
 #include <xflgeom/geom3d/nurbssurface.h>
+
 #include <xflobjects/objects3d/analysis/extradrag.h>
 #include <xflobjects/objects3d/analysis/polar3d.h>
-#include <xflfoil/objects2d/objects2d.h>
-#include <xflfoil/objects2d/foil.h>
 #include <xflobjects/objects3d/fuse/fusexfl.h>
-#include <xflobjects/objects3d/wing/wingxfl.h>
 #include <xflobjects/objects3d/inertia/inertia.h>
 #include <xflobjects/objects3d/inertia/pointmass.h>
-#include <xfl/globals/fileio.h>
+#include <xflobjects/objects3d/wing/wingxfl.h>
 
 XflXmlReader::XflXmlReader(QFile &file) : QXmlStreamReader()
 {
@@ -494,7 +496,6 @@ bool XflXmlReader::readFuseXfl(FuseXfl *pFuseXfl, double lengthUnit, double mass
 
 bool XflXmlReader::readWing(WingXfl *pWing, Vector3d &WingLE, double &Rx, double &Ry, double lengthUnit, double massUnit, double inertiaUnit)
 {
-    FileIO fileio;
     pWing->setWingType(WingXfl::OtherWing);
     pWing->m_Section.clear();
 
@@ -624,7 +625,7 @@ bool XflXmlReader::readWing(WingXfl *pWing, Vector3d &WingLE, double &Rx, double
                             if (XFile.open(QIODevice::ReadOnly | QIODevice::Text))
                             {
                                 Foil *pFoil = new Foil();
-                                fileio.readFoilFile(XFile, pFoil);
+                                readFoilFile(XFile, pFoil);
                                 if(pFoil)
                                 {
                                     pWingSec->m_LeftFoilName = pFoil->name();
@@ -646,7 +647,7 @@ bool XflXmlReader::readWing(WingXfl *pWing, Vector3d &WingLE, double &Rx, double
                             if (XFile.open(QIODevice::ReadOnly | QIODevice::Text))
                             {
                                 Foil *pFoil = new Foil();
-                                fileio.readFoilFile(XFile, pFoil);
+                                readFoilFile(XFile, pFoil);
                                 if(pFoil)
                                 {
                                     pWingSec->m_RightFoilName = pFoil->name();

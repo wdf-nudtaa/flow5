@@ -94,6 +94,7 @@ void LegendBtn::setStyle(LineStyle ls)
     update();
 }
 
+
 QSize LegendBtn::sizeHint() const
 {
     int labellength = int(DisplayOptions::textFontStruct().width(m_LineStyle.m_Tag)*1.1);

@@ -3622,9 +3622,6 @@ void XPlane::onHideAllWPlrOpps()
 }
 
 
-/**
- * The user has requested that all oppoint curves be hidden
- */
 void XPlane::onHideAllPOpps()
 {
     m_bCurPOppOnly = false;
@@ -3642,9 +3639,6 @@ void XPlane::onHideAllPOpps()
 }
 
 
-/**
- * The user has requested that all curves of the oppoints associated to the active wing or plane be hidden
- */
 void XPlane::onHidePlaneOpps()
 {
     for (int i=0; i< Objects3d::nPOpps(); i++)
@@ -3663,9 +3657,6 @@ void XPlane::onHidePlaneOpps()
 }
 
 
-/**
- * The user has requested that all curves of the oppoints associated to the active polar be hidden
- */
 void XPlane::onHidePlaneWPolars()
 {
     if(!m_pCurPlane) return;
@@ -3692,10 +3683,6 @@ void XPlane::onHidePlaneWPolars()
 }
 
 
-/**
- * The user has requested the creation of a new plane.
- * Launches the dialog box, and stores the plane in the array i.a.w. user instructions
- */
 void XPlane::onNewPlane()
 {
     PlaneXfl* pPlane = new PlaneXfl(true);
@@ -3751,10 +3738,6 @@ void XPlane::onNewPlane()
 }
 
 
-/**
- * The user has requested the creation of a new STL type plane.
- * Launches the dialog box, and stores the plane in the array i.a.w. user instructions
- */
 void XPlane::onImportSTLPlane()
 {
     StlReaderDlg dlg(s_pMainFrame);

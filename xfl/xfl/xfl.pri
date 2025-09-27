@@ -8,7 +8,6 @@
 
 
 RESOURCES += \
-    xfl/resources/text.qrc \
     xfl/resources/qss.qrc \
     xfl/resources/icons.qrc \
     xfl/resources/images.qrc \

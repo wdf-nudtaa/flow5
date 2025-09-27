@@ -108,7 +108,7 @@ class Foil : public XflObject
         bool exportFoilToDat(QTextStream &out) const;
         bool initGeometry(bool bFast=false);
 
-        void appendBasePoint(double m_x, double m_y);
+        void appendBasePoint(double x, double y);
 
         void copy(Foil const *pSrcFoil, bool bMeta=true);
         void copy(Foil const &SrcFoil, bool bMeta=true, bool bForceDeepCopy=false);

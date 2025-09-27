@@ -589,7 +589,7 @@ void MainFrame::createMainFrameActions()
     m_pSaveAct->setStatusTip("Save the project to disk");
     connect(m_pSaveAct, SIGNAL(triggered()), SLOT(onSaveProject()));
 
-    m_pLoadFoil = new QAction(QIcon(":/icons/onLoadFoils.png"), "Load foil(s)", this);
+    m_pLoadFoil = new QAction(QIcon(":/icons/OnLoadFoils.png"), "Load foil(s)", this);
     m_pLoadFoil->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F));
     m_pLoadFoil->setStatusTip("Load foil(s) from .dat file");
     connect(m_pLoadFoil, SIGNAL(triggered()), SLOT(onLoadFoilFile()));
@@ -636,19 +636,6 @@ void MainFrame::createMainFrameActions()
     m_pSaveProjectAsAct->setShortcut(QKeySequence::SaveAs);
     m_pSaveProjectAsAct->setStatusTip("Save the current project under a new name");
     connect(m_pSaveProjectAsAct, SIGNAL(triggered()), SLOT(onSaveProjectAs()));
-
-    QString strange;
-    m_pSaveAndOpenXfl = new QAction(QIcon(":/icons/savefoildata.png"), "Export foil data and launch xflr5", this);
-    strange = "<p>Export airfoils and their polar data to a temporary xflr5 project and open xflr5\t(ALT+S)</p>";
-    m_pSaveAndOpenXfl->setToolTip(strange);
-    m_pSaveAndOpenXfl->setShortcut(QKeySequence(Qt::ALT | Qt::Key_S));
-    connect(m_pSaveAndOpenXfl, SIGNAL(triggered()), SLOT(onSaveFoilData()));
-
-    m_pUpdateFoilData = new QAction(QIcon(":/icons/updatefoildata.png"), "Import foil data", this);
-    strange = "<p>Import airfoil polar data from the temporary xflr5 project\tALT+U</p>";
-    m_pUpdateFoilData->setToolTip(strange);
-    m_pUpdateFoilData->setShortcut(QKeySequence(Qt::ALT | Qt::Key_U));
-    connect(m_pUpdateFoilData, SIGNAL(triggered()), SLOT(onUpdateFoilData()));
 
     m_pPreferencesAct = new QAction("Preferences", this);
     m_pPreferencesAct->setStatusTip("Set default preferences for this application");
@@ -1124,9 +1111,6 @@ void MainFrame::createXDirectToolbars()
         m_ptbXDirect->setObjectName(m_ptbXDirect->windowTitle());
         m_ptbXDirect->addAction(m_pLoadFoil);
         m_ptbXDirect->addSeparator();
-        m_ptbXDirect->addAction(m_pSaveAndOpenXfl);
-        m_ptbXDirect->addAction(m_pUpdateFoilData);
-        m_ptbXDirect->addSeparator();
         m_ptbXDirect->addAction(m_pXDirect->m_pActions->m_pDesignAct);
         m_ptbXDirect->addAction(m_pXDirect->m_pActions->m_pBLAct);
         m_ptbXDirect->addAction(m_pXDirect->m_pActions->m_pOpPointsAct);
@@ -1555,7 +1539,26 @@ void MainFrame::onLoadFoilFile()
         PathName = PathNames.at(i);
         if (PathName.endsWith(".dat", Qt::CaseInsensitive))
         {
-            loadXflFile(PathName);
+            QFile datFile;
+            datFile.setFileName(PathName);
+            if (!datFile.open(QIODevice::ReadOnly))
+            {
+                QString strange = "   ...Could not open the file "+ PathName + EOLCHAR;
+                displayMessage(strange, true);
+                continue;
+            }
+
+            Foil *pFoil = new Foil();
+            readFoilFile(datFile, pFoil);
+            datFile.close();
+
+            if(pFoil)
+            {
+                pFoil->setLineWidth(Curve::defaultLineWidth());
+                Objects2d::insertThisFoil(pFoil);
+
+                displayMessage("Successfully loaded " + pFoil->name()+"\n", false);
+            }
         }
     }
 
@@ -1565,6 +1568,8 @@ void MainFrame::onLoadFoilFile()
         m_pXDirect->m_pFoilTreeView->selectFoil(Objects2d::curFoil());
         m_pXDirect->setControls();
     }
+
+    setSavedState(false);
 }
 
 
@@ -1583,7 +1588,42 @@ void MainFrame::onLoadPlrFile()
         PathName = PathNames.at(i);
         if (PathName.endsWith(".plr", Qt::CaseInsensitive))
         {
-            loadXflFile(PathName);
+
+            QFile plrFile;
+            plrFile.setFileName(PathName);
+            if (!plrFile.open(QIODevice::ReadOnly))
+            {
+                QString strange = "   ...Could not open the file "+ PathName + EOLCHAR;
+                displayMessage(strange, true);
+                continue;
+            }
+
+            QVector<Foil*>foilList;
+            QVector<Polar*> polarList;
+            readPolarFile(plrFile, foilList, polarList);
+            plrFile.close();
+
+            for (int i=0; i<foilList.size(); i++)
+            {
+                Foil *pFoil=foilList.at(i);
+                if(pFoil)
+                {
+                    pFoil->setVisible(true); // clean up former mess
+                    Objects2d::insertThisFoil(pFoil);
+                }
+            }
+
+            for (int i=0; i<polarList.size(); i++)
+            {
+                Polar*pPolar=polarList.at(i);
+                Objects2d::insertPolar(pPolar);
+            }
+
+            XDirect::setCurPolar(nullptr);
+            XDirect::setCurOpp(nullptr);
+
+            displayMessage("Successfully loaded polar file\n", false);
+
         }
     }
 
@@ -1593,6 +1633,8 @@ void MainFrame::onLoadPlrFile()
         m_pXDirect->m_pFoilTreeView->selectFoil(Objects2d::curFoil());
         m_pXDirect->setControls();
     }
+
+    setSavedState(false);
 }
 
 
@@ -1952,119 +1994,9 @@ void MainFrame::onSaveProjectAs()
 }
 
 
-void MainFrame::onOpenXflSyncProject()
-{
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    QString XflSyncProject = syncXflFileName();
-    bool bRes = QDesktopServices::openUrl(QUrl::fromLocalFile(XflSyncProject));
-    if(!bRes)
-    {
-        QString strange("Could not open the paired project file "+XflSyncProject+EOLCHAR);
-        strange += "Please check that the file exists, and that .xfl file extensions are "
-                   "associated with the xflr5 application\n\n";
-        displayMessage(strange, false);
-        onShowLogWindow(true);
-    }
-#endif
-
-#ifdef Q_OS_MAC
-    QProcess * pProcess = new QProcess(this);
-    connect(pProcess, SIGNAL(finished(int)), pProcess, SLOT(deleteLater()));
-    pProcess->start("open", { syncXflFileName() } );
-#endif
-}
-
-
 void MainFrame::onProcessFinished()
 {
     qDebug()<<"xflr5 exit";
-}
-
-
-QString MainFrame::syncXflFileName()
-{
-    QFileInfo fi(m_FilePath);
-//    QString tmpdir = QDir::tempPath();
-    QString xflSyncProjectName = SaveOptions::tempDirName()+QDir::separator()+fi.baseName();
-    xflSyncProjectName += "_tmp.xfl";
-    return xflSyncProjectName;
-}
-
-
-/** exports the foil data to the paired .xfl project file and opens xflr5 */
-void MainFrame::onSaveFoilData()
-{
-    QString xflSyncProject = syncXflFileName();
-
-    QFile fp(xflSyncProject);
-    if (!fp.open(QIODevice::WriteOnly))
-    {
-        onShowLogWindow(true);
-        QString strange = "Could not open the file: "+xflSyncProject+" for writing\n\n";
-        displayMessage(strange, true);
-        return;
-    }
-
-    QDataStream ar(&fp);
-    FileIO loader;
-    loader.serializeProjectXfl(ar, true, &PlanePolarDlg::staticWPolar());
-    displayMessage("The foils and their polar data have been saved to the file " + xflSyncProject +"\n\n", false);
-
-    QAction *pSenderAction = qobject_cast<QAction *>(sender());
-    if(pSenderAction==m_pSaveAndOpenXfl) onOpenXflSyncProject();
-}
-
-
-/** imports the foil data from the synced .xfl project file */
-void MainFrame::onUpdateFoilData()
-{
-    QString xflSyncProject = syncXflFileName();
-
-    if(!xflSyncProject.endsWith(".xfl", Qt::CaseInsensitive))
-    {
-        displayMessage(xflSyncProject + "is not an xflr5 project file\n\n", false);
-        return;
-    }
-
-    QFile XFile(xflSyncProject);
-    if (!XFile.open(QIODevice::ReadOnly))
-    {
-        onShowLogWindow(true);
-        QString strange = "Could not open the file "+ xflSyncProject + "\n\n";
-        displayMessage(strange, true);
-        return;
-    }
-
-    QDataStream ar(&XFile);
-    bool bIsStoring = false;
-    WPolar wplr; // dummy
-    FileIO loader;
-
-    bool  bRead = loader.serializeProjectXfl(ar, bIsStoring, &wplr);
-
-    if(!bRead)
-    {
-        onShowLogWindow(true);
-
-        QString strange = "Error reading the file: "+xflSyncProject+"\n\n";
-        displayMessage(strange, true);
-        return;
-    }
-
-    QFileInfo fi(xflSyncProject);
-    displayMessage("Imported foil and polar data from project file " + fi.fileName() + "\n\n", false);
-    //clean the tmp .xfl project files
-    QFile xflFile(fi.filePath());
-    xflFile.remove();
-
-    m_pXDirect->resetCurves();
-    if(s_iApp==xfl::XDIRECT)
-    {
-        m_pXDirect->setFoil();
-        m_pXDirect->updateTreeView();
-        m_pXDirect->updateView();
-    }
-    setSavedState(false);
 }
 
 
@@ -4305,62 +4237,6 @@ void MainFrame::on3dAnalysisSettings()
     Analysis3dSettings A3dDlg(this);
     A3dDlg.initDialog();
     A3dDlg.exec();
-}
-
-
-void MainFrame::scanFoilPolarFiles()
-{
-    onShowLogWindow(true);
-
-    FileIO fileio;
-
-    QString path = SaveOptions::plrPolarDirName();
-    QDir plrdir(path);
-    if(!plrdir.exists())
-    {
-        displayMessage("The directory "+path+" does not exist\n", true);
-        return;
-    }
-    else {
-        displayMessage("Foil/polar pairs in directory "+path+":\n", false);
-    }
-
-    QStringList files = xfl::findFiles(path, {"*.plr"}, true);
-    QVector<Foil*> foils;
-    QVector<Polar*> polars;
-    foreach (QString const  &filename, files)
-    {
-        QFile plrfile(filename);
-        if (!plrfile.open(QIODevice::ReadOnly))
-        {
-            QString strange = "Could not open the file: "+filename+EOLCHAR;
-            displayMessage(strange, true);
-            onShowLogWindow(true);
-        }
-        else
-        {
-            QString strange = "Reading the file: "+filename+EOLCHAR;
-            displayMessage(strange, false);
-            fileio.readPolarFile(plrfile, foils, polars);
-            QString log;
-            foreach (Foil *pFoil, foils)
-            {
-                log += "   " + pFoil->name()+":\n";
-                foreach(Polar*pPolar, polars)
-                {
-                    if(pFoil->name().compare(pPolar->foilName())==0)
-                    {
-                        log += "      "+pPolar->name()+EOLCHAR;
-                    }
-                }
-
-                Objects2d::deleteFoil(pFoil); // deletes the polar objects also
-            }
-            displayMessage(log+EOLCHAR, false);
-            foils.clear();
-            polars.clear();
-        }
-    }
 }
 
 

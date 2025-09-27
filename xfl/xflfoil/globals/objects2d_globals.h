@@ -19,3 +19,11 @@ void drawFoilNormals(QPainter &painter, Foil const *pFoil, double alpha, double 
 void drawFoilMidLine(QPainter &painter, Foil const *pFoil, double scalex, double scaley, QPointF const &Offset);
 void drawFoilPoints(QPainter &painter, Foil const *pFoil, double alpha, double scalex, double scaley, QPointF const &Offset, const QColor &backColor, const QRect &drawrect);
 
+
+void readFoilFile(QFile &xFoilFile, Foil *pFoil);
+bool readPolarFile(QFile &plrFile, QVector<Foil*> &foilList, QVector<Polar*> &polarList);
+Polar *importXFoilPolar(QFile & txtFile, QString &logmsg);
+
+bool serializeFoil(Foil*pFoil, QDataStream &ar, bool bIsStoring);
+bool serializePolarv6(Polar *pPolar, QDataStream &ar, bool bIsStoring);
+

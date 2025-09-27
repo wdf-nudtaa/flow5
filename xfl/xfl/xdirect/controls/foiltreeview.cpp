@@ -418,7 +418,6 @@ void FoilTreeView::onItemClicked(const QModelIndex &index)
             pLineMenu->exec(QCursor::pos());
             ls = pLineMenu->theStyle();
             Objects2d::setPolarStyle(pPolar, ls, pLineMenu->styleChanged(), pLineMenu->widthChanged(), pLineMenu->colorChanged(), pLineMenu->pointsChanged());
-            //            pItem->setData(QVariant::fromValue(ls), Qt::DisplayRole);
             setCurveParams();
             emit(s_pXDirect->projectModified());
         }
@@ -430,9 +429,7 @@ void FoilTreeView::onItemClicked(const QModelIndex &index)
             pLineMenu->exec(QCursor::pos());
             ls = pLineMenu->theStyle();
             Objects2d::setFoilStyle(pFoil, ls, pLineMenu->styleChanged(), pLineMenu->widthChanged(), pLineMenu->colorChanged(), pLineMenu->pointsChanged());
-            //            pItem->setData(QVariant::fromValue(ls), Qt::DisplayRole);
             setCurveParams();
-            //            s_pXDirect->updateBufferFoil();
             emit(s_pXDirect->projectModified());
         }
     }

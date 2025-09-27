@@ -61,7 +61,10 @@ void ObjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     {
         if (index.data(Qt::DisplayRole).canConvert<LineStyle>())
         {
-            LineStyle ls = qvariant_cast<LineStyle>(index.data());
+        /** @todo gcc signals a potential out of bounds issue */
+//            LineStyle ls = qvariant_cast<LineStyle>(index.data());
+            LineStyle ls = index.data().value<LineStyle>();
+
             QRect r = option.rect;
 
             QStyledItemDelegate::paint(painter, option, index); // paint the background, using palette colors, including stylesheet mods
@@ -104,7 +107,7 @@ void ObjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         else if(index.data()==1) checkstate=Qt::PartiallyChecked;
         else if(index.data()==0) checkstate=Qt::Unchecked;
 
-
+qDebug()<<index.row()<<col<<checkstate;
         QColor crosscolor;
         if (option.showDecorationSelected && (option.state & QStyle::State_Selected))
         {

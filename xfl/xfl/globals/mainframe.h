@@ -116,7 +116,6 @@ class MainFrame : public QMainWindow
 
 
         QString shortenFileName(QString &PathName);
-        QString syncXflFileName();
 
         bool saveProject(QString const &filepath);
 
@@ -136,7 +135,6 @@ class MainFrame : public QMainWindow
         void deleteProject();
         bool exportAllPolars(const QString &pathName, xfl::enumTextFileType fileType) const;
         void hideDockWindows();
-        void scanFoilPolarFiles();
         void setActiveCentralWidget();
         void setColorListFromFile();
         void setPlainColorsFromFile();
@@ -199,7 +197,6 @@ class MainFrame : public QMainWindow
         void onOpenGraphInNewWindow(Graph *pGraph);
         void onLoadRecentFile();
         void onProcessFinished();
-        void onOpenXflSyncProject();
         void onPreferences();
         void onProjectModified();
         void onOnlineDoc();
@@ -209,7 +206,6 @@ class MainFrame : public QMainWindow
         void onResetSettings();
         void onRestoreToolbars();
         void onSaveBoatAsProject();
-        void onSaveFoilData();
         void onSavePlaneAsProject();
         void onSaveProject();
         void onSaveProjectAs();
@@ -220,7 +216,6 @@ class MainFrame : public QMainWindow
         void onShowGraphLegend();
         void onShowLogWindow(bool bShow=true);
         void onTraceFile();
-        void onUpdateFoilData();
 
 
         //___________________________________________Variables_______________________________
@@ -284,7 +279,6 @@ class MainFrame : public QMainWindow
         QAction *m_pLoadFoil, *m_pLoadPlrFile;
         QAction *m_pSaveAct, *m_pSaveProjectAsAct, *m_pNewProjectAct, *m_pCloseProjectAct;
         QAction *m_pLoadLastProjectAct, *m_pLoadXflProject;
-        QAction *m_pUpdateFoilData, *m_pSaveAndOpenXfl;
         QAction *m_pPreferencesAct;
         QAction *m_pExitAct;
         QAction *m_pOpenGLAct;

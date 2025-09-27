@@ -1013,8 +1013,8 @@ void XDirect::loadSettings(QSettings &settings)
         else if (k==3) m_eView=POLARVIEW;
 
 
-        s_lsTopBL.loadSettings(settings, "TopBLLineStyle");
-        s_lsBotBL.loadSettings(settings, "BotBLLineStyle");
+        s_lsTopBL.loadSettings(settings, "TopBLStyle");
+        s_lsBotBL.loadSettings(settings, "BotBLStyle");
 
         s_bCurOppOnly     = settings.value("CurOppOnly").toBool();
         m_bShowInviscid   = settings.value("ShowInviscid", false).toBool();
@@ -1445,18 +1445,13 @@ void XDirect::onDeletePolarOpps()
 }
 
 
-/**
- * The user has requested the deletion of the OpPoints associated to the current Foil.
- */
 void XDirect::onDeleteFoilOpps()
 {
-    if(!curFoil() || !Objects2d::curPolar()) return;
-
-    OpPoint *pOpp=nullptr;
+    if(!curFoil()) return;
 
     for(int i=Objects2d::nOpPoints()-1; i>=0; i--)
     {
-        pOpp = Objects2d::opPointAt(i);
+        OpPoint *pOpp = Objects2d::opPointAt(i);
         if(pOpp->foilName()==curFoil()->name())
         {
             Objects2d::removeOpPointAt(i);
@@ -1477,9 +1472,6 @@ void XDirect::onDeleteFoilOpps()
 }
 
 
-/**
- * The user has requested the deletion of the Polars associated to the current Foil.
- */
 void XDirect::onDeleteFoilPolars()
 {
     if(!curFoil()) return;
@@ -1488,7 +1480,7 @@ void XDirect::onDeleteFoilPolars()
 
     QString strong;
 
-    strong = "Are you sure you want to delete polars and OpPoints\n";
+    strong = "Are you sure you want to delete polars and oprating points\n";
     strong +="associated to "+curFoil()->name()  + "?";
     if (QMessageBox::Yes != QMessageBox::question(s_pMainFrame, "Question", strong,
                                                   QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel))
@@ -1533,9 +1525,6 @@ void XDirect::onDeleteFoilPolars()
 }
 
 
-/**
- * The user has requested to modify the parameters of the active polar
- */
 void XDirect::onEditCurPolarPts()
 {
     if (!Objects2d::curPolar()) return;
@@ -1573,9 +1562,6 @@ void XDirect::onEditCurPolarPts()
 }
 
 
-/**
- * The user has requested the export of all polars to text files
- */
 void XDirect::onExportAllPolars()
 {
     //select the directory for output
@@ -1998,6 +1984,7 @@ void XDirect::onHideAllOpps()
     emit projectModified();
     m_bResetCurves = true;
     m_pFoilTreeView->setCurveParams();
+    m_pFoilTreeView->update();
     updateView();
 }
 
@@ -2012,6 +1999,7 @@ void XDirect::onHideAllPolars()
     emit projectModified();
     m_bResetCurves = true;
     m_pFoilTreeView->setCurveParams();
+    m_pFoilTreeView->update();
     updateView();
 }
 
@@ -2081,7 +2069,6 @@ void XDirect::onImportXFoilPolars()
     int pos = pathNames.at(0).lastIndexOf("/");
     if(pos>0) SaveOptions::setLastDirName(pathNames.at(0).left(pos));
 
-    FileIO fileio;
     QString logmsg;
     Polar *pPolar(nullptr);
 
@@ -2089,7 +2076,7 @@ void XDirect::onImportXFoilPolars()
     {
         logmsg.clear();
         QFile XFile(pathNames.at(iFile));
-        pPolar = fileio.importXFoilPolar(XFile, logmsg);
+        pPolar = importXFoilPolar(XFile, logmsg);
         if(!pPolar)
         {
             s_pMainFrame->onShowLogWindow(true);
@@ -3292,7 +3279,6 @@ void XDirect::onShowPolarOpps()
 
 void XDirect::saveSettings(QSettings &settings)
 {
-    QString str1, str2, str3;
     settings.beginGroup("XDirect");
     {
         if      (m_eView==DESIGNVIEW)  settings.setValue("XDirectView", 0);
@@ -3300,8 +3286,8 @@ void XDirect::saveSettings(QSettings &settings)
         else if (m_eView==OPPVIEW)     settings.setValue("XDirectView", 2);
         else if (m_eView==POLARVIEW)   settings.setValue("XDirectView", 3);
 
-        s_lsTopBL.saveSettings(settings, "TopBLLineStyle");
-        s_lsBotBL.saveSettings(settings, "BotBLLineStyle");
+        s_lsTopBL.saveSettings(settings, "TopBLStyle");
+        s_lsBotBL.saveSettings(settings, "BotBLStyle");
 
         settings.setValue("CurOppOnly", s_bCurOppOnly);
         settings.setValue("ShowInviscid", m_bShowInviscid);
@@ -3335,10 +3321,10 @@ void XDirect::saveSettings(QSettings &settings)
 
     m_pDFoilWt->saveSettings(settings);
 
-    for(int ig=0; ig<m_BLGraph.count(); ig++)         m_BLGraph[ig]->saveSettings(settings);
+    for(int ig=0; ig<m_BLGraph.count(); ig++)   m_BLGraph[ig]->saveSettings(settings);
     s_pMainFrame->m_pBLTiles->saveSettings(     settings, "XDirectBLTiles");
 
-    for(int ig=0; ig<m_PlrGraph.count(); ig++)        m_PlrGraph[ig]->saveSettings(settings);
+    for(int ig=0; ig<m_PlrGraph.count(); ig++)  m_PlrGraph[ig]->saveSettings(settings);
     s_pMainFrame->m_pPolarTiles->saveSettings(  settings, "XDirectPlrTiles");
 
     m_pOppGraph->saveSettings(settings);

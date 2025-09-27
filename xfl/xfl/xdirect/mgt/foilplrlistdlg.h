@@ -17,17 +17,13 @@
 
 #include <xflwidgets/customdlg/xfldialog.h>
 
+class PlainTextOutput;
+
 struct FoilPolars
 {
     QString m_FileName;
     QString m_FoilName;
     QStringList m_FoilPolars;
-
-/*    bool operator<(const FoilPolars &other) const
-    {
-      return m_FileName.compare(other.m_FileName, Qt::CaseInsensitive)<0;
-    }*/
-
 };
 
 
@@ -46,14 +42,12 @@ class FoilPlrListDlg : public XflDialog
         void showEvent(QShowEvent *pEvent) override;
         void hideEvent(QHideEvent *pEvent) override;
 
-        QSize sizeHint() const  override {return QSize(500,700);}
+        QSize minimumSizeHint() const  override {return QSize(500,700);}
 
 
     private:
-        void fillModel();
         void setupLayout();
         void connectSignals();
-        void scanSelectedDirectory();
 
     private slots:
         void onDeleteSelectedFiles();
@@ -61,6 +55,7 @@ class FoilPlrListDlg : public XflDialog
         void onButton(QAbstractButton *pButton) override;
 
         void onChangeDir();
+        void onScanDirectory();
 
     private:
         QVector<FoilPolars> m_FoilList;
@@ -74,6 +69,8 @@ class FoilPlrListDlg : public XflDialog
         QCheckBox*m_pchRecursive;
         QPushButton *m_ppbChangeDir;
         QPushButton *m_ppbDeleteFiles, *m_ppbImportFiles;
+
+        PlainTextOutput *m_ppto;
 
         static QByteArray s_WindowGeometry;
 };

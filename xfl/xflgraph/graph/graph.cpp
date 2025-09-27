@@ -2175,8 +2175,8 @@ bool Graph::setYScale(int iYAxis, QRectF const &graphrect)
             }
         }
 
-        if(pYax->axmin() <0.0 && pYax->axmax()<0.0) pYax->setMax(0.0);
-        if(pYax->axmin() >0.0 && pYax->axmax()>0.0) pYax->setMin(0.0);
+        if(pYax->axmin()<0.0 && pYax->axmax()<0.0) pYax->setMax(0.0);
+        if(pYax->axmin()>0.0 && pYax->axmax()>0.0) pYax->setMin(0.0);
 
         pYax->set0(0.0);
 
@@ -2195,8 +2195,9 @@ bool Graph::setYScale(int iYAxis, QRectF const &graphrect)
             }
         }
 
-        if (!pYax->bInverted()) pYax->setScale(-mh/(pYax->axmax()-pYax->axmin() ));
-        else                    pYax->setScale( mh/(pYax->axmax()-pYax->axmin() ));
+        double range = pYax->axmax()-pYax->axmin();
+        if (!pYax->bInverted()) pYax->setScale(-mh/range);
+        else                    pYax->setScale( mh/range);
 
         //try to set an automatic scale for Y Axis
         setAutoYUnit(iYAxis);

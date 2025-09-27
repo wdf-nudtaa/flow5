@@ -169,7 +169,7 @@ void FoilTableView::resizeColumns()
     int w = width();
     int w12 = int(double(w)*0.9/13);
 
-    setColumnWidth(0,w12*2);
+    setColumnWidth(0,w12*4);
     setColumnWidth(1,w12);
     setColumnWidth(2,w12);
     setColumnWidth(3,w12);

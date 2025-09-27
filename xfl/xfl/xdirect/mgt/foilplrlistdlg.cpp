@@ -18,13 +18,15 @@
 
 #include "foilplrlistdlg.h"
 
-#include <xfl/globals/fileio.h>
+
 #include <xflcore/xflcore.h>
 #include <xflfoil/globals/objects2d_globals.h>
 #include <xflfoil/objects2d/foil.h>
 #include <xflfoil/objects2d/objects2d.h>
 #include <xflfoil/objects2d/polar.h>
 #include <xflobjects/objects_globals/objects_global.h>
+#include <xflwidgets/customwts/plaintextoutput.h>
+
 
 QByteArray FoilPlrListDlg::s_WindowGeometry;
 
@@ -44,6 +46,7 @@ void FoilPlrListDlg::setupLayout()
         m_plabDirName->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         m_ppbChangeDir = new QPushButton("Change directory");
         m_pchRecursive = new QCheckBox("Recursive");
+        m_pchRecursive->setToolTip("<p>Also scan sub-directories</p>");
         pDirLayout->addWidget(m_plabDirName);
         pDirLayout->addWidget(m_ppbChangeDir);
         pDirLayout->addWidget(m_pchRecursive);
@@ -76,13 +79,21 @@ void FoilPlrListDlg::setupLayout()
 
     m_pTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
+    m_ppto = new PlainTextOutput;
+    m_ppto->setCharDimensions(50,5);
+
     QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
         setButtons(QDialogButtonBox::Close);
         m_pButtonBox->addButton(m_ppbImportFiles, QDialogButtonBox::ActionRole);
         m_pButtonBox->addButton(m_ppbDeleteFiles, QDialogButtonBox::ActionRole);
+
+        pMainLayout->addLayout(pDirLayout);
         pMainLayout->addLayout(pTreeLayout);
+        pMainLayout->addWidget(m_ppto);
         pMainLayout->addWidget(m_pButtonBox);
+        pMainLayout->setStretchFactor(pTreeLayout,3);
+        pMainLayout->setStretchFactor(m_ppto,1);
     }
     setLayout(pMainLayout);
 }
@@ -91,6 +102,7 @@ void FoilPlrListDlg::setupLayout()
 void FoilPlrListDlg::connectSignals()
 {
     connect(m_ppbChangeDir,   SIGNAL(clicked()), SLOT(onChangeDir()));
+    connect(m_pchRecursive,   SIGNAL(clicked()), SLOT(onScanDirectory()));
 }
 
 
@@ -106,7 +118,7 @@ void FoilPlrListDlg::initDlg(const QString &pathname)
 {
     m_DirName = pathname;
     m_plabDirName->setText(m_DirName);
-    scanSelectedDirectory();
+    onScanDirectory();
 }
 
 
@@ -155,7 +167,7 @@ void FoilPlrListDlg::onChangeDir()
     if(DirName.length())
     {
         m_DirName = DirName;
-        scanSelectedDirectory();
+        onScanDirectory();
     }
     else {
         //cancelled directory selection
@@ -204,9 +216,10 @@ void FoilPlrListDlg::onDeleteSelectedFiles()
 
 void FoilPlrListDlg::onImportSelectedFiles()
 {
-    FileIO fileio;
-
     QModelIndexList selectedIndexes = m_pTreeView->selectionModel()->selectedRows(1);
+
+    m_ppto->onAppendThisPlainText(QString::asprintf("Importing %d files", int(selectedIndexes.size()))+EOLCHAR);
+
     for(int i=0; i<selectedIndexes.size(); i++)
     {
         QModelIndex const &idx = selectedIndexes.at(i);
@@ -215,54 +228,54 @@ void FoilPlrListDlg::onImportSelectedFiles()
         {
             QString filename = pItem->text();
             QFile file(filename);
-            if(file.exists())
-            {
-                if (file.open(QIODevice::ReadOnly))
-                {
-                    QVector<Foil*> foillist;
-                    QVector<Polar*> polarlist;
-                    fileio.readPolarFile(file, foillist, polarlist);
-                    file.close();
 
-                    for(int j=0; j<foillist.size(); j++)
-                    {
-                        Foil *pFoil = foillist.at(j);
-                        Objects2d::insertThisFoil(pFoil);
-                    }
-                    for(int j=0; j<polarlist.size(); j++)
-                    {
-                        Polar *pPolar = polarlist.at(j);
-                        Objects2d::insertPolar(pPolar);
-                    }
-                }
+            if (!file.exists() || !file.open(QIODevice::ReadOnly))
+            {
+                m_ppto->onAppendThisPlainText("   Error reading file " +filename + EOLCHAR);
+                continue;
+            }
+
+            QVector<Foil*> foillist;
+            QVector<Polar*> polarlist;
+            readPolarFile(file, foillist, polarlist);
+            file.close();
+
+            m_ppto->onAppendThisPlainText(QString::asprintf("   file contains %d foil(s) and %d polar(s)", int(foillist.size()), int(polarlist.size()))+EOLCHAR);
+
+            for(int j=0; j<foillist.size(); j++)
+            {
+                Foil *pFoil = foillist.at(j);
+                Objects2d::insertThisFoil(pFoil);
+            }
+            for(int j=0; j<polarlist.size(); j++)
+            {
+                Polar *pPolar = polarlist.at(j);
+                Objects2d::insertPolar(pPolar);
             }
         }
     }
     m_pTreeView->selectionModel()->clearSelection();
+
+    m_ppto->onAppendThisPlainText("Done importing file(s)" + EOLCHAR+EOLCHAR);
 }
 
 
-void FoilPlrListDlg::scanSelectedDirectory()
+void FoilPlrListDlg::onScanDirectory()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    fillModel();
-    update();
-    QApplication::restoreOverrideCursor();
-}
 
-
-void FoilPlrListDlg::fillModel()
-{
     QDir plrdir(m_DirName);
     if(!plrdir.exists())
     {
+        m_ppto->onAppendThisPlainText("Directory "+ m_DirName+" does not exist" + EOLCHAR);
         return;
     }
-
-    FileIO fileio;
+    m_ppto->onAppendThisPlainText("Scanning directory "+ m_DirName+EOLCHAR);
 
     bool bRecursive = m_pchRecursive->isChecked();
     QStringList files = xfl::findFiles(m_DirName, {"*.plr"}, bRecursive);
+
+    m_ppto->onAppendThisPlainText(QString::asprintf("Reading %d files\n", int(files.size())));
 
     m_pModel->removeRows(0, m_pModel->rowCount());
 
@@ -280,12 +293,22 @@ void FoilPlrListDlg::fillModel()
     {
         QString filename = files.at(i);
         QFileInfo fi(filename);
-        if(fi.suffix()!="plr") continue;
+        if(fi.suffix()!="plr")
+        {
+            m_ppto->onAppendThisPlainText("Skipping file " + filename + EOLCHAR);
+            continue;
+        }
 
         QFile plrfile(filename);
-        if (plrfile.open(QIODevice::ReadOnly))
+        if (!plrfile.open(QIODevice::ReadOnly))
         {
-            fileio.readPolarFile(plrfile, foils, polars);
+            m_ppto->onAppendThisPlainText("Could not open file " + filename + EOLCHAR);
+        }
+        else
+        {
+            m_ppto->onAppendThisPlainText("Reading file " + filename + EOLCHAR);
+
+            readPolarFile(plrfile, foils, polars);
             plrfile.close();
 
             for (int j=0; j<foils.size(); j++)
@@ -332,5 +355,12 @@ void FoilPlrListDlg::fillModel()
             pFoilRowItems[0]->appendRow( pPolarrowitems);
         }
     }
+
+    m_ppto->onAppendThisPlainText(EOLCHAR);
+    m_ppto->ensureCursorVisible();
+
+    update();
+    QApplication::restoreOverrideCursor();
 }
+
 
