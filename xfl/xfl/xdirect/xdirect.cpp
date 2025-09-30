@@ -241,8 +241,8 @@ void XDirect::makePolarGraphs()
     m_PlrGraph[0]->setVariables(3,2);
     m_PlrGraph[1]->setVariables(0,2);
     m_PlrGraph[2]->setVariables(0,5);
-    m_PlrGraph[3]->setVariables(0,8);
-    m_PlrGraph[4]->setVariables(0,9);
+    m_PlrGraph[3]->setVariables(0,3);
+    m_PlrGraph[4]->setVariables(0,8);
 //    m_PlrGraph[5]->setVariables(0,10);
 }
 

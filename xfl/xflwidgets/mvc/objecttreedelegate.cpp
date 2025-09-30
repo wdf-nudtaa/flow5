@@ -107,7 +107,6 @@ void ObjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         else if(index.data()==1) checkstate=Qt::PartiallyChecked;
         else if(index.data()==0) checkstate=Qt::Unchecked;
 
-qDebug()<<index.row()<<col<<checkstate;
         QColor crosscolor;
         if (option.showDecorationSelected && (option.state & QStyle::State_Selected))
         {
