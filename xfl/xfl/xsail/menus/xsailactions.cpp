@@ -43,7 +43,7 @@ void XSailActions::makeActions()
         m_pViewActionGroup->addAction(m_pPolarView);
     }
 
-    m_p3dLightAct = new  QAction(QIcon(":/icons/light.png"), "3d light options", m_pXSail);
+    m_p3dLightAct = new  QAction(QIcon(":/icons/light.png"), "Light settings", m_pXSail);
     m_p3dLightAct->setStatusTip("Define the light options in 3D view");
     connect(m_p3dLightAct, SIGNAL(triggered()), m_pXSail->m_pgl3dXSailView, SLOT(onSetupLight()));
 

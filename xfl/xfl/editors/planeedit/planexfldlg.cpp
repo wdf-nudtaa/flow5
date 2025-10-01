@@ -103,6 +103,7 @@ PlaneXflDlg::PlaneXflDlg(QWidget *pParent) : PlaneDlg(pParent)
     makeActions();
     setupLayout();
     connectSignals();
+
 }
 
 
@@ -186,6 +187,348 @@ void PlaneXflDlg::connectSignals()
 
     connect(m_ppbUndo,               SIGNAL(clicked()), SLOT(onUndo()));
     connect(m_ppbRedo,               SIGNAL(clicked()), SLOT(onRedo()));
+}
+
+
+void PlaneXflDlg::setupLayout()
+{
+    m_pScalePlane  = new QAction("Scale plane");
+    QMenu *pCheckMeshMenu = m_ppbActions->menu();
+    pCheckMeshMenu->addSeparator();
+    pCheckMeshMenu->addAction(m_pScalePlane);
+
+    m_pHSplitter = new QSplitter(Qt::Horizontal);
+    {
+        m_pHSplitter->setChildrenCollapsible(false);
+        QFrame *pLeftSideWidget = new QFrame;
+        {
+            QVBoxLayout *pLeftSideLayout = new QVBoxLayout;
+            {
+                m_pPartSplitter = new QSplitter(Qt::Vertical);
+                {
+                    m_pLeftTabWidget = new QTabWidget;
+                    {
+                        QFrame *pMetaFrame = new QFrame;
+                        {
+                            QVBoxLayout *pDefinitionLayout = new QVBoxLayout;
+                            {
+                                m_pleDescription->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+
+                                pDefinitionLayout->addWidget(m_pleName);
+                                pDefinitionLayout->addWidget(m_pleDescription);
+                            }
+                            pMetaFrame->setLayout(pDefinitionLayout);
+                        }
+
+                        QFrame *pPartFrame = new QFrame;
+                        {
+                            QVBoxLayout *pPartLayout = new QVBoxLayout;
+                            {
+                                makePartTable();
+                                QHBoxLayout *pEditCmdLayout = new QHBoxLayout;
+                                {
+                                    QPushButton *ppbInsertBtn = new QPushButton("Insert");
+                                    QMenu *pInsertMenu = new QMenu(this);
+                                    {
+                                        QMenu *pInsertWingMenu = pInsertMenu->addMenu("Wing");
+                                        {
+                                            pInsertWingMenu->addAction(m_pInsertWing);
+                                            pInsertWingMenu->addAction(m_pInsertWingOther);
+                                            pInsertWingMenu->addAction(m_pInsertWingXml);
+                                            pInsertWingMenu->addAction(m_pInsertWingVSP);
+                                        }
+
+                                        pInsertMenu->addAction(m_pInsertElev);
+                                        pInsertMenu->addAction(m_pInsertFin);
+                                        pInsertMenu->addSeparator();
+
+                                        QMenu*pFuseMenu = pInsertMenu->addMenu("Fuselage");
+                                        {
+                                            QMenu *pFuseXflMenu = pFuseMenu->addMenu("xfl-type fuselage");
+                                            {
+                                                pFuseXflMenu->addAction(m_pInsertFuseXflSpline);
+                                                pFuseXflMenu->addAction(m_pInsertFuseXflFlat);
+                                                pFuseXflMenu->addAction(m_pInsertFuseXflSections);
+                                                pFuseXflMenu->addAction(m_pInsertFuseXml);
+                                            }
+                                            pFuseMenu->addAction(m_pInsertFuseOther);
+                                            pFuseMenu->addAction(m_pInsertFuseOcc);
+                                            pFuseMenu->addAction(m_pInsertFuseStl);
+                                        }
+                                        pInsertMenu->addSeparator();
+                                        QMenu *pTestMenu = pInsertMenu->addMenu("Testing");
+                                        {
+                                            pTestMenu->addAction(m_pInsertEllWing);
+                                            pTestMenu->addSeparator();
+                                            QMenu *pFuseMenu = pTestMenu->addMenu("Fuselage");
+                                            {
+                                                pFuseMenu->addAction(m_pInsertSTLSphere);
+                                                pFuseMenu->addAction(m_pInsertSTLCylinder);
+                                                pFuseMenu->addSeparator();
+//                                                pFuseMenu->addAction(m_pInsertCADSphere);
+//                                                pFuseMenu->addAction(m_pInsertCADCylinder);
+                                                pFuseMenu->addAction(m_pInsertCADBox);
+                                            }
+                                        }
+
+                                        ppbInsertBtn->setMenu(pInsertMenu);
+                                    }
+
+                                    m_pchHighlightSel = new QCheckBox("Highlight selected part");
+
+                                    pEditCmdLayout->addWidget(ppbInsertBtn);
+                                    pEditCmdLayout->addStretch();
+                                    pEditCmdLayout->addWidget(m_pchHighlightSel);
+                                }
+                                pPartLayout->addWidget(m_pcptParts);
+                                pPartLayout->addLayout(pEditCmdLayout);
+                            }
+                            pPartFrame->setLayout(pPartLayout);
+                        }
+
+                        QFrame *pTablesFrame = new QFrame;
+                        {
+                            QVBoxLayout *pTablesLayout = new QVBoxLayout;
+                            {
+                                QHBoxLayout *pObjectsLayout = new QHBoxLayout;
+                                {
+                                    QGroupBox * pCuttingWingsBox = new QGroupBox("Cutting wings");
+                                    {
+                                        QVBoxLayout *pCuttingWingsLayout = new QVBoxLayout;
+                                        {
+                                            m_plwWingListWt = new QListWidget;
+                                            m_plwWingListWt->setSelectionMode(QAbstractItemView::MultiSelection);
+
+                                            QGridLayout *pAssyParamLayout = new QGridLayout;
+                                            {
+                                                QString sewtip = "<p>OpenCascade documentation: "
+                                                                 "Sewing allows creation of connected topology (shells and wires) "
+                                                                 "from a set of separate topological elements (faces and edges). ";
+                                                sewtip += "Working tolerance defines the maximal distance between topological elements "
+                                                          "which can be sewn. It is not ultimate that such elements will be actually "
+                                                          "sewn as many other criteria are applied to make the final decision. "
+                                                          "Minimal tolerance defines the size of the smallest element (edge) in "
+                                                          "the resulting shape. It is declared that no edges with size less than this "
+                                                          "value are created after sewing. If encountered, such topology becomes degenerated.  ";
+
+                                                sewtip +="The following recommendations can be proposed for tuning-up the sewing process: "
+                                                         "<ul>"
+                                                         "<li> Use as small working tolerance as possible. This will reduce the sewing time and, "
+                                                         "  consequently, the number of incorrectly sewn edges for shells with free boundaries.</li>"
+                                                         "<li> Use as large minimal tolerance as possible. This will reduce the number of small "
+                                                         "  geometry in the shape, both original and appearing after cutting.</li>"
+                                                         "<li> If it is expected to obtain a shell with holes (free boundaries) as a result "
+                                                         "  of sewing, the working tolerance should be set to a value not greater than the "
+                                                         "  size of the smallest element (edge) or smallest distance between elements of such "
+                                                         "  free boundary. Otherwise the free boundary may be sewn only partially.</li>"
+                                                         "<li> It should be mentioned that the Sewing algorithm is unable to understand which "
+                                                         "  small (less than working tolerance) free boundary should be kept and which should "
+                                                         "  be sewn.</li>"
+                                                         "</ul>"
+                                                         "</p>";
+
+                                                QLabel *pLabSewPrecision = new QLabel("Sewing precision:");
+                                                pLabSewPrecision->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+                                                QLabel *pLabLength1 = new QLabel(Units::lengthUnitLabel());
+                                                pLabLength1->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+                                                m_pdeStitchPrecision = new FloatEdit(0.001f);
+                                                m_pdeStitchPrecision->setToolTip(sewtip);
+
+                                                pAssyParamLayout->addWidget(pLabSewPrecision,       1,1);
+                                                pAssyParamLayout->addWidget(m_pdeStitchPrecision, 1,2);
+                                                pAssyParamLayout->addWidget(pLabLength1,            1,3);
+                                            }
+
+                                            pCuttingWingsLayout->addWidget(m_plwWingListWt);
+                                            pCuttingWingsLayout->addLayout(pAssyParamLayout);
+                                        }
+                                        pCuttingWingsBox->setLayout(pCuttingWingsLayout);
+                                    }
+
+                                    QGroupBox *pFuseToCutBox = new QGroupBox("Fuselage to cut");
+                                    {
+                                        QVBoxLayout *pFuseToCutLayout = new QVBoxLayout;
+                                        {
+                                            m_plwFuseListWt = new QListWidget;
+                                            m_ppbFuseMenuButton = new QPushButton("Fuselage actions");
+                                            {
+                                                QMenu *pFuseMenu = new QMenu("Fuselage actions", this);
+                                                {
+                                                    pFuseMenu->addAction(m_pResetFuse);
+                                                    pFuseMenu->addAction(m_pTessellation);
+                                                    pFuseMenu->addAction(m_pFlipNormals);
+                                                }
+                                                m_ppbFuseMenuButton->setMenu(pFuseMenu);
+                                            }
+
+                                            pFuseToCutLayout->addWidget(m_plwFuseListWt);
+                                            pFuseToCutLayout->addWidget(m_ppbFuseMenuButton);
+                                        }
+                                        pFuseToCutBox->setLayout(pFuseToCutLayout);
+                                    }
+                                    pObjectsLayout->addWidget(pCuttingWingsBox);
+                                    pObjectsLayout->addWidget(pFuseToCutBox);
+                                }
+
+                                m_pchCutParallel = new QCheckBox("Multithreaded cut operation");
+                                m_ppbCutFuse = new QPushButton("Cut fuselage");
+                                pTablesLayout->addLayout(pObjectsLayout);
+                                pTablesLayout->addWidget(m_pchCutParallel);
+                                pTablesLayout->addWidget(m_ppbCutFuse);
+                            }
+                            pTablesFrame->setLayout(pTablesLayout);
+                        }
+
+                        m_pMesherWt = new MesherWt(this);
+                        m_pMesherWt->showPickEdge(false);
+
+                        m_pMeshCorrectionsFrame = new QFrame;
+                        {
+                            QLabel *plabInfo = new QLabel("Use the actions below to modify the fuselage's mesh<br>"
+                                                          "and to connect it to the wing's mesh.");
+                            QVBoxLayout *pCorrectLayout = new QVBoxLayout;
+                            {
+                                QGridLayout *pModLayout = new QGridLayout;
+                                {
+                                    QLabel *plabTrans = new QLabel("Node translation:");
+                                    m_ppbMoveNode = new QPushButton("Move node");
+                                    QString tip = "<p>Use this option to move a fuselage node and to merge it with another."
+                                                     "Select first the source node to move, then the destination node.</p>";
+                                    m_ppbMoveNode->setToolTip(tip);
+                                    m_ppbMoveNode->setCheckable(true);
+
+
+                                    QLabel *plabDelete = new QLabel("Panel deletion:");
+                                    m_ppbSelectPanels = new QPushButton("Select");
+                                    m_ppbSelectPanels->setCheckable(true);
+                                    m_ppbDeletePanel = new QPushButton("Delete");
+
+                                    QLabel *plabMake = new QLabel("Panel creation:");
+                                    m_ppbMakeP3 = new QPushButton("Single");
+                                    m_ppbMakeP3->setCheckable(true);
+
+                                    m_ppbMakeP3Strip = new QPushButton("Strip");
+                                    m_ppbMakeP3Strip->setCheckable(true);
+
+                                    m_pchMakeP3Opposite = new QCheckBox("Make opposite");
+
+                                    pModLayout->addWidget(plabInfo,            0, 1, 1 ,3);
+                                    pModLayout->addWidget(plabTrans,           1, 1);
+                                    pModLayout->addWidget(m_ppbMoveNode,       1, 2);
+                                    pModLayout->addWidget(plabDelete,          2, 1);
+                                    pModLayout->addWidget(m_ppbSelectPanels,   2, 2);
+                                    pModLayout->addWidget(m_ppbDeletePanel,    2, 3);
+                                    pModLayout->addWidget(plabMake,            3, 1);
+                                    pModLayout->addWidget(m_ppbMakeP3,         3, 2);
+                                    pModLayout->addWidget(m_ppbMakeP3Strip,    3, 3);
+                                    pModLayout->addWidget(m_pchMakeP3Opposite, 3, 4);
+                                }
+
+                                QHBoxLayout *pUndoRedoLayout = new QHBoxLayout;
+                                {
+                                    m_ppbUndo = new QPushButton(QIcon(":/icons/OnUndo.png"), "Undo");
+                                    m_ppbUndo->setShortcut(Qt::Key_Undo);
+                                    m_ppbRedo = new QPushButton(QIcon(":/icons/OnRedo.png"), "Redo");
+                                    m_ppbUndo->setShortcut(Qt::Key_Redo);
+
+                                    m_plabStackInfo = new QLabel("stackpos: 0/0");
+                                    pUndoRedoLayout->addStretch();
+                                    pUndoRedoLayout->addWidget(m_ppbUndo);
+                                    pUndoRedoLayout->addWidget(m_ppbRedo);
+                                    pUndoRedoLayout->addWidget(m_plabStackInfo);
+                                    pUndoRedoLayout->addStretch();
+                                }
+
+                                m_ppbCheckMenuBtn = new QPushButton("Mesh actions");
+                                {
+                                    QMenu *pCheckMeshMenu = new QMenu("Mesh actions");
+                                    {
+                                        m_pRestoreFuseMesh  = new QAction("Restore default mesh",this);
+                                        m_pFuseMesher    = new QAction("Fuselage mesher");
+                                        pCheckMeshMenu->addAction(m_pCheckMesh);
+                                        pCheckMeshMenu->addAction(m_pConnectPanels);
+                                        pCheckMeshMenu->addAction(m_pCheckFreeEdges);
+                                        pCheckMeshMenu->addAction(m_pClearHighlighted);
+                                        pCheckMeshMenu->addSeparator();
+                                        pCheckMeshMenu->addAction(m_pMergeFuseToWingNodes);
+                                        pCheckMeshMenu->addSeparator();
+                                        pCheckMeshMenu->addAction(m_pCenterOnPanel);
+                                        pCheckMeshMenu->addSeparator();
+                                        pCheckMeshMenu->addAction(m_pRestoreFuseMesh);
+                                        pCheckMeshMenu->addSeparator();
+                                        pCheckMeshMenu->addAction(m_pFuseMesher);
+                                    }
+                                    m_ppbCheckMenuBtn->setMenu(pCheckMeshMenu);
+                                }
+                                QLabel *pFlow5Link = new QLabel;
+                                pFlow5Link->setText("<a href=https://flow5.tech/docs/flow5_doc/Modelling/Connections.html>https://flow5.tech/docs/flow5_doc/Modelling/Connections.html</a>");
+                                pFlow5Link->setOpenExternalLinks(true);
+                                pFlow5Link->setTextInteractionFlags(Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse);
+
+                                pCorrectLayout->addLayout(pModLayout);
+                                pCorrectLayout->addLayout(pUndoRedoLayout);
+                                pCorrectLayout->addStretch();
+                                pCorrectLayout->addWidget(m_ppbCheckMenuBtn);
+                                pCorrectLayout->addWidget(pFlow5Link);
+                            }
+                            m_pMeshCorrectionsFrame->setLayout(pCorrectLayout);
+                        }
+
+                        m_pLeftTabWidget->addTab(pMetaFrame,               "Meta");
+                        m_pLeftTabWidget->addTab(pPartFrame,               "Parts");
+                        m_pLeftTabWidget->addTab(pTablesFrame,             "Assembly");
+                        m_pLeftTabWidget->addTab(m_pMesherWt,              "Fuselage mesh");
+                        m_pLeftTabWidget->addTab(m_pMeshCorrectionsFrame , "Mesh connections");
+
+                        m_pLeftTabWidget->setTabToolTip(0, "Ctrl+1");
+                        m_pLeftTabWidget->setTabToolTip(1, "Ctrl+2");
+                        m_pLeftTabWidget->setTabToolTip(2, "Ctrl+3");
+                        m_pLeftTabWidget->setTabToolTip(3, "Ctrl+4");
+                        m_pLeftTabWidget->setTabToolTip(4, "Ctrl+5");
+                    }
+
+                    m_ppto = new PlainTextOutput;
+
+                    m_pPartSplitter->addWidget(m_pLeftTabWidget);
+                    m_pPartSplitter->addWidget(m_ppto);
+                    m_pPartSplitter->setStretchFactor(0,1);
+                    m_pPartSplitter->setStretchFactor(1,5);
+                }
+
+                pLeftSideLayout->addWidget(m_pPartSplitter);
+                pLeftSideLayout->addWidget(m_pButtonBox);
+                pLeftSideWidget->setLayout(pLeftSideLayout);
+            }
+        }
+
+        m_pglPlaneViewFrame = new QFrame;
+        {
+            QVBoxLayout *pTWPageLayout = new QVBoxLayout;
+            {
+                m_pglPlaneView = new gl3dPlaneXflView;
+                m_pglControls  = new gl3dGeomControls(m_pglPlaneView, PlaneLayout, true);
+                connect(m_pglControls->m_ptbDistance, SIGNAL(clicked()), this, SLOT(onNodeDistance()));
+                pTWPageLayout->addWidget(m_pglPlaneView);
+                pTWPageLayout->addWidget(m_pglControls);
+            }
+            m_pglPlaneViewFrame->setLayout(pTWPageLayout);
+        }
+
+        m_pHSplitter->addWidget(pLeftSideWidget);
+#ifdef QT_DEBUG
+        m_pHSplitter->addWidget(m_pglPlaneViewFrame);
+#else
+        m_pHSplitter->addWidget(m_pglPlaneViewFrame);
+#endif
+        m_pHSplitter->setStretchFactor(0,1);
+        m_pHSplitter->setStretchFactor(1,2);
+    }
+
+    QHBoxLayout *pMainLayout = new QHBoxLayout;
+    {
+        pMainLayout->addWidget(m_pHSplitter);
+    }
+    setLayout(pMainLayout);
 }
 
 
@@ -2576,348 +2919,6 @@ void PlaneXflDlg::makePartTable()
     m_pcptParts->setItemDelegate(m_pPartDelegate);
 
     m_pPartDelegate->setPrecision({0,0,3,3,3,2,2,0});
-}
-
-
-void PlaneXflDlg::setupLayout()
-{
-    m_pScalePlane  = new QAction("Scale plane");
-    QMenu *pCheckMeshMenu = m_ppbActions->menu();
-    pCheckMeshMenu->addSeparator();
-    pCheckMeshMenu->addAction(m_pScalePlane);
-
-    m_pHSplitter = new QSplitter(Qt::Horizontal);
-    {
-        m_pHSplitter->setChildrenCollapsible(false);
-        QFrame *pLeftSideWidget = new QFrame;
-        {
-            QVBoxLayout *pLeftSideLayout = new QVBoxLayout;
-            {
-                m_pPartSplitter = new QSplitter(Qt::Vertical);
-                {
-                    m_pLeftTabWidget = new QTabWidget;
-                    {
-                        QFrame *pMetaFrame = new QFrame;
-                        {
-                            QVBoxLayout *pDefinitionLayout = new QVBoxLayout;
-                            {
-                                m_pleDescription->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
-
-                                pDefinitionLayout->addWidget(m_pleName);
-                                pDefinitionLayout->addWidget(m_pleDescription);
-                            }
-                            pMetaFrame->setLayout(pDefinitionLayout);
-                        }
-
-                        QFrame *pPartFrame = new QFrame;
-                        {
-                            QVBoxLayout *pPartLayout = new QVBoxLayout;
-                            {
-                                makePartTable();
-                                QHBoxLayout *pEditCmdLayout = new QHBoxLayout;
-                                {
-                                    QPushButton *ppbInsertBtn = new QPushButton("Insert");
-                                    QMenu *pInsertMenu = new QMenu(this);
-                                    {
-                                        QMenu *pInsertWingMenu = pInsertMenu->addMenu("Wing");
-                                        {
-                                            pInsertWingMenu->addAction(m_pInsertWing);
-                                            pInsertWingMenu->addAction(m_pInsertWingOther);
-                                            pInsertWingMenu->addAction(m_pInsertWingXml);
-                                            pInsertWingMenu->addAction(m_pInsertWingVSP);
-                                        }
-
-                                        pInsertMenu->addAction(m_pInsertElev);
-                                        pInsertMenu->addAction(m_pInsertFin);
-                                        pInsertMenu->addSeparator();
-
-                                        QMenu*pFuseMenu = pInsertMenu->addMenu("Fuselage");
-                                        {
-                                            QMenu *pFuseXflMenu = pFuseMenu->addMenu("xfl-type fuselage");
-                                            {
-                                                pFuseXflMenu->addAction(m_pInsertFuseXflSpline);
-                                                pFuseXflMenu->addAction(m_pInsertFuseXflFlat);
-                                                pFuseXflMenu->addAction(m_pInsertFuseXflSections);
-                                                pFuseXflMenu->addAction(m_pInsertFuseXml);
-                                            }
-                                            pFuseMenu->addAction(m_pInsertFuseOther);
-                                            pFuseMenu->addAction(m_pInsertFuseOcc);
-                                            pFuseMenu->addAction(m_pInsertFuseStl);
-                                        }
-                                        pInsertMenu->addSeparator();
-                                        QMenu *pTestMenu = pInsertMenu->addMenu("Testing");
-                                        {
-                                            pTestMenu->addAction(m_pInsertEllWing);
-                                            pTestMenu->addSeparator();
-                                            QMenu *pFuseMenu = pTestMenu->addMenu("Fuselage");
-                                            {
-                                                pFuseMenu->addAction(m_pInsertSTLSphere);
-                                                pFuseMenu->addAction(m_pInsertSTLCylinder);
-                                                pFuseMenu->addSeparator();
-//                                                pFuseMenu->addAction(m_pInsertCADSphere);
-//                                                pFuseMenu->addAction(m_pInsertCADCylinder);
-                                                pFuseMenu->addAction(m_pInsertCADBox);
-                                            }
-                                        }
-
-                                        ppbInsertBtn->setMenu(pInsertMenu);
-                                    }
-
-                                    m_pchHighlightSel = new QCheckBox("Highlight selected part");
-
-                                    pEditCmdLayout->addWidget(ppbInsertBtn);
-                                    pEditCmdLayout->addStretch();
-                                    pEditCmdLayout->addWidget(m_pchHighlightSel);
-                                }
-                                pPartLayout->addWidget(m_pcptParts);
-                                pPartLayout->addLayout(pEditCmdLayout);
-                            }
-                            pPartFrame->setLayout(pPartLayout);
-                        }
-
-                        QFrame *pTablesFrame = new QFrame;
-                        {
-                            QVBoxLayout *pTablesLayout = new QVBoxLayout;
-                            {
-                                QHBoxLayout *pObjectsLayout = new QHBoxLayout;
-                                {
-                                    QGroupBox * pCuttingWingsBox = new QGroupBox("Cutting wings");
-                                    {
-                                        QVBoxLayout *pCuttingWingsLayout = new QVBoxLayout;
-                                        {
-                                            m_plwWingListWt = new QListWidget;
-                                            m_plwWingListWt->setSelectionMode(QAbstractItemView::MultiSelection);
-
-                                            QGridLayout *pAssyParamLayout = new QGridLayout;
-                                            {
-                                                QString sewtip = "<p>OpenCascade documentation: "
-                                                                 "Sewing allows creation of connected topology (shells and wires) "
-                                                                 "from a set of separate topological elements (faces and edges). ";
-                                                sewtip += "Working tolerance defines the maximal distance between topological elements "
-                                                          "which can be sewn. It is not ultimate that such elements will be actually "
-                                                          "sewn as many other criteria are applied to make the final decision. "
-                                                          "Minimal tolerance defines the size of the smallest element (edge) in "
-                                                          "the resulting shape. It is declared that no edges with size less than this "
-                                                          "value are created after sewing. If encountered, such topology becomes degenerated.  ";
-
-                                                sewtip +="The following recommendations can be proposed for tuning-up the sewing process: "
-                                                         "<ul>"
-                                                         "<li> Use as small working tolerance as possible. This will reduce the sewing time and, "
-                                                         "  consequently, the number of incorrectly sewn edges for shells with free boundaries.</li>"
-                                                         "<li> Use as large minimal tolerance as possible. This will reduce the number of small "
-                                                         "  geometry in the shape, both original and appearing after cutting.</li>"
-                                                         "<li> If it is expected to obtain a shell with holes (free boundaries) as a result "
-                                                         "  of sewing, the working tolerance should be set to a value not greater than the "
-                                                         "  size of the smallest element (edge) or smallest distance between elements of such "
-                                                         "  free boundary. Otherwise the free boundary may be sewn only partially.</li>"
-                                                         "<li> It should be mentioned that the Sewing algorithm is unable to understand which "
-                                                         "  small (less than working tolerance) free boundary should be kept and which should "
-                                                         "  be sewn.</li>"
-                                                         "</ul>"
-                                                         "</p>";
-
-                                                QLabel *pLabSewPrecision = new QLabel("Sewing precision:");
-                                                pLabSewPrecision->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-                                                QLabel *pLabLength1 = new QLabel(Units::lengthUnitLabel());
-                                                pLabLength1->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-                                                m_pdeStitchPrecision = new FloatEdit(0.001f);
-                                                m_pdeStitchPrecision->setToolTip(sewtip);
-
-                                                pAssyParamLayout->addWidget(pLabSewPrecision,       1,1);
-                                                pAssyParamLayout->addWidget(m_pdeStitchPrecision, 1,2);
-                                                pAssyParamLayout->addWidget(pLabLength1,            1,3);
-                                            }
-
-                                            pCuttingWingsLayout->addWidget(m_plwWingListWt);
-                                            pCuttingWingsLayout->addLayout(pAssyParamLayout);
-                                        }
-                                        pCuttingWingsBox->setLayout(pCuttingWingsLayout);
-                                    }
-
-                                    QGroupBox *pFuseToCutBox = new QGroupBox("Fuselage to cut");
-                                    {
-                                        QVBoxLayout *pFuseToCutLayout = new QVBoxLayout;
-                                        {
-                                            m_plwFuseListWt = new QListWidget;
-                                            m_ppbFuseMenuButton = new QPushButton("Fuselage actions");
-                                            {
-                                                QMenu *pFuseMenu = new QMenu("Fuselage actions", this);
-                                                {
-                                                    pFuseMenu->addAction(m_pResetFuse);
-                                                    pFuseMenu->addAction(m_pTessellation);
-                                                    pFuseMenu->addAction(m_pFlipNormals);
-                                                }
-                                                m_ppbFuseMenuButton->setMenu(pFuseMenu);
-                                            }
-
-                                            pFuseToCutLayout->addWidget(m_plwFuseListWt);
-                                            pFuseToCutLayout->addWidget(m_ppbFuseMenuButton);
-                                        }
-                                        pFuseToCutBox->setLayout(pFuseToCutLayout);
-                                    }
-                                    pObjectsLayout->addWidget(pCuttingWingsBox);
-                                    pObjectsLayout->addWidget(pFuseToCutBox);
-                                }
-
-                                m_pchCutParallel = new QCheckBox("Multithreaded cut operation");
-                                m_ppbCutFuse = new QPushButton("Cut fuselage");
-                                pTablesLayout->addLayout(pObjectsLayout);
-                                pTablesLayout->addWidget(m_pchCutParallel);
-                                pTablesLayout->addWidget(m_ppbCutFuse);
-                            }
-                            pTablesFrame->setLayout(pTablesLayout);
-                        }
-
-                        m_pMesherWt = new MesherWt(this);
-                        m_pMesherWt->showPickEdge(false);
-
-                        m_pMeshCorrectionsFrame = new QFrame;
-                        {
-                            QLabel *plabInfo = new QLabel("Use the actions below to modify the fuselage's mesh<br>"
-                                                          "and to connect it to the wing's mesh.");
-                            QVBoxLayout *pCorrectLayout = new QVBoxLayout;
-                            {
-                                QGridLayout *pModLayout = new QGridLayout;
-                                {
-                                    QLabel *plabTrans = new QLabel("Node translation:");
-                                    m_ppbMoveNode = new QPushButton("Move node");
-                                    QString tip = "<p>Use this option to move a fuselage node and to merge it with another."
-                                                     "Select first the source node to move, then the destination node.</p>";
-                                    m_ppbMoveNode->setToolTip(tip);
-                                    m_ppbMoveNode->setCheckable(true);
-
-
-                                    QLabel *plabDelete = new QLabel("Panel deletion:");
-                                    m_ppbSelectPanels = new QPushButton("Select");
-                                    m_ppbSelectPanels->setCheckable(true);
-                                    m_ppbDeletePanel = new QPushButton("Delete");
-
-                                    QLabel *plabMake = new QLabel("Panel creation:");
-                                    m_ppbMakeP3 = new QPushButton("Single");
-                                    m_ppbMakeP3->setCheckable(true);
-
-                                    m_ppbMakeP3Strip = new QPushButton("Strip");
-                                    m_ppbMakeP3Strip->setCheckable(true);
-
-                                    m_pchMakeP3Opposite = new QCheckBox("Make opposite");
-
-                                    pModLayout->addWidget(plabInfo,            0, 1, 1 ,3);
-                                    pModLayout->addWidget(plabTrans,           1, 1);
-                                    pModLayout->addWidget(m_ppbMoveNode,       1, 2);
-                                    pModLayout->addWidget(plabDelete,          2, 1);
-                                    pModLayout->addWidget(m_ppbSelectPanels,   2, 2);
-                                    pModLayout->addWidget(m_ppbDeletePanel,    2, 3);
-                                    pModLayout->addWidget(plabMake,            3, 1);
-                                    pModLayout->addWidget(m_ppbMakeP3,         3, 2);
-                                    pModLayout->addWidget(m_ppbMakeP3Strip,    3, 3);
-                                    pModLayout->addWidget(m_pchMakeP3Opposite, 3, 4);
-                                }
-
-                                QHBoxLayout *pUndoRedoLayout = new QHBoxLayout;
-                                {
-                                    m_ppbUndo = new QPushButton(QIcon(":/icons/OnUndo.png"), "Undo");
-                                    m_ppbUndo->setShortcut(Qt::Key_Undo);
-                                    m_ppbRedo = new QPushButton(QIcon(":/icons/OnRedo.png"), "Redo");
-                                    m_ppbUndo->setShortcut(Qt::Key_Redo);
-
-                                    m_plabStackInfo = new QLabel("stackpos: 0/0");
-                                    pUndoRedoLayout->addStretch();
-                                    pUndoRedoLayout->addWidget(m_ppbUndo);
-                                    pUndoRedoLayout->addWidget(m_ppbRedo);
-                                    pUndoRedoLayout->addWidget(m_plabStackInfo);
-                                    pUndoRedoLayout->addStretch();
-                                }
-
-                                m_ppbCheckMenuBtn = new QPushButton("Mesh actions");
-                                {
-                                    QMenu *pCheckMeshMenu = new QMenu("Mesh actions");
-                                    {
-                                        m_pRestoreFuseMesh  = new QAction("Restore default mesh",this);
-                                        m_pFuseMesher    = new QAction("Fuselage mesher");
-                                        pCheckMeshMenu->addAction(m_pCheckMesh);
-                                        pCheckMeshMenu->addAction(m_pConnectPanels);
-                                        pCheckMeshMenu->addAction(m_pCheckFreeEdges);
-                                        pCheckMeshMenu->addAction(m_pClearHighlighted);
-                                        pCheckMeshMenu->addSeparator();
-                                        pCheckMeshMenu->addAction(m_pMergeFuseToWingNodes);
-                                        pCheckMeshMenu->addSeparator();
-                                        pCheckMeshMenu->addAction(m_pCenterOnPanel);
-                                        pCheckMeshMenu->addSeparator();
-                                        pCheckMeshMenu->addAction(m_pRestoreFuseMesh);
-                                        pCheckMeshMenu->addSeparator();
-                                        pCheckMeshMenu->addAction(m_pFuseMesher);
-                                    }
-                                    m_ppbCheckMenuBtn->setMenu(pCheckMeshMenu);
-                                }
-                                QLabel *pFlow5Link = new QLabel;
-                                pFlow5Link->setText("<a href=https://flow5.tech/docs/flow5_doc/Modelling/Connections.html>https://flow5.tech/docs/flow5_doc/Modelling/Connections.html</a>");
-                                pFlow5Link->setOpenExternalLinks(true);
-                                pFlow5Link->setTextInteractionFlags(Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse);
-
-                                pCorrectLayout->addLayout(pModLayout);
-                                pCorrectLayout->addLayout(pUndoRedoLayout);
-                                pCorrectLayout->addStretch();
-                                pCorrectLayout->addWidget(m_ppbCheckMenuBtn);
-                                pCorrectLayout->addWidget(pFlow5Link);
-                            }
-                            m_pMeshCorrectionsFrame->setLayout(pCorrectLayout);
-                        }
-
-                        m_pLeftTabWidget->addTab(pMetaFrame,               "Meta");
-                        m_pLeftTabWidget->addTab(pPartFrame,               "Parts");
-                        m_pLeftTabWidget->addTab(pTablesFrame,             "Assembly");
-                        m_pLeftTabWidget->addTab(m_pMesherWt,              "Fuselage mesh");
-                        m_pLeftTabWidget->addTab(m_pMeshCorrectionsFrame , "Mesh connections");
-
-                        m_pLeftTabWidget->setTabToolTip(0, "Ctrl+1");
-                        m_pLeftTabWidget->setTabToolTip(1, "Ctrl+2");
-                        m_pLeftTabWidget->setTabToolTip(2, "Ctrl+3");
-                        m_pLeftTabWidget->setTabToolTip(3, "Ctrl+4");
-                        m_pLeftTabWidget->setTabToolTip(4, "Ctrl+5");
-                    }
-
-                    m_ppto = new PlainTextOutput;
-
-                    m_pPartSplitter->addWidget(m_pLeftTabWidget);
-                    m_pPartSplitter->addWidget(m_ppto);
-                    m_pPartSplitter->setStretchFactor(0,1);
-                    m_pPartSplitter->setStretchFactor(1,5);
-                }
-
-                pLeftSideLayout->addWidget(m_pPartSplitter);
-                pLeftSideLayout->addWidget(m_pButtonBox);
-                pLeftSideWidget->setLayout(pLeftSideLayout);
-            }
-        }
-
-        m_pglPlaneViewFrame = new QFrame;
-        {
-            QVBoxLayout *pTWPageLayout = new QVBoxLayout;
-            {
-                m_pglPlaneView = new gl3dPlaneXflView;
-                m_pglControls  = new gl3dGeomControls(m_pglPlaneView, PlaneLayout, true);
-                connect(m_pglControls->m_ptbDistance, SIGNAL(clicked()), this, SLOT(onNodeDistance()));
-                pTWPageLayout->addWidget(m_pglPlaneView);
-                pTWPageLayout->addWidget(m_pglControls);
-            }
-            m_pglPlaneViewFrame->setLayout(pTWPageLayout);
-        }
-
-        m_pHSplitter->addWidget(pLeftSideWidget);
-#ifdef QT_DEBUG
-        m_pHSplitter->addWidget(m_pglPlaneViewFrame);
-#else
-        m_pHSplitter->addWidget(m_pglPlaneViewFrame);
-#endif
-        m_pHSplitter->setStretchFactor(0,1);
-        m_pHSplitter->setStretchFactor(1,2);
-    }
-
-    QHBoxLayout *pMainLayout = new QHBoxLayout;
-    {
-        pMainLayout->addWidget(m_pHSplitter);
-    }
-    setLayout(pMainLayout);
 }
 
 

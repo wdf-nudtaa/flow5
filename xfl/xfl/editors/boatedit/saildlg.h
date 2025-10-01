@@ -231,6 +231,7 @@ class SailDlg : public XflDialog
         QAction *m_pScaleSize, *m_pScaleShape, *m_pTranslate, *m_pRotate;
 //        QAction *m_pScaleArea;
 
+        QAction *m_p3dLightAct;
         QAction *m_pAlignLuff;
         QAction *m_pExportXML, *m_pExportStep, *m_pExportMeshToSTL, *m_pExportTrianglesToSTL;
         QAction *m_pDefinitions;

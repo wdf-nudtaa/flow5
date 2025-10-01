@@ -979,6 +979,12 @@ void gl3dView::keyPressEvent(QKeyEvent *pEvent)
             pEvent->accept();
             return;
         }
+        case Qt::Key_L:
+        {
+            onSetupLight();
+            pEvent->accept();
+            return;
+        }
         case Qt::Key_H:
         {
             if(!bCtrl && !bShift)
@@ -1159,10 +1165,10 @@ void gl3dView::onSetupLight()
 {
     if(!m_pglLightDlg)
     {
-        m_pglLightDlg = new GLLightDlg;
+        m_pglLightDlg = new GLLightDlg(this);
         m_pglLightDlg->setgl3dView(this);
     }
-    m_pglLightDlg->show();
+    m_pglLightDlg->exec();
 }
 
 

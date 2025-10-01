@@ -66,7 +66,7 @@ linux-g++ {
         #    MKL can use the c++ matrices in row major order order
         DEFINES += INTEL_MKL
 
-        # LEAP 15.5
+        # LEAP 16
         #   Ensure that the paths to the include files and to the binary libraries
         #   are set either by defining them in the environment variables
         #   or by setting them explicitely in the following two lines
@@ -101,7 +101,7 @@ linux-g++ {
     #   or by setting them explicitely in this section
     #   The include paths to the development headers must be set explicitely
 
-    #LEAP 15.6
+    #LEAP 16
         INCLUDEPATH += /usr/local/include/opencascade/
    #    LIBS += -L/usr/local/lib/
 
@@ -116,7 +116,7 @@ linux-g++ {
     # .../build/debug> gprof -pb flow5 gmon.out > ./analysis_flat.txt
     # .../build/debug> gprof -q flow5 gmon.out > ./analysis_callgraph.txt
 
-# issues with OpenCascade
+# warnings with OpenCascade
 QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-declarations
 
 

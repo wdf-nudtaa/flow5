@@ -66,8 +66,8 @@ void setOGLDefaultFormat(int version)
 
     // Load preferred OpenGL version
     // and set the default format before any 3d view is created
-    int OGLMajor = 3;
-    int OGLMinor = 3;
+    int OGLMajor = 4;
+    int OGLMinor = 6;
     if(QFile(settings.fileName()).exists())
     {
         gl3dView::loadSettings(settings);

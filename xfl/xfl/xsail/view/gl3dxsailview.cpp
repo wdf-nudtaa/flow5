@@ -695,7 +695,17 @@ void gl3dXSailView::glMakeSailForces(BoatOpp const *pBtOpp, float qDyn, QOpenGLB
 void gl3dXSailView::initializeGL()
 {
     gl3dXflView::initializeGL();
-#ifndef Q_OS_MAC
+
+    int oglversion = 10*oglMajor()+oglMinor();
+    if(oglversion<43)
+    {
+        QString strange = QString::asprintf("OpenGL context version is %d.%d.\n"
+                                            "Set an OpenGL context version >=4.3 to enable flow animations.\n\n", oglMajor(), oglMinor());
+        trace(strange);
+        s_pXSail->displayMessage(strange, true);
+        return;
+    }
+
     // flow Compute shader
     QString csrc = ":/shaders/flow/flow3d_CS.glsl";
     m_shadFlow.addShaderFromSourceFile(QOpenGLShader::Compute, csrc);
@@ -707,52 +717,27 @@ void gl3dXSailView::initializeGL()
 
     if(!m_shadFlow.link())
     {
-        trace("Compute shader is not linked");
+        trace("Flow compute shader is not linked");
     }
-    m_shadFlow.bind();
+    else
     {
-        m_shadFlowLoc.m_RK           = m_shadFlow.uniformLocation("RK");
-        m_shadFlowLoc.m_NPanels      = m_shadFlow.uniformLocation("npanels");
-        m_shadFlowLoc.m_Dt           = m_shadFlow.uniformLocation("dt");
-        m_shadFlowLoc.m_VInf         = m_shadFlow.uniformLocation("vinf");
-        m_shadFlowLoc.m_TopLeft      = m_shadFlow.uniformLocation("topleft");
-        m_shadFlowLoc.m_BotRight     = m_shadFlow.uniformLocation("botright");
-        m_shadFlowLoc.m_VtnCoreSize  = m_shadFlow.uniformLocation("VtnCoreSize");
-        m_shadFlowLoc.m_NVorton      = m_shadFlow.uniformLocation("nvortons");
-        m_shadFlowLoc.m_UniColor     = m_shadFlow.uniformLocation("UniformColor");
-        m_shadFlowLoc.m_HasUniColor  = m_shadFlow.uniformLocation("HasUniColor");
-        m_shadFlowLoc.m_HasGround    = m_shadFlow.uniformLocation("HasGround");
-        m_shadFlowLoc.m_GroundHeight = m_shadFlow.uniformLocation("GroundHeight");
+        m_shadFlow.bind();
+        {
+            m_shadFlowLoc.m_RK           = m_shadFlow.uniformLocation("RK");
+            m_shadFlowLoc.m_NPanels      = m_shadFlow.uniformLocation("npanels");
+            m_shadFlowLoc.m_Dt           = m_shadFlow.uniformLocation("dt");
+            m_shadFlowLoc.m_VInf         = m_shadFlow.uniformLocation("vinf");
+            m_shadFlowLoc.m_TopLeft      = m_shadFlow.uniformLocation("topleft");
+            m_shadFlowLoc.m_BotRight     = m_shadFlow.uniformLocation("botright");
+            m_shadFlowLoc.m_VtnCoreSize  = m_shadFlow.uniformLocation("VtnCoreSize");
+            m_shadFlowLoc.m_NVorton      = m_shadFlow.uniformLocation("nvortons");
+            m_shadFlowLoc.m_UniColor     = m_shadFlow.uniformLocation("UniformColor");
+            m_shadFlowLoc.m_HasUniColor  = m_shadFlow.uniformLocation("HasUniColor");
+            m_shadFlowLoc.m_HasGround    = m_shadFlow.uniformLocation("HasGround");
+            m_shadFlowLoc.m_GroundHeight = m_shadFlow.uniformLocation("GroundHeight");
+        }
+        m_shadFlow.release();
     }
-    m_shadFlow.release();
-
-
-    int MaxInvocations = 0;
-    glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &MaxInvocations);
-
-    int workGroupCounts[3] = { 0 };
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &workGroupCounts[0]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &workGroupCounts[1]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &workGroupCounts[2]);
-
-    int workGroupSizes[3] = { 0 };
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &workGroupSizes[0]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &workGroupSizes[1]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &workGroupSizes[2]);
-
-/*    qDebug("Max invocations = %5d", MaxInvocations);
-    qDebug("Work Group Count= %5d %5d %5d", workGroupCounts[0], workGroupCounts[1], workGroupCounts[2]);
-    qDebug("Work Group Size = %5d %5d %5d", workGroupSizes[0], workGroupSizes[1], workGroupSizes[2]);*/
-
-    int n = workGroupCounts[0];
-    int pow = 1;
-    do
-    {
-        pow++;
-        n=n/2;
-    }while(n>1);
-
-#endif
 }
 
 

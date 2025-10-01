@@ -133,6 +133,7 @@ void SailDlg::connectBaseSignals()
     connect(m_pglSailView,          SIGNAL(pickedNodePair(QPair<int,int>)), SLOT(onPickedNodePair(QPair<int,int>)));
     connect(m_pglSailControls->m_ptbDistance, SIGNAL(clicked()), SLOT(onNodeDistance()));
 
+    connect(m_p3dLightAct,          SIGNAL(triggered()), m_pglSailView, SLOT(onSetupLight()));
     connect(m_pBackImageLoad,       SIGNAL(triggered()), m_pglSailView, SLOT(onLoadBackImage()));
     connect(m_pBackImageClear,      SIGNAL(triggered()), m_pglSailView, SLOT(onClearBackImage()));
     connect(m_pBackImageSettings,   SIGNAL(triggered()), m_pglSailView, SLOT(onBackImageSettings()));
@@ -164,188 +165,9 @@ void SailDlg::connectBaseSignals()
 }
 
 
-void SailDlg::initDialog(Sail *pSail)
-{
-    m_pSail = pSail;
-    m_p2dSectionView->setSail(pSail);
-
-    m_pglSailView->setSail(pSail);
-
-    m_iActiveSection = 0;
-
-    // update the mesh for display
-    m_pSail->clearTriMesh();
-    m_pSail->makeTriPanels(Vector3d());
-    m_pglSailView->resetglSail();
-
-    SailSectionView::sectionStyle().m_Color = pSail->color();
-    m_plbSectionStyle->setTheStyle(SailSectionView::sectionStyle());
-
-    m_pfeRefArea->setValue(pSail->refArea()*Units::m2toUnit());
-    m_pfeRefChord->setValue(pSail->refChord()*Units::mtoUnit());
-
-    m_pMesherWt->initDialog(pSail);
-
-    if(pSail->m_EdgeSplit.size())
-    {
-        QVector<EdgeSplit> &es = pSail->m_EdgeSplit.first();
-        if(es.size()>=4)
-        {
-            for(int iEdge=0; iEdge<4; iEdge++)
-            {
-                m_pieNSegs[iEdge]->setValue(es[iEdge].nSegs());
-                switch (es[iEdge].distrib())
-                {
-                    default:
-                    case xfl::UNIFORM:   m_pcbDistType[iEdge]->setCurrentIndex(0);  break;
-                    case xfl::COSINE:    m_pcbDistType[iEdge]->setCurrentIndex(1);  break;
-                    case xfl::SINE:      m_pcbDistType[iEdge]->setCurrentIndex(2);  break;
-                    case xfl::INV_SINE:  m_pcbDistType[iEdge]->setCurrentIndex(3);  break;
-                    case xfl::INV_SINH:  m_pcbDistType[iEdge]->setCurrentIndex(4);  break;
-                    case xfl::TANH:      m_pcbDistType[iEdge]->setCurrentIndex(5);  break;
-                    case xfl::EXP:       m_pcbDistType[iEdge]->setCurrentIndex(6);  break;
-                    case xfl::INV_EXP:   m_pcbDistType[iEdge]->setCurrentIndex(7);  break;
-                }
-            }
-        }
-    }
-}
-
-
-void SailDlg::onSetChanged()
-{
-    m_bChanged = true;
-}
-
-
-void SailDlg::onLineStyle(LineStyle const &ls)
-{
-    LineMenu *pLineMenu = new LineMenu(nullptr, false);
-    pLineMenu->initMenu(ls);
-    pLineMenu->exec(QCursor::pos());
-    SailSectionView::setSectionStyle(pLineMenu->theStyle());
-    m_plbSectionStyle->setTheStyle(pLineMenu->theStyle());
-    m_p2dSectionView->update();
-}
-
-
-void SailDlg::readMeshData()
-{
-    int nx = m_pieNXPanels->value();
-    int nz = m_pieNZPanels->value();
-
-    xfl::enumDistribution xdist = xfl::distributionType(m_pcbXDistType->currentText());
-    xfl::enumDistribution zdist = xfl::distributionType(m_pcbZDistType->currentText());
-
-    m_pSail->setNXPanels(nx);
-    m_pSail->setXDistType(xdist);
-
-    m_pSail->setNZPanels(nz);
-    m_pSail->setZDistType(zdist);
-}
-
-
-void SailDlg::onUpdateMesh()
-{
-    readMeshData();
-    if(m_pSail->bRuledMesh())
-        onRuledMesh();
-
-    updateTriMesh();
-    m_pglSailView->update();
-    m_bChanged = true;
-}
-
-
-void SailDlg::updateTriMesh()
-{
-    m_pSail->clearTriMesh();
-    m_pSail->makeTriPanels(Vector3d());
-    m_pglSailView->resetgl3dMesh();
-}
-
-
-void SailDlg::setSailData()
-{
-    m_pleSailName->setText(m_pSail->name());
-    m_pteSailDescription->setPlainText(m_pSail->description());
-    m_pcbColor->setColor(m_pSail->color());
-
-    m_prbRuledMesh->setChecked(m_pSail->bRuledMesh());
-    m_prbFreeMesh->setChecked(!m_pSail->bRuledMesh());
-
-    m_pMesherWt->setVisible(!m_pSail->bRuledMesh());
-    m_pgbEdgeSplit->setVisible(!m_pSail->bRuledMesh());
-
-    m_pieNXPanels->setValue(m_pSail->nXPanels());
-
-    switch(m_pSail->xDistType())
-    {
-        default:
-        case xfl::UNIFORM:       m_pcbXDistType->setCurrentIndex(0);  break;
-        case xfl::COSINE:        m_pcbXDistType->setCurrentIndex(1);  break;
-        case xfl::SINE:          m_pcbXDistType->setCurrentIndex(2);  break;
-        case xfl::INV_SINE:      m_pcbXDistType->setCurrentIndex(3);  break;
-        case xfl::TANH:          m_pcbXDistType->setCurrentIndex(4);  break;
-        case xfl::EXP:           m_pcbXDistType->setCurrentIndex(5);  break;
-        case xfl::INV_EXP:       m_pcbXDistType->setCurrentIndex(6);  break;
-    }
-
-
-    m_pieNZPanels->setValue(m_pSail->nZPanels());
-    switch(m_pSail->zDistType())
-    {
-        default:
-        case xfl::UNIFORM:       m_pcbZDistType->setCurrentIndex(0);  break;
-        case xfl::COSINE:        m_pcbZDistType->setCurrentIndex(1);  break;
-        case xfl::SINE:          m_pcbZDistType->setCurrentIndex(2);  break;
-        case xfl::INV_SINE:      m_pcbZDistType->setCurrentIndex(3);  break;
-        case xfl::TANH:          m_pcbZDistType->setCurrentIndex(4);  break;
-        case xfl::EXP:           m_pcbZDistType->setCurrentIndex(5);  break;
-        case xfl::INV_EXP:       m_pcbZDistType->setCurrentIndex(6);  break;
-    }
-
-
-    m_pMesherWt->m_pdeMaxEdgeSize->setValue(m_pSail->maxElementSize()*Units::mtoUnit());
-    AFMesher::setMaxEdgeLength(m_pSail->maxElementSize()*Units::mtoUnit());
-
-    m_iActiveSection = 0;
-}
-
-
-void SailDlg::updateSailDataOutput()
-{
-    QString saildata, frontspacer;
-    m_pSail->properties(saildata, frontspacer);
-    m_pglSailView->setBotLeftOutput(saildata);
-}
-
-
-void SailDlg::updateSailSectionOutput()
-{
-}
-
-
-void SailDlg::setControls()
-{
-    m_pchFillFoil->setEnabled(m_pSail && m_pSail->isWingSail());
-    m_pchFillFoil->setChecked(SailSectionView::bFill());
-    if(m_pSail) m_pcbColor->setColor(m_pSail->color());
-
-    m_pRotate->setEnabled(m_pSail && m_pSail->isExternalSail());
-    m_pieNZPanels->setEnabled(m_pSail && (m_pSail->isNURBSSail() || m_pSail->isSplineSail()));
-    m_pcbZDistType->setEnabled(m_pSail && (m_pSail->isNURBSSail() || m_pSail->isSplineSail()));
-
-    if(m_pSail)
-    {
-        m_pfrRuledMesh->setVisible(m_pSail->bRuledMesh());
-        m_pMesherWt->setVisible(!m_pSail->bRuledMesh());
-    }
-}
-
 
 void SailDlg::makeCommonWts()
-{   
+{
     m_pptoOutput = new PlainTextOutput;
 
     m_pMetaFrame = new QFrame;
@@ -675,11 +497,10 @@ void SailDlg::makeCommonWts()
                 connect(m_pFlipXZ, SIGNAL(triggered(bool)), SLOT(onFlipXZ()));
 
                 m_pAlignLuff = new QAction("Align luff points", this);
-                QString tip("Translates the intermediate sections to align the \n"
-                                        "leading points between the top and bottom sections.");
+                QString tip("<p>Translates the intermediate sections to align the "
+                            "leading points between the top and bottom sections</p>");
                 m_pAlignLuff->setToolTip(tip);
                 connect(m_pAlignLuff, SIGNAL(triggered(bool)), SLOT(onAlignLuffPoints()));
-
 
                 pSailMenu->addAction(m_pDefinitions);
                 pSailMenu->addSeparator();
@@ -721,9 +542,11 @@ void SailDlg::makeCommonWts()
     {
         QVBoxLayout *pViewLayout = new QVBoxLayout;
         {
-            m_pglSailView= new gl3dSailView;
+            m_pglSailView = new gl3dSailView;
             m_pglSailView->showPartFrame(false);
             m_pglSailControls = new gl3dGeomControls(m_pglSailView, SailLayout, false);
+
+            m_p3dLightAct        = new  QAction(QIcon(":/icons/light.png"), "Light settings", this);
 
             m_pBackImageLoad     = new QAction("Load", this);
             m_pBackImageClear    = new QAction("Clear", this);
@@ -733,6 +556,187 @@ void SailDlg::makeCommonWts()
             pViewLayout->addWidget(m_pglSailControls);
         }
         m_p3dViewFrame->setLayout(pViewLayout);
+    }
+}
+
+
+
+void SailDlg::initDialog(Sail *pSail)
+{
+    m_pSail = pSail;
+    m_p2dSectionView->setSail(pSail);
+
+    m_pglSailView->setSail(pSail);
+
+    m_iActiveSection = 0;
+
+    // update the mesh for display
+    m_pSail->clearTriMesh();
+    m_pSail->makeTriPanels(Vector3d());
+    m_pglSailView->resetglSail();
+
+    SailSectionView::sectionStyle().m_Color = pSail->color();
+    m_plbSectionStyle->setTheStyle(SailSectionView::sectionStyle());
+
+    m_pfeRefArea->setValue(pSail->refArea()*Units::m2toUnit());
+    m_pfeRefChord->setValue(pSail->refChord()*Units::mtoUnit());
+
+    m_pMesherWt->initDialog(pSail);
+
+    if(pSail->m_EdgeSplit.size())
+    {
+        QVector<EdgeSplit> &es = pSail->m_EdgeSplit.first();
+        if(es.size()>=4)
+        {
+            for(int iEdge=0; iEdge<4; iEdge++)
+            {
+                m_pieNSegs[iEdge]->setValue(es[iEdge].nSegs());
+                switch (es[iEdge].distrib())
+                {
+                    default:
+                    case xfl::UNIFORM:   m_pcbDistType[iEdge]->setCurrentIndex(0);  break;
+                    case xfl::COSINE:    m_pcbDistType[iEdge]->setCurrentIndex(1);  break;
+                    case xfl::SINE:      m_pcbDistType[iEdge]->setCurrentIndex(2);  break;
+                    case xfl::INV_SINE:  m_pcbDistType[iEdge]->setCurrentIndex(3);  break;
+                    case xfl::INV_SINH:  m_pcbDistType[iEdge]->setCurrentIndex(4);  break;
+                    case xfl::TANH:      m_pcbDistType[iEdge]->setCurrentIndex(5);  break;
+                    case xfl::EXP:       m_pcbDistType[iEdge]->setCurrentIndex(6);  break;
+                    case xfl::INV_EXP:   m_pcbDistType[iEdge]->setCurrentIndex(7);  break;
+                }
+            }
+        }
+    }
+}
+
+
+void SailDlg::onSetChanged()
+{
+    m_bChanged = true;
+}
+
+
+void SailDlg::onLineStyle(LineStyle const &ls)
+{
+    LineMenu *pLineMenu = new LineMenu(nullptr, false);
+    pLineMenu->initMenu(ls);
+    pLineMenu->exec(QCursor::pos());
+    SailSectionView::setSectionStyle(pLineMenu->theStyle());
+    m_plbSectionStyle->setTheStyle(pLineMenu->theStyle());
+    m_p2dSectionView->update();
+}
+
+
+void SailDlg::readMeshData()
+{
+    int nx = m_pieNXPanels->value();
+    int nz = m_pieNZPanels->value();
+
+    xfl::enumDistribution xdist = xfl::distributionType(m_pcbXDistType->currentText());
+    xfl::enumDistribution zdist = xfl::distributionType(m_pcbZDistType->currentText());
+
+    m_pSail->setNXPanels(nx);
+    m_pSail->setXDistType(xdist);
+
+    m_pSail->setNZPanels(nz);
+    m_pSail->setZDistType(zdist);
+}
+
+
+void SailDlg::onUpdateMesh()
+{
+    readMeshData();
+    if(m_pSail->bRuledMesh())
+        onRuledMesh();
+
+    updateTriMesh();
+    m_pglSailView->update();
+    m_bChanged = true;
+}
+
+
+void SailDlg::updateTriMesh()
+{
+    m_pSail->clearTriMesh();
+    m_pSail->makeTriPanels(Vector3d());
+    m_pglSailView->resetgl3dMesh();
+}
+
+
+void SailDlg::setSailData()
+{
+    m_pleSailName->setText(m_pSail->name());
+    m_pteSailDescription->setPlainText(m_pSail->description());
+    m_pcbColor->setColor(m_pSail->color());
+
+    m_prbRuledMesh->setChecked(m_pSail->bRuledMesh());
+    m_prbFreeMesh->setChecked(!m_pSail->bRuledMesh());
+
+    m_pMesherWt->setVisible(!m_pSail->bRuledMesh());
+    m_pgbEdgeSplit->setVisible(!m_pSail->bRuledMesh());
+
+    m_pieNXPanels->setValue(m_pSail->nXPanels());
+
+    switch(m_pSail->xDistType())
+    {
+        default:
+        case xfl::UNIFORM:       m_pcbXDistType->setCurrentIndex(0);  break;
+        case xfl::COSINE:        m_pcbXDistType->setCurrentIndex(1);  break;
+        case xfl::SINE:          m_pcbXDistType->setCurrentIndex(2);  break;
+        case xfl::INV_SINE:      m_pcbXDistType->setCurrentIndex(3);  break;
+        case xfl::TANH:          m_pcbXDistType->setCurrentIndex(4);  break;
+        case xfl::EXP:           m_pcbXDistType->setCurrentIndex(5);  break;
+        case xfl::INV_EXP:       m_pcbXDistType->setCurrentIndex(6);  break;
+    }
+
+
+    m_pieNZPanels->setValue(m_pSail->nZPanels());
+    switch(m_pSail->zDistType())
+    {
+        default:
+        case xfl::UNIFORM:       m_pcbZDistType->setCurrentIndex(0);  break;
+        case xfl::COSINE:        m_pcbZDistType->setCurrentIndex(1);  break;
+        case xfl::SINE:          m_pcbZDistType->setCurrentIndex(2);  break;
+        case xfl::INV_SINE:      m_pcbZDistType->setCurrentIndex(3);  break;
+        case xfl::TANH:          m_pcbZDistType->setCurrentIndex(4);  break;
+        case xfl::EXP:           m_pcbZDistType->setCurrentIndex(5);  break;
+        case xfl::INV_EXP:       m_pcbZDistType->setCurrentIndex(6);  break;
+    }
+
+
+    m_pMesherWt->m_pdeMaxEdgeSize->setValue(m_pSail->maxElementSize()*Units::mtoUnit());
+    AFMesher::setMaxEdgeLength(m_pSail->maxElementSize()*Units::mtoUnit());
+
+    m_iActiveSection = 0;
+}
+
+
+void SailDlg::updateSailDataOutput()
+{
+    QString saildata, frontspacer;
+    m_pSail->properties(saildata, frontspacer);
+    m_pglSailView->setBotLeftOutput(saildata);
+}
+
+
+void SailDlg::updateSailSectionOutput()
+{
+}
+
+
+void SailDlg::setControls()
+{
+    m_pchFillFoil->setEnabled(m_pSail && m_pSail->isWingSail());
+    m_pchFillFoil->setChecked(SailSectionView::bFill());
+    if(m_pSail) m_pcbColor->setColor(m_pSail->color());
+
+    m_pRotate->setEnabled(m_pSail && m_pSail->isExternalSail());
+    m_pieNZPanels->setEnabled(m_pSail && (m_pSail->isNURBSSail() || m_pSail->isSplineSail()));
+    m_pcbZDistType->setEnabled(m_pSail && (m_pSail->isNURBSSail() || m_pSail->isSplineSail()));
+
+    if(m_pSail)
+    {
+        m_pfrRuledMesh->setVisible(m_pSail->bRuledMesh());
+        m_pMesherWt->setVisible(!m_pSail->bRuledMesh());
     }
 }
 
@@ -973,6 +977,9 @@ void SailDlg::contextMenuEvent(QContextMenuEvent *pEvent)
             if(m_pSail && m_pSail->isNURBSSail()) pExportMenu->addAction(m_pExportStep);
         }
         pContextMenu->addSeparator();
+        pContextMenu->addAction(m_p3dLightAct);
+        pContextMenu->addSeparator();
+
         QMenu *pBackImageMenu = pContextMenu->addMenu("Background image");
         {
             pBackImageMenu->addAction(m_pBackImageLoad);

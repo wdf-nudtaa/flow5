@@ -504,7 +504,7 @@ void OpenGlDlg::onCreateContext()
 
     if (!m_pglTestView->context())
     {
-        trace("Context creation Error.................\n");
+        trace("Context creation error.................\n");
         m_pptglOutput->appendPlainText("Failed to create context");
         return;
     }

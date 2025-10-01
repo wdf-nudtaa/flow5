@@ -66,7 +66,7 @@ void XPlaneActions::makeActions()
     m_pCpViewAct->setStatusTip("Switch to the Cp view");
     connect(m_pCpViewAct, SIGNAL(triggered()), m_pXPlane, SLOT(onCpView()));
 
-    m_p3dLightAct = new QAction(QIcon(":/icons/light.png"), "3d light options", m_pXPlane);
+    m_p3dLightAct = new QAction(QIcon(":/icons/light.png"), "Light settings", m_pXPlane);
     m_p3dLightAct->setStatusTip("Define the light options in the 3d view");
     connect(m_p3dLightAct, SIGNAL(triggered()), m_pXPlane->m_pgl3dXPlaneView, SLOT(onSetupLight()));
 

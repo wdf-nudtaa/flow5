@@ -466,8 +466,7 @@ void XSail::keyPressEvent(QKeyEvent *pEvent)
 void XSail::onNewBoat()
 {
     Boat *pNewBoat = new Boat;
-//    pBoat->makeDefaultBoat();
-    BoatDlg dlg;
+    BoatDlg dlg(s_pMainFrame);
     dlg.initDialog(pNewBoat, true);
 
     if(dlg.exec()==QDialog::Rejected)

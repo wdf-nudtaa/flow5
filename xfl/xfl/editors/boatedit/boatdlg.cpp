@@ -93,6 +93,10 @@ BoatDlg::BoatDlg(QWidget *pParent) : XflDialog(pParent)
 
     setupLayout();
     connectSignals();
+
+    setWindowFlag(Qt::WindowStaysOnTopHint);
+    qDebug()<<"BoatDlg"<<windowFlags();
+
 }
 
 
@@ -570,10 +574,9 @@ void BoatDlg::contextMenuEvent(QContextMenuEvent *pEvent)
         }
 
         /** @todo issue with dialog modality */
-/*        QAction *p3dLightAct = new  QAction(QIcon(":/icons/light.png"), "3d light options"), this);
-        p3dLightAct->setStatusTip("Define the light options in 3D view"));
-        connect(p3dLightAct, SIGNAL(triggered()), m_pglSailView, SLOT(onSetupLight()));
-        pContextMenu->addAction(p3dLightAct);*/
+        QAction *p3dLightAct = new  QAction(QIcon(":/icons/light.png"), "3d light options", this);
+        connect(p3dLightAct, SIGNAL(triggered()), m_pglBoatView, SLOT(onSetupLight()));
+        pContextMenu->addAction(p3dLightAct);
     }
 //    pContextMenu->exec(pEvent->pos());
     pContextMenu->exec(QCursor::pos());

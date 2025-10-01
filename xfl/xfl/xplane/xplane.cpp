@@ -3690,9 +3690,6 @@ void XPlane::onNewPlane()
 
     pPlane->makePlane(true, false, true);
 
-    QAction *pSenderAction = qobject_cast<QAction *>(sender());
-    if (!pSenderAction) return;
-
     PlaneXflDlg pDDlg(s_pMainFrame);
 
     pDDlg.initDialog(pPlane, true);
