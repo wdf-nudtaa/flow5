@@ -36,15 +36,20 @@ void FoilCoordDlg::initDialog(Foil *pFoil)
 {
     FoilDlg::initDialog(pFoil);
 
-    m_pFoilWt->addFoil(pFoil);
-
-    if(pFoil && pFoil->nNodes()>0)
-        fillCoordinates();
+    if(pFoil)
+    {
+        pFoil->show();
+        m_pFoilWt->addFoil(pFoil);
+        if(pFoil->nNodes()>0)    fillCoordinates();
+    }
     else
     {
         m_pCoords->setPlainText("Paste the coordinates here and Apply");
         m_pCoords->selectAll();
     }
+    m_pFoilWt->addFoil(m_pBufferFoil);
+    m_pBufferFoil->show();
+
 }
 
 
@@ -130,6 +135,10 @@ void FoilCoordDlg::readCoordinates()
         {
             basenodes.push_back({x,y});
         }
+        else
+        {
+            m_pBufferFoil->setName(coords.front());
+        }
     }
 
     // Check if the foil was written clockwise or counter-clockwise
@@ -156,12 +165,6 @@ void FoilCoordDlg::readCoordinates()
         }
     }
 
-/*    m_pBufferFoil->m_Node.resize(m_pBufferFoil->nBaseNodes());
-    for(int i=0; i<m_pBufferFoil->nBaseNodes(); i++)
-    {
-        m_pBufferFoil->m_Node[i].x = m_pBufferFoil->xb(i);
-        m_pBufferFoil->m_Node[i].y = m_pBufferFoil->yb(i);
-    }*/
 
     m_pBufferFoil->setBaseNodes(basenodes);
     m_pBufferFoil->initGeometry();

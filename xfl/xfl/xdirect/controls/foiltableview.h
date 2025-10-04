@@ -24,7 +24,6 @@ class FoilTableView : public CPTableView
         FoilTableView();
 
         void updateTable();
-        void keyPressEvent(QKeyEvent *pEvent) override;
         void showEvent(QShowEvent *pEvent) override;
         void hideEvent(QHideEvent *pEvent) override;
         void resizeEvent(QResizeEvent *pEvent) override;

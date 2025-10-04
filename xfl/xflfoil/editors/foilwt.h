@@ -25,6 +25,7 @@ class FoilWt : public Section2dWt
     Q_OBJECT
 
     friend class FoilDlg;
+    friend class InterpolateFoilsDlg;
 
     public:
         FoilWt(QWidget *pParent = nullptr);

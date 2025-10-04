@@ -230,7 +230,7 @@ void FoilScaleDlg::initDialog(Foil *pFoil)
 
     pFoil->setVisible(true);
     m_pFoilWt->addFoil(pFoil);
-
+    m_pFoilWt->addFoil(m_pBufferFoil);
     m_pBufferFoil->showCamberLine(true);
 
     double Camber     = pFoil->maxCamber();
@@ -255,7 +255,6 @@ void FoilScaleDlg::initDialog(Foil *pFoil)
     m_pslXCamberSlide->setSliderPosition(int(XCamber*1000.0));
     m_pslXThickSlide->setSliderPosition(int(XThickness*1000.0));
 }
-
 
 
 void FoilScaleDlg::onReset()
@@ -349,10 +348,7 @@ void FoilScaleDlg::onXThickness()
 
 void FoilScaleDlg::onApply()
 {
-/*    auto t0 = std::chrono::high_resolution_clock::now();
-    int duration(0);*/
-
-    //reset everything and retry
+    //reset everything and apply
     resetFoil();
 
     m_pBufferFoil->applyBase();
@@ -378,14 +374,9 @@ void FoilScaleDlg::onApply()
     m_pBufferFoil->rebuildPointSequenceFromBase();
     m_pBufferFoil->applyBase();
 
-/*    auto t6 = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::microseconds>(t6 - t0).count();
-    qDebug("FoilScaleDlg::onApply(t6: %7d µs", duration);*/
-
     m_bModified = true;
 
     update();
-qDebug();
 }
 
 

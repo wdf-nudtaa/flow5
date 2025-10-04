@@ -59,6 +59,7 @@ void XDirectActions::makeActions()
 
 
     m_pDeleteCurFoil = new QAction("Delete", this);
+    m_pDeleteCurFoil->setShortcut(Qt::Key_Delete);
     connect(m_pDeleteCurFoil, SIGNAL(triggered()), m_pXDirect, SLOT(onDeleteCurFoil()));
 
     m_pRenameCurFoil = new QAction("Rename\tF2", this);

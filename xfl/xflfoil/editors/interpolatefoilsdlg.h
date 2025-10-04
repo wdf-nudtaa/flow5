@@ -44,7 +44,6 @@ class InterpolateFoilsDlg : public FoilDlg
         void setupLayout();
         void setFoil1();
         void setFoil2();
-        void readParams() override;
 
 
     private slots:

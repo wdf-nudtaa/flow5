@@ -1,7 +1,7 @@
 /****************************************************************************
 
     flow5 application
-    Copyright (C) Andre Deperrois 
+    Copyright (C) Andre Deperrois
     All rights reserved.
 
 *****************************************************************************/
@@ -795,10 +795,6 @@ int XFoilTask::loop()
 }
 
 
-/**
-* Adds the results of the XFoil Calculation to the OpPoint object
-* @param pOpPoint a pointer to the instance of the OpPoint to be filled with the data from the XFoil object.
-*/
 void XFoilTask::addXFoilData(OpPoint *pOpp, XFoil &xfoil, Foil const *pFoil)
 {
     int i(0), j(0), ibl(0), is(0);

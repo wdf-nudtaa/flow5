@@ -26,7 +26,6 @@
 #include <xflmath/constants.h>
 #include <xflfoil/objects2d/foil.h>
 #include <xflfoil/objects2d/objects2d.h>
-//#include <xflobjects/objects_globals/objects_global.h>
 #include <xflwidgets/line/legendbtn.h>
 
 XDirect *DFoilWt::s_pXDirect(nullptr);

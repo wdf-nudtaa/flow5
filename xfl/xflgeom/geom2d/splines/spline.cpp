@@ -73,10 +73,6 @@ void Spline::makeDefaultControlPoints(bool bClosed, bool bTopHalfOnly)
 }
 
 
-/**
-* Copies the data from an existing Spline.
-* @param pSpline a pointer to an existing Spline object.
-*/
 void Spline::duplicate(const Spline &spline)
 {
     m_CtrlPt = spline.m_CtrlPt;
@@ -104,10 +100,6 @@ void Spline::resetSpline()
 }
 
 
-/**
-* Creates a symmetric spline w.r.t. the axis y=0, from an existing Spline.
-* @param pSpline a pointer to an existing Spline object.
-*/
 void Spline::copysymmetric(Spline const &spline)
 {
     m_CtrlPt.clear();
@@ -123,13 +115,6 @@ void Spline::copysymmetric(Spline const &spline)
 }
 
 
-
-/**
- *Returns the y-coordinate of the spline at the specified x-coordinate.
- *Requires the spline to be ordered by crescending x values
- *@param x the x-coordinate
- *@return the y-value
- */
 double Spline::getY(double xinterp, bool bRelative) const
 {
     if(bRelative && (xinterp<=0.0 || xinterp>=1.0)) return 0.0;
@@ -487,7 +472,14 @@ bool Spline::serializeFl5(QDataStream &ar, bool bIsStoring)
         ar >> m_BunchAmp;
 
         ar >> n  >> k;        // ar >> m_BunchDistrib;
-        if(n<0 || n>3) n=0;
+        switch(n)
+        {
+            default:
+            case 0: m_BunchType = NOBUNCH;    break;
+            case 1: m_BunchType = UNIFORM;    break;
+            case 2: m_BunchType = SIGMOID;    break;
+            case 3: m_BunchType = DOUBLESIG;  break;
+        }
 
         // space allocation
         ar >> nIntSpares;

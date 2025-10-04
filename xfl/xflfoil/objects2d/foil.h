@@ -98,7 +98,7 @@ class Foil : public XflObject
 
         void makeCubicSpline(int nCtrlPts=-1);
         void makeCubicSpline(CubicSpline &cs, int nCtrlPts=-1) const;
-        void makeNormalsFromCubic(bool bBase);
+        void makeNormalsFromCubic();
 
         bool makeApproxBSpline(BSpline &bs, int deg, int nCtrlPts, int nOutputPts) const;
 
@@ -110,7 +110,7 @@ class Foil : public XflObject
         void setTE(Vector2d const &te) {m_TE=te;}
 
         bool exportFoilToDat(QTextStream &out) const;
-        bool initGeometry(bool bFast=false);
+        bool initGeometry();
 
         void appendBasePoint(double x, double y);
 
@@ -199,7 +199,10 @@ class Foil : public XflObject
 
         double CSfracLE() const {return m_CSfracLE;}
 
+        void setBunchParameters(Spline::enumBunch bunchtype, double bunchamp) {m_BunchType=bunchtype, m_BunchAmp=bunchamp;}
 
+
+        void setNodes(QVector<Node2d> const& nodes) {m_Node=nodes;}
         Node2d const &frontNode() const {return m_Node.front();}
         Node2d const &backNode() const {return m_Node.back();}
 
@@ -260,6 +263,8 @@ class Foil : public XflObject
         QVector<double> m_Thickness;         /**< the local thicknesses at each mid point*/
 
 
+        double m_BunchAmp;  /** k=0.0 --> uniform bunching, k=1-->full varying bunch */
+        Spline::enumBunch m_BunchType;
 };
 
 

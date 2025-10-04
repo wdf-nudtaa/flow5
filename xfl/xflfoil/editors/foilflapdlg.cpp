@@ -217,6 +217,10 @@ void FoilFlapDlg::onOK()
         m_pBufferFoil->makeModPermanent();
         m_pBufferFoil->initGeometry();
     }
+    else
+    {
+        m_pBufferFoil->setTEFlapAngle(0.0);
+    }
 
     accept();
 }

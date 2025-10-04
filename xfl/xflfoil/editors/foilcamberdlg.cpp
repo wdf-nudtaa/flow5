@@ -59,12 +59,13 @@ void FoilCamberDlg::initDialog(Foil *pFoil)
     m_TStack.push(s_TSpline);
     m_StackPos = 0;
 
+
+    m_pBufferFoil->show();
+    m_pFoilWt->addFoil(m_pBufferFoil);
+
     m_pFoilWt->addSpline(&s_CSpline);
     m_pFoilWt->addSpline(&s_TSpline);
     m_pFoilWt->setIn01(true);
-
-    m_pBufferFoil->setVisible(true);
-    m_pFoilWt->setBufferFoil(m_pBufferFoil);
 
     onApply();
 }

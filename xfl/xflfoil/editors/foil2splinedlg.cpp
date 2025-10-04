@@ -37,7 +37,7 @@ void Foil2SplineDlg::initDialog(Foil *pFoil)
 {
     FoilDlg::initDialog(pFoil);
     m_pFoilWt->setBufferFoil(nullptr);
-    m_pBufferFoil->setVisible(false);
+    m_pBufferFoil->hide();
     m_pBufferFoil->setName("Splined foil");
 
     s_SF.setVisible(true);

@@ -32,10 +32,10 @@ InterpolateFoilsDlg::InterpolateFoilsDlg(QWidget *pParent) : FoilDlg(pParent)
 
     setupLayout();
 
-    connect(m_pcbFoil1,           SIGNAL(activated(int)),       SLOT(onSelChangeFoil1(int)));
-    connect(m_pcbFoil2,           SIGNAL(activated(int)),       SLOT(onSelChangeFoil2(int)));
-    connect(m_pdeFrac,            SIGNAL(floatChanged(float)),       SLOT(onFrac()));
-    connect(m_pslMix,             SIGNAL(sliderMoved(int)),     SLOT(onSlider(int)));
+    connect(m_pcbFoil1,     SIGNAL(activated(int)),       SLOT(onSelChangeFoil1(int)));
+    connect(m_pcbFoil2,     SIGNAL(activated(int)),       SLOT(onSelChangeFoil2(int)));
+    connect(m_pdeFrac,      SIGNAL(floatChanged(float)),  SLOT(onFrac()));
+    connect(m_pslMix,       SIGNAL(sliderMoved(int)),     SLOT(onSlider(int)));
 }
 
 
@@ -155,6 +155,11 @@ void InterpolateFoilsDlg::initDialogFoils()
 
     m_pFoilWt->setBufferFoil(m_pBufferFoil);
     m_pBufferFoil->setName("Interpolated foil");
+    m_pBufferFoil->setTheStyle(FoilWt::bufferFoilStyle());
+    m_pBufferFoil->show();
+    m_pBufferFoil->setFilled(FoilWt::isFilledBufferFoil());
+    m_pFoilWt->m_pBufferLineMenu->initMenu(m_pBufferFoil->theStyle());
+
     onApply();
 }
 
@@ -216,23 +221,6 @@ void InterpolateFoilsDlg::showSelectedFoils()
 }
 
 
-void InterpolateFoilsDlg::onApply()
-{
-    if(m_pFoil1->nNodes()>m_pFoil2->nNodes()) m_pBufferFoil->copy(m_pFoil1, false);
-    else                            m_pBufferFoil->copy(m_pFoil2, false);
-    m_pBufferFoil->setTheStyle(FoilWt::bufferFoilStyle());
-    m_pBufferFoil->setVisible(true);
-    m_pBufferFoil->setFilled(FoilWt::isFilledBufferFoil());
-    m_pBufferFoil->interpolate(m_pFoil1, m_pFoil2, m_Frac/100.0);
-    m_pBufferFoil->makeBaseFromCamberAndThickness();
-    m_pBufferFoil->rebuildPointSequenceFromBase();
-
-    m_plabProps3->setText(m_pBufferFoil->properties(false));
-
-    update();
-}
-
-
 void InterpolateFoilsDlg::onFrac()
 {
     m_Frac = m_pdeFrac->value();
@@ -240,11 +228,6 @@ void InterpolateFoilsDlg::onFrac()
     m_Frac = 100.0 - m_Frac;
 
     onApply();
-}
-
-
-void InterpolateFoilsDlg::readParams()
-{
 }
 
 
@@ -256,4 +239,21 @@ void InterpolateFoilsDlg::onSlider(int val)
     onApply();
 }
 
+
+void InterpolateFoilsDlg::onApply()
+{
+    if(m_pFoil1->nNodes()>m_pFoil2->nNodes()) m_pBufferFoil->copy(m_pFoil1, false);
+    else                            m_pBufferFoil->copy(m_pFoil2, false);
+    m_pBufferFoil->setTheStyle(FoilWt::bufferFoilStyle());
+    m_pBufferFoil->show();
+    m_pBufferFoil->setFilled(FoilWt::isFilledBufferFoil());
+    m_pBufferFoil->interpolate(m_pFoil1, m_pFoil2, m_Frac/100.0);
+    m_pBufferFoil->makeBaseFromCamberAndThickness();
+    m_pBufferFoil->rebuildPointSequenceFromBase();
+    m_pBufferFoil->applyBase();
+
+    m_plabProps3->setText(m_pBufferFoil->properties(false));
+
+    update();
+}
 

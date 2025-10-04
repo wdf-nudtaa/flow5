@@ -61,7 +61,10 @@ void Foil::resetFoil()
     m_iLE = -1;
     m_bFill = false;
 
-    m_CubicSpline.setBunchType(Spline::DOUBLESIG);
+
+    m_BunchAmp = 0.0;
+    m_BunchType = Spline::DOUBLESIG; // All other options are disabled
+    m_CubicSpline.setBunchParameters(m_BunchType, m_BunchAmp);
     m_CubicSpline.setColor(QColor(255,100,100));
 
     m_bCamberLine   = false;
@@ -87,6 +90,7 @@ void Foil::resetFoil()
     m_LEYHinge    = 0.5;
 
     m_BSfracLE = m_CSfracLE = 0.0;
+
 }
 
 
@@ -126,6 +130,9 @@ void Foil::makeBaseMidLine()
         m_BaseCbLine[l] = (Top+Bot)/2.0;
         m_Thickness[l] = (Top-Bot).norm();
     }
+
+    // force LE position
+    m_BaseCbLine.front() = m_LE;
 
 }
 
@@ -509,6 +516,9 @@ void Foil::copy(Foil const &SrcFoil, bool bMeta, bool bForceDeepCopy)
     m_CSfracLE    = SrcFoil.m_CSfracLE;
 
     m_iLE         = SrcFoil.m_iLE;
+
+    m_BunchAmp    = SrcFoil.m_BunchAmp;
+    m_BunchType   = SrcFoil.m_BunchType;
 }
 
 
@@ -1648,23 +1658,21 @@ Vector2d Foil::TEbisector() const
 }
 
 
-void Foil::makeNormalsFromCubic(bool bBase)
+void Foil::makeNormalsFromCubic()
 {
     double dx{0}, dy{0};
     for(int t=0; t<nBaseNodes(); t++)
     {
         m_CubicSpline.splineDerivative(double(t)/double(nNodes()-1), dx, dy);
         double norm = sqrt(dx*dx+dy*dy);
-        if(bBase)
-            m_BaseNode[t].setNormal(dy/norm, -dx/norm);
-//        else            m_Node[t].setNormal(dy/norm, -dx/norm);
-
+        m_BaseNode[t].setNormal(dy/norm, -dx/norm);
     }
 }
 
 
 void Foil::makeCubicSpline(int nCtrlPts)
 {
+    m_CubicSpline.setBunchParameters(m_BunchType, m_BunchAmp);
     makeCubicSpline(m_CubicSpline, nCtrlPts);
 }
 
@@ -1747,11 +1755,12 @@ bool Foil::serializeXfl(QDataStream &ar, bool bIsStoring)
 
 bool Foil::serializeFl5(QDataStream &ar, bool bIsStoring)
 {
-    int kj(0);
+    int kj(0), n(0);
 
-    int ArchiveFormat = 500750;
+    int ArchiveFormat = 500753;
     // 500001: first version of new fl5 format
-    // 500750:  v7.50 making legacy TE flaps permanent
+    // 500750: v7.50 making legacy TE flaps permanent
+    // 500753: v7.53 added spline bunch parameters
 
     if(bIsStoring)
     {
@@ -1766,7 +1775,19 @@ bool Foil::serializeFl5(QDataStream &ar, bool bIsStoring)
         ar << m_bCamberLine << m_bLEFlap << m_bTEFlap;
         ar << m_LEFlapAngle << m_LEXHinge << m_LEYHinge;
         ar << m_TEFlapAngle << m_TEXHinge << m_TEYHinge;
-        ar << nBaseNodes();
+
+        ar << m_BunchAmp;
+        n=0;
+        switch(m_BunchType)
+        {
+            case Spline::NOBUNCH:    n=0;    break;
+            case Spline::UNIFORM:    n=1;    break;
+            case Spline::SIGMOID:    n=2;    break;
+            case Spline::DOUBLESIG:  n=3;    break;
+        }
+        ar << n;
+
+        ar << nBaseNodes(); // store as int!
         for (int l=0; l<nBaseNodes(); l++)
         {
             ar <<m_BaseNode[l].x << m_BaseNode[l].y;
@@ -1790,6 +1811,20 @@ bool Foil::serializeFl5(QDataStream &ar, bool bIsStoring)
         ar >> m_LEFlapAngle >> m_LEXHinge >> m_LEYHinge;
         ar >> m_TEFlapAngle >> m_TEXHinge >> m_TEYHinge;
 
+        if(ArchiveFormat>=500753)
+        {
+            ar >> m_BunchAmp;
+            ar >> n;
+            switch(n)
+            {
+                case 0: m_BunchType = Spline::NOBUNCH;    break;
+                case 1: m_BunchType = Spline::UNIFORM;    break;
+                case 2: m_BunchType = Spline::SIGMOID;    break;
+                default:
+                case 3: m_BunchType = Spline::DOUBLESIG;  break;
+            }
+        }
+        m_BunchType = Spline::DOUBLESIG; // force it
 
         int n(0);
         double x(0), y(0);
@@ -1813,6 +1848,7 @@ bool Foil::serializeFl5(QDataStream &ar, bool bIsStoring)
         }
 
         m_TEFlapAngle = 0.0;
+
 
         initGeometry();
         return true;
@@ -1947,7 +1983,6 @@ void Foil::interpolate(Foil const *pFoil1, Foil const *pFoil2, double frac)
 }
 
 
-
 /**
  * "Base arrays" = raw airfoil as imported or constructed, with coarse panelling and no flap
  * "Active arrays" = Base + repanelling and flaps
@@ -1964,7 +1999,7 @@ void Foil::interpolate(Foil const *pFoil1, Foil const *pFoil2, double frac)
  *   3. Create top and bot surfaces base + current
  *   4. set the flaps
  */
-bool Foil::initGeometry(bool bFast)
+bool Foil::initGeometry()
 {
     if(nBaseNodes()<=0) return false;
 
@@ -1972,24 +2007,19 @@ bool Foil::initGeometry(bool bFast)
     m_TE.x = (m_BaseNode.front().x+m_BaseNode.back().x)/2.0;
     m_TE.y = (m_BaseNode.front().y+m_BaseNode.back().y)/2.0;
 
-    // use the base nodes to build the cubic
-    if(bFast) // to speed up foil modification routines
-        makeCubicSpline(nNodes()/3);
-    else
-        makeCubicSpline();
+    makeCubicSpline(); // using base nodes
 
-    makeNormalsFromCubic(true);
+    makeNormalsFromCubic(); // using base nodes
 
-    setLEFromCubicSpline();
+    setLEFromCubicSpline(); // set the leading edge using the cubic spline
+
     makeBaseMidLine();
-    m_BaseCbLine.front() = m_LE;
 
     if(!makeTopBotSurfaces()) return false;
 
-    applyBase();
+    applyBase(); // copy base to the active set of nodes
 
-
-    setFlaps();
+    setFlaps(); // set flaps on the active set of nodes
 
     return true;
 }

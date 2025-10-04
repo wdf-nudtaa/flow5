@@ -67,7 +67,7 @@ void FoilDlg::initDialog(Foil *pFoil)
 {
     m_pRefFoil = pFoil;
     m_pBufferFoil->setTheStyle(FoilWt::bufferFoilStyle());
-    m_pBufferFoil->setVisible(true);
+    m_pBufferFoil->show();
     m_pBufferFoil->setFilled(FoilWt::isFilledBufferFoil());
 
     resetFoil();
@@ -96,7 +96,6 @@ void FoilDlg::makeCommonWidgets()
     {
         QMenu *pMenuAction = new QMenu("Menu");
         {
-            pMenuAction->addMenu(m_pFoilWt->m_pBufferMenu);
             pMenuAction->addAction(m_pFoilWt->m_pShowCamberLines);
             pMenuAction->addAction(m_pFoilWt->m_pOverlayFoil);
         }
@@ -170,7 +169,6 @@ void FoilDlg::keyPressEvent(QKeyEvent *pEvent)
         {
             if(!m_pButtonBox->hasFocus())
             {
-                onApply();
                 m_pButtonBox->setFocus();
             }
             break;

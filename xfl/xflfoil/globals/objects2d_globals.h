@@ -20,7 +20,7 @@ void drawFoilMidLine(QPainter &painter, Foil const *pFoil, double scalex, double
 void drawFoilPoints(QPainter &painter, Foil const *pFoil, double alpha, double scalex, double scaley, QPointF const &Offset, const QColor &backColor, const QRect &drawrect);
 
 
-void readFoilFile(QFile &xFoilFile, Foil *pFoil);
+bool readFoilFile(QFile &FoilFile, Foil *pFoil);
 bool readPolarFile(QFile &plrFile, QVector<Foil*> &foilList, QVector<Polar*> &polarList);
 Polar *importXFoilPolar(QFile & txtFile, QString &logmsg);
 

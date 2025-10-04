@@ -146,10 +146,11 @@ void FoilRepanelDlg::onBufferStyle(LineStyle ls)
 
 void FoilRepanelDlg::onNPanels(int npanels)
 {
-    if(npanels>=255)
+    if(npanels>255)
         m_plabWarning->setText("<p><font color=red>XFoil requires NPanels&lt;255</font></p>");
     else
         m_plabWarning->clear();
+    onApply();
 }
 
 
@@ -157,12 +158,16 @@ void FoilRepanelDlg::initDialog(Foil *pFoil)
 {
     FoilDlg::initDialog(pFoil);
 
+//    m_pFoilWt->addFoil(pFoil); // overloads the display
+    if(pFoil) m_pBufferFoil->setName(pFoil->name() + " - repaneled");
+    m_pFoilWt->addFoil(m_pBufferFoil);
+
     onReset();
 
     m_pRefFoil->makeCubicSpline(*m_pCS);
     m_pCS->computeArcLengths();
 
-    m_pBufferFoil->setVisible(true);
+    m_pBufferFoil->show();
 
     m_pieNPanels->setFocus();
 
@@ -203,9 +208,13 @@ void FoilRepanelDlg::onApply()
 
     m_pCS->rePanel(nPanels);
 
-    m_pBufferFoil->setBaseNodes(m_pCS->outputPts());
+    m_pBufferFoil->setBunchParameters(m_pCS->bunchType(), m_pCS->bunchAmplitude()); // save the bunch parameters
 
-    m_pBufferFoil->initGeometry(true);
+    m_pBufferFoil->setBaseNodes(m_pCS->outputPts());
+    m_pBufferFoil->applyBase();
+
+
+//    m_pBufferFoil->setNodes(m_pCS->outputPts());
 
     update();
 

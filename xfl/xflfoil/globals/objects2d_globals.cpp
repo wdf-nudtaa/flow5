@@ -155,87 +155,58 @@ void drawFoilPoints(QPainter &painter, Foil const *pFoil, double alpha, double s
 }
 
 
-void readFoilFile(QFile &xFoilFile, Foil *pFoil)
+bool readFoilFile(QFile &FoilFile, Foil *pFoil)
 {
-    QString strong;
-    QString tempStr;
+    QString line;
     QString FoilName;
-
-    int pos(0);
     double x(0), y(0), z(0);
-    double xp(0), yp(0);
-    bool bRead(false);
 
     QVector<Node2d> basenodes;
 
-    QTextStream inStream(&xFoilFile);
+    QTextStream inStream(&FoilFile);
 
-    QFileInfo fileInfo(xFoilFile);
+    QFileInfo fi(FoilFile);
+    QString filename = fi.baseName();
 
-    QString fileName = fileInfo.fileName();
-    int suffixLength = fileInfo.suffix().length()+1;
-    fileName = fileName.left(fileName.size()-suffixLength);
-
-    while(tempStr.length()==0 && !inStream.atEnd())
+    // identify and read the first non-empty line
+    while(!inStream.atEnd())
     {
-        strong = inStream.readLine();
-        pos = strong.indexOf("#",0);
-        // ignore everything after # (including #)
-        if(pos>0)strong.truncate(pos);
-        tempStr = strong;
-        tempStr.remove(" ");
-        FoilName = strong;
-    }
+        line = inStream.readLine();
+        if(line.isNull()) return false; // premature end of file, file is unreadable
+        if (line.isEmpty()) continue;
 
-    if(!inStream.atEnd())
-    {
-        // FoilName contains the last comment
+        line = line.trimmed();
 
-        if(xfl::readValues(strong,x,y,z)==2)
+        if(xfl::readValues(line,x,y,z)==2)
         {
             //there isn't a name on the first line, use the file's name
-            FoilName = fileName;
-            {
-                basenodes.push_back({x,y});
-//                pFoil->nb=1;
-//                xp = x;
-//                yp = y;
-            }
+            FoilName = filename;
+            // store initial coordinates
+            basenodes.push_back({x,y});
         }
-        else FoilName = strong;
-        // remove fore and aft spaces
+        else FoilName = line;
+
         FoilName = FoilName.trimmed();
+        break;
     }
 
-    bRead = true;
-    xp=-9999.0;
-    yp=-9999.0;
+    // read coordinates
     do
     {
-        strong = inStream.readLine();
-        pos = strong.indexOf("#",0);
-        // ignore everything after # (including #)
-        if(pos>0)strong.truncate(pos);
-        tempStr = strong;
-        tempStr.remove(" ");
-        if (!strong.isNull() && bRead && tempStr.length())
-        {
-            if(xfl::readValues(strong, x,y,z)==2)
-            {
-                //add values only if the point is not coincident with the previous one
-                double dist = sqrt((x-xp)*(x-xp) + (y-yp)*(y-yp));
-                if(dist>0.000001)
-                {
-                    basenodes.push_back({x,y});
-//                    pFoil->nb++;
+        line = inStream.readLine();
+        if(line.isNull()) break; // end of file
+        if(line.isEmpty()) continue;
 
-                    xp = x;
-                    yp = y;
-                }
-            }
-            else bRead = false;
+        if(xfl::readValues(line, x,y,z)==2)
+        {
+            basenodes.push_back({x,y});
         }
-    }while (bRead && !strong.isNull());
+        else
+        {
+            // non-empty but unreadable line, abort
+            break;
+        }
+    }while(true);
 
     pFoil->setName(FoilName);
 
@@ -245,7 +216,7 @@ void readFoilFile(QFile &xFoilFile, Foil *pFoil)
     for (int i=0; i<pFoil->nBaseNodes(); i++)
     {
         if(i==pFoil->nBaseNodes()-1) ip = 0;
-        else                 ip = i+1;
+        else                         ip = i+1;
         area +=  0.5*(pFoil->yb(i)+pFoil->yb(ip))*(pFoil->xb(i)-pFoil->xb(ip));
     }
 
@@ -266,6 +237,7 @@ void readFoilFile(QFile &xFoilFile, Foil *pFoil)
 
     pFoil->setBaseNodes(basenodes);
     pFoil->initGeometry();
+    return true;
 }
 
 

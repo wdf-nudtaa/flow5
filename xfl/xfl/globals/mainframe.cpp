@@ -4132,7 +4132,7 @@ void MainFrame::onOpenGraphInNewWindow(Graph *pGraph)
     }
 
     GraphWt *pGW = new GraphWt();
-    pGW->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+    pGW->setWindowFlag(Qt::WindowStaysOnTopHint);
 
     m_GraphWidget.append(pGW);
     Graph *pNewGraph = new Graph;

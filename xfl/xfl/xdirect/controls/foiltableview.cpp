@@ -184,22 +184,6 @@ void FoilTableView::resizeColumns()
 }
 
 
-void FoilTableView::keyPressEvent(QKeyEvent *pEvent)
-{
-    switch (pEvent->key())
-    {
-        case Qt::Key_Delete:
-        {
-            s_pXDirect->onDeleteCurFoil();
-            break;
-        }
-        default:
-            pEvent->ignore();
-    }
-
-}
-
-
 void FoilTableView::hideEvent(QHideEvent *pEvent)
 {
     s_Height = height();

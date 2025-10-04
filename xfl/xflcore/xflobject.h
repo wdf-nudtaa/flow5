@@ -36,6 +36,8 @@ class XflObject
 
         bool isVisible() const {return m_theStyle.m_bIsVisible;}
         void setVisible(bool bVisible) {m_theStyle.m_bIsVisible = bVisible;}
+        void show() {m_theStyle.m_bIsVisible=true;}
+        void hide() {m_theStyle.m_bIsVisible=false;}
 
         Line::enumPointStyle pointStyle() const {return m_theStyle.m_Symbol;}
         void setPointStyle(Line::enumPointStyle iPointStyle) {m_theStyle.m_Symbol=iPointStyle;}
