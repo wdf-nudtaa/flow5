@@ -829,8 +829,6 @@ void Surface::setFlap()
  */
 void Surface::makeSideNodes(Fuse const*pTranslatedFuse, bool bDebug)
 {
-    Vector3d I, Nm, Nu, Nl;
-
     Vector3d V = m_Normal * m_NormalA;
     Vector3d U = (m_TA - m_LA).normalized();
     double sindA = -V.dot(U);
@@ -2054,13 +2052,7 @@ Foil *Surface::foilB()
 }
 
 
-/**
- * @brief Makes one spline going from the TE to the LE through the bottom surface and
- * back to the TE through the top surface. UNUSED.
- * @param leftspline
- * @param rightspline
- * @return
- */
+//UNUSED
 bool Surface::makeSectionSplines(BSpline3d &leftspline, BSpline3d &rightspline) const
 {
     int nCtrlPoints = 11;
@@ -2088,7 +2080,7 @@ bool Surface::makeSectionSplines(BSpline3d &leftspline, BSpline3d &rightspline) 
 }
 
 
-bool Surface::makeSectionSplines(bool bTop, bool bLeft, int degree, int nCtrlPoints, int nOutPoints, BSpline3d &spline) const
+bool Surface::makeSectionHalfSpline(bool bTop, bool bLeft, int degree, int nCtrlPoints, int nOutPoints, BSpline3d &spline) const
 {
 //    int degree = 3;
 //    int nCtrlPoints = 11;
@@ -2124,7 +2116,8 @@ bool Surface::makeSectionSplines(bool bTop, bool bLeft, int degree, int nCtrlPoi
 }
 
 
-bool Surface::makeSectionSplines(bool bTop, bool bLeft, Handle(Geom_BSplineCurve)& theSpline) const
+// UNUSED
+bool Surface::makeSectionSplinesOcc(bool bTop, bool bLeft, Handle(Geom_BSplineCurve)& theSpline) const
 {
     int nCtrlPoints = 11;
     int nPoints = 2*nCtrlPoints; // minimum to get a good approximation

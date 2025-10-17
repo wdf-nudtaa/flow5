@@ -111,7 +111,6 @@ SOURCES += \
     xflobjects/objects3d/wing/wingsection.cpp \
     xflobjects/objects3d/wing/wingxfl.cpp \
     xflobjects/objects_globals/objects_global.cpp \
-    xflobjects/occmeshcontrols.cpp \
     xflobjects/sailobjects/boat.cpp \
     xflobjects/sailobjects/sailglobals.cpp \
     xflobjects/sailobjects/sailobjects.cpp \

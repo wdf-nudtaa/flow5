@@ -19,6 +19,7 @@
 #include <xflfoil/objects2d/foil.h>
 #include <xflgeom/geom3d/triangulation.h>
 #include <xflgeom/geom3d/vector3d.h>
+#include <xflobjects/objects3d/analysis/aeroforces.h>
 #include <xflobjects/objects3d/analysis/spandistribs.h>
 #include <xflobjects/objects3d/part.h>
 #include <xflobjects/objects3d/wing/surface.h>

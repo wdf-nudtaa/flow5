@@ -257,9 +257,9 @@ class Surface
         int nPanel4() const {return m_Panel4List.size();}
 
         bool makeSectionSplines(BSpline3d & leftspline, BSpline3d &rightspline) const;
-        bool makeSectionSplines(bool bTop, bool bLeft, int degree, int nCtrlPoints, int nOutPoints, BSpline3d &spline) const;
+        bool makeSectionHalfSpline(bool bTop, bool bLeft, int degree, int nCtrlPoints, int nOutPoints, BSpline3d &spline) const;
 
-        bool makeSectionSplines(bool bTop, bool bLeft, Handle(Geom_BSplineCurve)& theSpline) const;
+        bool makeSectionSplinesOcc(bool bTop, bool bLeft, Handle(Geom_BSplineCurve)& theSpline) const;
 
         void setNormals(Vector3d const& NA, Vector3d const &NB) {m_NormalA=NA; m_NormalB=NB;}
         void setTwist(double thetaA, double thetaB) {m_TwistA=thetaA; m_TwistB=thetaB;}

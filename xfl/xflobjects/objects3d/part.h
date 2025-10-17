@@ -13,7 +13,6 @@
 #include <QVector>
 
 
-#include <xflobjects/objects3d/analysis/aeroforces.h>
 #include <xflobjects/objects3d/inertia/pointmass.h>
 #include <xflobjects/objects3d/inertia/inertia.h>
 #include <xflmath/mathelem.h>

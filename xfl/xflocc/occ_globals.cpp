@@ -2749,8 +2749,8 @@ bool occ::makeWing2NurbsShape(WingXfl const *pWing, double stitchprecision, int 
         if(surf.isTipLeft())
         {
             BRepBuilderAPI_MakeWire WireMaker;
-            surf.makeSectionSplines(true,  true, degree, nCtrlPoints, nOutPoints, b3dtop);
-            surf.makeSectionSplines(false, true, degree, nCtrlPoints, nOutPoints, b3dbot);
+            surf.makeSectionHalfSpline(true,  true, degree, nCtrlPoints, nOutPoints, b3dtop);
+            surf.makeSectionHalfSpline(false, true, degree, nCtrlPoints, nOutPoints, b3dbot);
             makeSplineWire(b3dtop, TopWire, logmsg);
             makeSplineWire(b3dbot, BotWire, logmsg);
             WireMaker.Add(TopWire);
@@ -2797,8 +2797,8 @@ qDebug()<<"occspliness"<<HBotCurve->Degree()<<HBotCurve->NbPoles()<<HTopCurve->D
         //RIGHT TIP PATCH
         if(surf.isTipRight())
         {
-            surf.makeSectionSplines(true,  false, degree, nCtrlPoints, nOutPoints, b3dtop);
-            surf.makeSectionSplines(false, false, degree, nCtrlPoints, nOutPoints, b3dbot);
+            surf.makeSectionHalfSpline(true,  false, degree, nCtrlPoints, nOutPoints, b3dtop);
+            surf.makeSectionHalfSpline(false, false, degree, nCtrlPoints, nOutPoints, b3dbot);
             makeSplineWire(b3dtop, TopWire, logmsg);
             makeSplineWire(b3dbot, BotWire, logmsg);
 
@@ -2834,8 +2834,8 @@ qDebug()<<"occspliness"<<HBotCurve->Degree()<<HBotCurve->NbPoles()<<HTopCurve->D
         bool bSide[] = {true, false}; // top, bottom
         for(int iside=0; iside<2; iside++)
         {
-            surf.makeSectionSplines(bSide[iside], true,  degree, nCtrlPoints, nOutPoints, b3dleft);
-            surf.makeSectionSplines(bSide[iside], false, degree, nCtrlPoints, nOutPoints, b3dright);
+            surf.makeSectionHalfSpline(bSide[iside], true,  degree, nCtrlPoints, nOutPoints, b3dleft);
+            surf.makeSectionHalfSpline(bSide[iside], false, degree, nCtrlPoints, nOutPoints, b3dright);
             NURBSSurface nurbs;
             nurbs.setUAxis(1);
             nurbs.setVAxis(0);
@@ -2977,28 +2977,28 @@ bool occ::makeWingSplineSweep(WingXfl const *pWing, double stitchprecision, int 
     {
         Surface const &surf = pWing->surfaceAt(iSurf);
 
-        if(!surf.makeSectionSplines(true,  true, degree, nCtrlPoints, nOutPoints, b3dtopleft) ||
+        if(!surf.makeSectionHalfSpline(true,  true, degree, nCtrlPoints, nOutPoints, b3dtopleft) ||
            !makeSplineWire(b3dtopleft, TopLeftWire, logmsg))
         {
             logmsg += QString::asprintf("   Error making top left spline of surface %d", iSurf);
             return false;
         }
 
-        if(!surf.makeSectionSplines(false, true, degree, nCtrlPoints, nOutPoints, b3dbotleft) ||
+        if(!surf.makeSectionHalfSpline(false, true, degree, nCtrlPoints, nOutPoints, b3dbotleft) ||
            !makeSplineWire(b3dbotleft, BotLeftWire, logmsg))
         {
             logmsg += QString::asprintf("   Error making bottom left spline of surface %d", iSurf);
             return false;
         }
 
-        if(!surf.makeSectionSplines(true,  false, degree, nCtrlPoints, nOutPoints, b3dtopright) ||
+        if(!surf.makeSectionHalfSpline(true,  false, degree, nCtrlPoints, nOutPoints, b3dtopright) ||
            !makeSplineWire(b3dtopright, TopRightWire, logmsg))
         {
             logmsg += QString::asprintf("   Error making top right spline of surface %d", iSurf);
             return false;
         }
 
-        if(!surf.makeSectionSplines(false, false, degree, nCtrlPoints, nOutPoints, b3dbotright) ||
+        if(!surf.makeSectionHalfSpline(false, false, degree, nCtrlPoints, nOutPoints, b3dbotright) ||
            !makeSplineWire(b3dbotright, BotRightWire, logmsg))
         {
             logmsg += QString::asprintf("   Error making bottom right spline of surface %d", iSurf);
@@ -3179,8 +3179,8 @@ bool occ::makeWingSplineSweepMultiSections(WingXfl const *pWing, double stitchpr
     {
         Surface const &surf = pWing->surfaceAt(iSurf);
 
-        surf.makeSectionSplines(true,  true, degree, nCtrlPoints, nOutPoints, b3dtop);
-        surf.makeSectionSplines(false, true, degree, nCtrlPoints, nOutPoints, b3dbot);
+        surf.makeSectionHalfSpline(true,  true, degree, nCtrlPoints, nOutPoints, b3dtop);
+        surf.makeSectionHalfSpline(false, true, degree, nCtrlPoints, nOutPoints, b3dbot);
         makeSplineWire(b3dtop, TopWire, logmsg);
         makeSplineWire(b3dbot, BotWire, logmsg);
 
@@ -3223,8 +3223,8 @@ bool occ::makeWingSplineSweepMultiSections(WingXfl const *pWing, double stitchpr
         //RIGHT TIP PATCH
         if(surf.isTipRight())
         {
-            surf.makeSectionSplines(true,  false, degree, nCtrlPoints, nOutPoints, b3dtop);
-            surf.makeSectionSplines(false, false, degree, nCtrlPoints, nOutPoints, b3dbot);
+            surf.makeSectionHalfSpline(true,  false, degree, nCtrlPoints, nOutPoints, b3dtop);
+            surf.makeSectionHalfSpline(false, false, degree, nCtrlPoints, nOutPoints, b3dbot);
             makeSplineWire(b3dtop, TopWire, logmsg);
             makeSplineWire(b3dbot, BotWire, logmsg);
 
@@ -3360,8 +3360,8 @@ bool occ::makeWingSplineSweepSolid(WingXfl const *pWing, double , int degree, in
     {
         Surface const &surf = pWing->surfaceAt(iSurf);
 
-        surf.makeSectionSplines(true,  true, degree, nCtrlPoints, nOutPoints, b3dtop);
-        surf.makeSectionSplines(false, true, degree, nCtrlPoints, nOutPoints, b3dbot);
+        surf.makeSectionHalfSpline(true,  true, degree, nCtrlPoints, nOutPoints, b3dtop);
+        surf.makeSectionHalfSpline(false, true, degree, nCtrlPoints, nOutPoints, b3dbot);
 
         Handle_Geom_BSplineCurve topspline, botspline;
         makeOCCSplineFromBSpline3d(b3dtop, topspline, logmsg);
@@ -3385,8 +3385,8 @@ bool occ::makeWingSplineSweepSolid(WingXfl const *pWing, double , int degree, in
         //RIGHT TIP PATCH
         if(surf.isTipRight())
         {
-            surf.makeSectionSplines(true,  false, degree, nCtrlPoints, nOutPoints, b3dtop);
-            surf.makeSectionSplines(false, false, degree, nCtrlPoints, nOutPoints, b3dbot);
+            surf.makeSectionHalfSpline(true,  false, degree, nCtrlPoints, nOutPoints, b3dtop);
+            surf.makeSectionHalfSpline(false, false, degree, nCtrlPoints, nOutPoints, b3dbot);
 
             Handle_Geom_BSplineCurve topspline, botspline;
             makeOCCSplineFromBSpline3d(b3dtop, topspline, logmsg);

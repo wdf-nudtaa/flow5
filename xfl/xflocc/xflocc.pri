@@ -7,6 +7,7 @@ HEADERS += \
 
 
 SOURCES += \
+    $$PWD/occmeshcontrols.cpp \
     xflocc/occ_globals.cpp \
     xflocc/occmeshparams.cpp
 
