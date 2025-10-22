@@ -140,10 +140,10 @@ void NURBSSailDlg::setupLayout()
                         m_pViewVSplitter->addWidget(m_pSectionTableSplitter);
                     }
 
-                    m_pTabWidget->addTab(pGeneralPage, "Meta-data");
+                    m_pTabWidget->addTab(pGeneralPage,     "Meta");
                     m_pTabWidget->addTab(m_pViewVSplitter, "Geometry");
-                    m_pTabWidget->addTab(m_pMeshBox, "Mesh");
-                    m_pTabWidget->addTab(m_pTEBox, "Trailing edge");
+                    m_pTabWidget->addTab(m_pfrMesh,        "Mesh");
+                    m_pTabWidget->addTab(m_pfrTE,          "Trailing edge");
                     m_pTabWidget->setTabToolTip(0, "Ctrl+1");
                     m_pTabWidget->setTabToolTip(1, "Ctrl+2");
                     m_pTabWidget->setTabToolTip(2, "Ctrl+3");

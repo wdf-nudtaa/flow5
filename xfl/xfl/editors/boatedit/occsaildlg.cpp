@@ -118,7 +118,7 @@ void OccSailDlg::setupLayout()
 
                 m_pTabWidget->addTab(pMetaFrame, "Meta");
                 m_pTabWidget->addTab(pMeshFrame, "Mesh");
-                m_pTabWidget->addTab(m_pTEBox, "Trailing edge");
+                m_pTabWidget->addTab(m_pfrTE, "Trailing edge");
                 m_pTabWidget->setCurrentIndex(0);
             }
 

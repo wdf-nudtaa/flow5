@@ -219,12 +219,12 @@ void SplineSailDlg::setupLayout()
 
                                     QLabel *pLabDegree = new QLabel("Spline degree");
                                     m_pieBSplineDeg = new IntEdit(2);
-                                    QString tip= QString("The degree must be strictly less than the number of control points");
+                                    QString tip= QString("<p>The degree must be strictly less than the number of control points</p>");
                                     m_pieBSplineDeg->setToolTip(tip);
                                     pSplineTypeLayout->addWidget(pLabSplineType,      1, 1, Qt::AlignRight | Qt::AlignVCenter);
-                                    pSplineTypeLayout->addWidget(m_pcbSailType,  1, 2);
+                                    pSplineTypeLayout->addWidget(m_pcbSailType,       1, 2);
                                     pSplineTypeLayout->addWidget(pLabDegree,          2, 1, Qt::AlignRight | Qt::AlignVCenter);
-                                    pSplineTypeLayout->addWidget(m_pieBSplineDeg,   2, 2);
+                                    pSplineTypeLayout->addWidget(m_pieBSplineDeg,     2, 2);
                                     pSplineTypeLayout->setColumnStretch(1,1);
                                     pSplineTypeLayout->setColumnStretch(3,1);
                                 }
@@ -246,10 +246,10 @@ void SplineSailDlg::setupLayout()
                         m_pViewVSplitter->addWidget(m_pSectionTableSplitter);
                     }
 
-                    m_pTabWidget->addTab(pGeneralPage, "Meta-data");
+                    m_pTabWidget->addTab(pGeneralPage,     "Meta");
                     m_pTabWidget->addTab(m_pViewVSplitter, "Geometry");
-                    m_pTabWidget->addTab(m_pMeshBox, "Mesh");
-                    m_pTabWidget->addTab(m_pTEBox, "Trailing edge");
+                    m_pTabWidget->addTab(m_pfrMesh,        "Mesh");
+                    m_pTabWidget->addTab(m_pfrTE,          "Trailing edge");
                     m_pTabWidget->setTabToolTip(0, "Ctrl+1");
                     m_pTabWidget->setTabToolTip(1, "Ctrl+2");
                     m_pTabWidget->setTabToolTip(2, "Ctrl+3");

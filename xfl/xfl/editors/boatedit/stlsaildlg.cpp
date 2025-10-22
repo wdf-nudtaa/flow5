@@ -88,7 +88,7 @@ void STLSailDlg::setupLayout()
                 }
 
                 m_pTabWidget->addTab(pMetaFrame, "Meta");
-                m_pTabWidget->addTab(m_pTEBox,   "Trailing edge");
+                m_pTabWidget->addTab(m_pfrTE,   "Trailing edge");
             }
             pLeftLayout->addWidget(m_pTabWidget);
             pLeftLayout->addWidget(m_pptoOutput);

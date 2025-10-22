@@ -256,7 +256,7 @@ void SailDlg::makeCommonWts()
         m_pMetaFrame->setLayout(pMetaLayout);
     }
 
-    m_pMeshBox = new QGroupBox("Mesh");
+    m_pfrMesh = new QFrame;
     {
         QVBoxLayout *pMeshLayout = new QVBoxLayout;
         {
@@ -352,10 +352,10 @@ void SailDlg::makeCommonWts()
             pMeshLayout->addWidget(m_pMesherWt);
         }
 
-        m_pMeshBox->setLayout(pMeshLayout);
+        m_pfrMesh->setLayout(pMeshLayout);
     }
 
-    m_pTEBox = new QGroupBox("Trailing edges");
+    m_pfrTE = new QFrame;
     {
         QGridLayout *pTELayout = new QGridLayout;
         {
@@ -396,7 +396,7 @@ void SailDlg::makeCommonWts()
             pTELayout->setRowStretch(7, 1);
         }
 
-        m_pTEBox->setLayout(pTELayout);
+        m_pfrTE->setLayout(pTELayout);
     }
 
     m_p2dViewFrame = new QFrame;

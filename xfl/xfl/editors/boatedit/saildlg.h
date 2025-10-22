@@ -181,11 +181,10 @@ class SailDlg : public XflDialog
         QGroupBox *m_pSurfaceBox;
         QFrame *m_pfrThickness;
 
-        QGroupBox *m_pMetaBox;
-        QGroupBox *m_pMeshBox;
+        QFrame *m_pfrMesh;
         QFrame *m_pfrRuledMesh;
 
-        QGroupBox *m_pTEBox;
+        QFrame *m_pfrTE;
         QPushButton *m_ppbConnectPanels;
         QPushButton *m_ppbTEBotMid, *m_ppbTETop;
         QPushButton *m_ppbGuessTE, *m_ppbCheckTE, *m_ppbClearTE;

@@ -98,8 +98,10 @@ bool Part::serializePartFl5(QDataStream &ar, bool bIsStoring)
     double dble=0.0;
 
     //500001: new fl5 format;
-    //500002:  added m_bReversed
-    int ArchiveFormat = 500002;
+    //500002: added m_bReversed
+    //500755: added compatibility provision for GmshParams;
+
+    int ArchiveFormat = 500755;
     if(bIsStoring)
     {
         ar << ArchiveFormat;
@@ -115,6 +117,10 @@ bool Part::serializePartFl5(QDataStream &ar, bool bIsStoring)
         bool bReverse=false; // deprecated
         ar << bReverse; // added format 500002
 
+        ar << dble; // m_GmshParams.m_MinSize;
+        ar << dble; // m_GmshParams.m_MaxSize;
+        ar << n; // m_GmshParams.m_nCurvature;
+
         // dynamic space allocation for the future storage of more data, without need to change the format
         nIntSpares=0;
         ar << nIntSpares;
@@ -127,7 +133,7 @@ bool Part::serializePartFl5(QDataStream &ar, bool bIsStoring)
     else
     {
         ar >> ArchiveFormat;
-        if(ArchiveFormat<500000 || ArchiveFormat>500002) return false;
+        if(ArchiveFormat<500000 || ArchiveFormat>501000) return false;
         m_Name.clear();
         ar >> m_Name;
         ar >> m_Description;
@@ -142,6 +148,13 @@ bool Part::serializePartFl5(QDataStream &ar, bool bIsStoring)
         {
             bool bReverse = false; // deprecated
             ar >> bReverse;
+        }
+
+        if(ArchiveFormat>=500755)
+        {
+            ar >> dble; // m_GmshParams.m_MinSize;
+            ar >> dble; // m_GmshParams.m_MaxSize;
+            ar >> n;    // m_GmshParams.m_nCurvature;
         }
 
         // space allocation
