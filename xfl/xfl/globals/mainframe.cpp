@@ -1033,9 +1033,9 @@ void MainFrame::createMenus()
 
         m_pHelpMenu->addAction(pOnlineDoc);
         m_pHelpMenu->addAction(pReleaseNotes);
+        m_pHelpMenu->addSeparator();
         m_pHelpMenu->addAction(pCreditsAct);
         m_pHelpMenu->addAction(pAboutQtAct);
-        m_pHelpMenu->addSeparator();
         m_pHelpMenu->addAction(pAboutf5Act);
     }
 

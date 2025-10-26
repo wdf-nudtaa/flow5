@@ -54,7 +54,7 @@ void CreditsDlg::setupLayout()
     {
         QVBoxLayout *pOccLayout = new QVBoxLayout;
         {
-            QLabel *plabVersion = new QLabel("Version: " + QString(OCC_VERSION_COMPLETE));
+            QLabel *plabVersion = new QLabel("<p><b>Version: </b>" + QString(OCC_VERSION_COMPLETE) + "</p>");
             QLabel *plabDescription = new QLabel("<p>Open Cascade Technology (OCCT) is an open-source software<br>"
                                                  "development platform for 3D CAD, CAM, CAE, etc. that is developed<br>"
                                                  "and supported by Open Cascade SAS.</p>");
@@ -80,7 +80,7 @@ void CreditsDlg::setupLayout()
             mkl_get_version(&Version);
             QString strange;
 
-            strange += QString::asprintf("<p>Version:           %d.%d.%d<br>", Version.MajorVersion, Version.MinorVersion, Version.UpdateVersion);
+            strange += QString::asprintf("<p><b>Version: </b>          %d.%d.%d<br>", Version.MajorVersion, Version.MinorVersion, Version.UpdateVersion);
             strange += QString::asprintf("Processor optimization:  %s</p>", Version.Processor);
 
             QLabel *plabDescription = new QLabel("<p>Intel's Math Kernel Library (Intel MKL) is a library of optimized math<br>"

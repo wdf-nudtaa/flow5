@@ -16,7 +16,6 @@
 #include <xfl/globals/mainframe.h>
 #include <xfl/globals/fileio.h>
 #include <xflcore/displayoptions.h>
-#include <xfl/test/rupperttestdlg.h>
 #include <xfl/xdirect/view2d/dfoillegendwt.h>
 #include <xfl/xdirect/view2d/dfoilwt.h>
 #include <xfl/xdirect/view2d/oppointwt.h>

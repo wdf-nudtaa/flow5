@@ -47,7 +47,7 @@ bool xfl::g_bLocalize = false;
 QString xfl::versionName(bool bFull)
 {
     QString VName;
-    VName = QString::asprintf("v%d.%02d - FOSS", MAJOR_VERSION, MINOR_VERSION);
+    VName = QString::asprintf("v%d.%02d", MAJOR_VERSION, MINOR_VERSION);
     if(bFull) VName = "flow5 "+VName;
     return VName;
 }
