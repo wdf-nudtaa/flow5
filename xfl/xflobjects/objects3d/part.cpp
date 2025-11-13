@@ -64,7 +64,6 @@ Part::Part()
 
 Part::~Part()
 {
-
 }
 
 
@@ -117,7 +116,7 @@ bool Part::serializePartFl5(QDataStream &ar, bool bIsStoring)
     //500002: added m_bReversed
     //500755: added compatibility provision for GmshParams;
 
-    int ArchiveFormat = 50075;
+    int ArchiveFormat = 500754;
     if(bIsStoring)
     {
         ar << ArchiveFormat;
