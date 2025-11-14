@@ -1,8 +1,3 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2017-01-18T04:06:28
-#
-#-------------------------------------------------
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -20,7 +15,10 @@ QT       -= gui
 TARGET = XFoil
 TEMPLATE = lib
 
-DEFINES += XFOILLIB_LIBRARY
+DEFINES += XFOIL_LIBRARY
+
+CONFIG += c++20
+
 
 SOURCES += \
     xfoil.cpp
@@ -32,21 +30,6 @@ HEADERS +=\
 
 OBJECTS_DIR = ./objects
 
-win32 {
-#prevent qmake from making useless \debug and \release subdirs
-    CONFIG -= debug_and_release debug_and_release_target
-
-}
-
-
-
-macx{
-#    CONFIG += lib_bundle
-#    CONFIG += i386
-    QMAKE_SONAME_PREFIX = @executable_path/../Frameworks
-    QMAKE_MAC_SDK = macosx
-    QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
-}
 
 
 linux-g++{
@@ -63,5 +46,23 @@ linux-g++{
 
     # MAKE INSTALL
     INSTALLS += target inc
+
+}
+
+
+win32 {
+#prevent qmake from making useless \debug and \release subdirs
+    CONFIG -= debug_and_release debug_and_release_target
+
+}
+
+
+
+macx{
+#    CONFIG += lib_bundle
+#    CONFIG += i386
+    QMAKE_SONAME_PREFIX = @executable_path/../Frameworks
+    QMAKE_MAC_SDK = macosx
+    QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
 }
 

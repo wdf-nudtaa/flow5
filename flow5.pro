@@ -4,5 +4,6 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
     XFoil-lib \
-    xfl \
+    fl5-lib \
+    fl5 \
 

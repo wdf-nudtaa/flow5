@@ -1,0 +1,88 @@
+/****************************************************************************
+
+    flow5 application
+    Copyright (C) 2025 André Deperrois
+
+    This file is part of flow5.
+
+    flow5 is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    flow5 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty
+    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with flow5.
+    If not, see <https://www.gnu.org/licenses/>.
+
+
+*****************************************************************************/
+
+
+
+#define _MATH_DEFINES_DEFINED
+
+
+#include "gmesher.h"
+#include <api/sail.h>
+#include <api/sailnurbs.h>
+
+#include <gmsh.h>
+
+
+GMesher::GMesher(QObject *parent) : QObject{parent}
+{
+
+}
+
+
+void setGmshParams(double emin, double emax, int iAlgo, int iCurvature)
+{
+    gmsh::option::setNumber("Mesh.Algorithm", iAlgo);
+    gmsh::option::setNumber("Mesh.MeshSizeMin", emin);
+    gmsh::option::setNumber("Mesh.MeshSizeMax", emax);
+    gmsh::option::setNumber("Mesh.MeshSizeFromCurvature", iCurvature);
+}
+
+
+void GMesher::onMeshBox()
+{
+    double R = 1.4;
+
+    gmsh::model::occ::addBox(-R, -R, -R, 2 * R, 2 * R, 2 * R, 1);
+    gmsh::model::occ::synchronize();
+
+    bool bError = false;
+
+    try
+    {
+        gmsh::model::mesh::generate(2);
+    }
+    catch(...)
+    {
+        bError = true;
+    }
+    emit meshDone(bError);
+}
+
+
+void GMesher::onMeshCurrentModel()
+{
+    bool bError = false;
+
+    try
+    {
+        gmsh::model::mesh::generate(2);
+    }
+    catch(...)
+    {
+        bError = true;
+    }
+    emit meshDone(bError);
+}
+
+

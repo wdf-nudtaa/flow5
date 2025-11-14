@@ -1,0 +1,192 @@
+
+QT -= gui  # not using QColor
+
+TARGET = fl5-lib
+
+TEMPLATE = lib
+DEFINES += FL5LIB_LIBRARY
+
+
+# You can make your code fail to compile if it uses deprecated APIs.
+# In order to do so, uncomment the following line.
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
+
+
+CONFIG += c++20
+
+
+# The path to the libraries' header files required by the code at compile time
+INCLUDEPATH += ../XFoil-lib/
+
+
+
+OBJECTS_DIR = ./objects
+MOC_DIR     = ./moc
+RCC_DIR     = ./rcc
+
+
+linux-g++ {
+
+    DEFINES += LINUX_OS
+
+    isEmpty(PREFIX){
+        PREFIX = /usr/local
+    }
+
+
+    INCLUDEDIR = $$PREFIX/include/$$TARGET
+    inc.path = $$INCLUDEDIR
+    inc.files += api/*.h
+
+    target.path = $$PREFIX/lib/$$TARGET
+
+    # MAKE INSTALL
+    INSTALLS += target inc
+
+    #comment out to use OpenBLAS
+#    CONFIG += INTEL_MKL
+
+    INTEL_MKL {
+        #------------ MKL --------------------
+        #    MKL can use the c++ matrices in row major order order
+        DEFINES += INTEL_MKL
+
+        #   Ensure that the paths to the include files and to the binary libraries
+        #   are set either by defining them in the environment variables
+        #   or by setting them explicitely in the following two lines
+        #
+          INCLUDEPATH += /opt/intel/oneapi/mkl/latest/include/
+          LIBS += -L/opt/intel/oneapi/mkl/latest/lib/intel64/
+
+        #   The mkl libs to include may depend on MKL's version;
+        #   Follow Intel's procedure to determine which libs to include
+            LIBS += -lmkl_intel_lp64  -lmkl_core -lmkl_gnu_thread
+            LIBS += -lgomp
+        ##    LIBS += -lmkl_intel_thread -lmkl_sequential
+    } else {
+        # ---------------- system LAPACK/LAPACKE + CBLAS/OpenBLAS-----------------------------
+        DEFINES += OPENBLAS
+
+        #    LIBS += -L/etc/alternatives  #distro dependent
+            LIBS += -llapack -llapacke
+
+            #link to either the cblas (slow) or openblas (fast) library
+#            LIBS += -lcblas
+            LIBS += -lopenblas
+
+    }
+
+
+    #----------- OPENCASCADE -------------
+    #   Ensure that the paths to the binary libraries
+    #   are known either by defining them at system level
+    #   or by setting them explicitely in this section
+    #   The include paths to the development headers must be set explicitely
+        INCLUDEPATH += /usr/local/include/opencascade/
+        LIBS += -L/usr/local/lib/
+
+
+
+}
+
+
+win32-msvc {
+
+    DEFINES += WIN_OS
+
+
+    CONFIG += console
+    CONFIG -= debug_and_release debug_and_release_target
+
+    CONFIG += no_batch
+
+#   Prevent duplicate math DEFINES in OCC libs
+#    DEFINES -= _MATH_DEFINES_DEFINED
+
+#----------------------- MKL  ---------------------
+    DEFINES += INTEL_MKL
+    INCLUDEPATH += "C:\Program Files (x86)\Intel\oneAPI\mkl\latest\include"
+
+    LIBS += -L"C:\Program Files (x86)\Intel\oneAPI\mkl\latest\bin"
+    LIBS += -L"C:\Program Files (x86)\Intel\oneAPI\mkl\latest\lib"
+    LIBS += -L"C:\Program Files (x86)\Intel\oneAPI\compiler\latest\bin"
+    LIBS += -L"C:\Program Files (x86)\Intel\oneAPI\compiler\latest\lib"
+    LIBS += -lmkl_intel_lp64_dll
+    LIBS += -lmkl_core_dll
+    LIBS += -lmkl_intel_thread_dll -llibiomp5md  # for multithreading
+    #    LIBS += -lmkl_sequential_dll
+
+
+
+#------------ OPEN CASCADE --------------------------
+    INCLUDEPATH += D:\bin\OCCT-7_9_2\build\inc
+    LIBS += -LD:\bin\OCCT-7_9_2\build\win64\vc14\lib
+    LIBS += -LD:\bin\OCCT-7_9_2\build\win64\vc14\bin
+
+
+}
+
+
+macx {
+    DEFINES += MAC_OS
+
+
+    QMAKE_MAC_SDK = macosx
+    QMAKE_APPLE_DEVICE_ARCHS = arm64
+
+
+    DEFINES += GL_SILENCE_DEPRECATION   #Shame
+
+    #-------XFoil
+    # link to the lib:
+    LIBS += -L$$OUT_PWD/../XFoil-lib -lXFoil
+    # deploy the libs:
+    XFoil.files = $$OUT_PWD/../XFoil-lib/libXFoil.1.dylib
+    XFoil.path = Contents/Frameworks
+    QMAKE_BUNDLE_DATA += XFoil
+
+    #-------------OPENCASCADE -----------------
+    # set the paths to the OpenCascade header and lib directories
+    INCLUDEPATH += /usr/local/include/opencascade/
+    LIBS += -L/usr/local/lib/
+
+    #-------------vecLib -----------------
+    DEFINES += ACCELERATE
+    #    QMAKE_LFLAGS += -framework Accelerate
+    LIBS += -llapack -lcblas
+
+}
+
+
+
+
+include (fl5-lib.pri)
+
+
+
+#-----XFoil-----
+
+LIBS += -L../XFoil-lib -lXFoil
+
+#----- OCC -----
+LIBS += \
+    -lTKBO \
+    -lTKBRep \
+    -lTKBool \
+    -lTKCDF \
+    -lTKDESTEP \
+    -lTKFillet \
+    -lTKG2d \
+    -lTKG3d \
+    -lTKGeomAlgo \
+    -lTKGeomBase \
+    -lTKLCAF \
+    -lTKMath \
+    -lTKMesh \
+    -lTKOffset \
+    -lTKPrim \
+    -lTKShHealing \
+    -lTKTopAlgo \
+    -lTKXSBase \
+    -lTKernel \
