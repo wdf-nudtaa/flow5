@@ -90,7 +90,6 @@ Flow5App::Flow5App(int &argc, char** argv) : QApplication(argc, argv)
     int OGLversion = -1;
     parseCmdLine(*this, scriptPathName, tracefilename, bScript, bShowProgress, OGLversion);
 
-
     if(g_bTrace)
     {
         startTrace(tracefilename);
@@ -176,6 +175,12 @@ Flow5App::Flow5App(int &argc, char** argv) : QApplication(argc, argv)
 
     m_pMainFrame->testOpenGL();
 
+    if(bScript)
+    {
+        m_pMainFrame->executeScript(scriptPathName, bShowProgress);
+        m_bDone = true;
+        return;
+    }
 
     QStringList arguments = QApplication::arguments();
 
@@ -290,6 +295,8 @@ void Flow5App::parseCmdLine(Flow5App &fl5app,
                             bool &bScript, bool &bShowProgress,
                             int &OGLVersion) const
 {
+    std::cout << "parsing" <<std::endl;
+
     QCommandLineParser parser;
     parser.setApplicationDescription("Analysis tool for planes and sails operating at low Reynolds numbers");
     parser.addHelpOption();
@@ -357,6 +364,9 @@ void Flow5App::parseCmdLine(Flow5App &fl5app,
     {
         OGLVersion = -1;
     }
+
+    std::cout << "parsed: " << bScript << " / " << g_bTrace << std::endl;
+
 }
 
 
