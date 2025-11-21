@@ -25,8 +25,8 @@
 #include <cmath>
 #include <cstring>
 
-#include <api/qrleastsquares.h>
-#include <api/constants.h>
+#include <qrleastsquares.h>
+#include <constants.h>
 
 /**
  * Adapted from:

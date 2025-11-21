@@ -30,11 +30,11 @@
 
 
 
-#include <api/geom_global.h>
-#include <api/gqtriangle.h>
-#include <api/p3linanalysis.h>
-#include <api/panel3.h>
-#include <api/polar3d.h>
+#include <geom_global.h>
+#include <gqtriangle.h>
+#include <p3linanalysis.h>
+#include <panel3.h>
+#include <polar3d.h>
 
 
 #if defined ACCELERATE

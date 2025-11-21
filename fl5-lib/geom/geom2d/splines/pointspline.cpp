@@ -27,10 +27,10 @@
 
 #include <QDataStream>
 
-#include <api/pointspline.h>
+#include <pointspline.h>
 
-#include <api/constants.h>
-#include <api/geom_params.h>
+#include <constants.h>
+#include <geom_params.h>
 
 
 

@@ -26,11 +26,11 @@
 #include <QString>
 
 
-#include <api/planestl.h>
-#include <api/objects_global.h>
-#include <api/units.h>
-#include <api/utils.h>
-#include <api/geom_global.h>
+#include <planestl.h>
+#include <objects_global.h>
+#include <units.h>
+#include <utils.h>
+#include <geom_global.h>
 
 PlaneSTL::PlaneSTL() : Plane()
 {
@@ -266,17 +266,17 @@ std::string PlaneSTL::planeData(bool) const
     QString strange, strong, prefix;
 
     QString lengthlab, surfacelab, masslab, arealab;
-    lengthlab   = QUnits::lengthUnitLabel();
-    surfacelab  = QUnits::areaUnitLabel();
-    masslab     = QUnits::massUnitLabel();
-    arealab     = QUnits::areaUnitLabel();
+    lengthlab   = Units::lengthUnitQLabel();
+    surfacelab  = Units::areaUnitQLabel();
+    masslab     = Units::massUnitQLabel();
+    arealab     = Units::areaUnitQLabel();
 
     strong = QString::asprintf("Ref. span length  = %7g ", m_ReferenceSpan*Units::mtoUnit());
     strong += lengthlab;
     strange += strong+ EOLch;
 
     strong = QString::asprintf("Ref. area         = %7g ", m_ReferenceArea*Units::m2toUnit());
-    strong += QUnits::areaUnitLabel();
+    strong += Units::areaUnitQLabel();
     strange += strong+ EOLch;
 
     strong = QString::asprintf("Ref. chord length = %7g ", m_ReferenceChord*Units::mtoUnit());

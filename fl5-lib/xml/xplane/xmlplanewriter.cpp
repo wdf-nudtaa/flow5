@@ -25,14 +25,14 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/xmlplanewriter.h>
+#include <xmlplanewriter.h>
 
-#include <api/frame.h>
-#include <api/fuseocc.h>
-#include <api/fusexfl.h>
-#include <api/planexfl.h>
-#include <api/pointmass.h>
-#include <api/units.h>
+#include <frame.h>
+#include <fuseocc.h>
+#include <fusexfl.h>
+#include <planexfl.h>
+#include <pointmass.h>
+#include <units.h>
 
 
 XmlPlaneWriter::XmlPlaneWriter(QFile &XFile) : XflXmlWriter(XFile)

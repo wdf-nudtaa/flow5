@@ -44,8 +44,8 @@
  Home made class. Since it was written, Qt has developed and provided a QQuaternion class.
 */
 
-#include <api/vector3d.h>
-#include <api/constants.h>
+#include <vector3d.h>
+#include <constants.h>
 
 class FL5LIB_EXPORT Quaternion
 {

@@ -24,13 +24,13 @@
 
 #pragma once
 
-#include <api/planepolar.h>
+#include <planepolar.h>
 
 
-class FL5LIB_EXPORT WPolarExt : public PlanePolar
+class FL5LIB_EXPORT PlanePolarExt : public PlanePolar
 {
     public:
-        WPolarExt();
+        PlanePolarExt();
 
         double getVariable(int iVariable, int index) const override;
         void setData(int iVariable, int index, double value) override;

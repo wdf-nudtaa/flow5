@@ -23,14 +23,14 @@
 *****************************************************************************/
 
 
-#include <api/nurbssurface.h>
+#include <nurbssurface.h>
 
-#include <api/constants.h>
-#include <api/frame.h>
-#include <api/geom_global.h>
-#include <api/node.h>
-#include <api/quad3d.h>
-#include <api/triangle3d.h>
+#include <constants.h>
+#include <frame.h>
+#include <geom_global.h>
+#include <node.h>
+#include <quad3d.h>
+#include <triangle3d.h>
 
 
 

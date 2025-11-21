@@ -29,9 +29,9 @@
 #include <mutex>
 #include <queue>
 
-#include <api/fl5lib_global.h>
-#include <api/vorton.h>
-#include <api/utils.h>
+#include <fl5lib_global.h>
+#include <vorton.h>
+#include <utils.h>
 
 
 struct VPWReport
@@ -70,7 +70,7 @@ class FL5LIB_EXPORT Task3d
 
         void setAnalysisStatus(xfl::enumAnalysisStatus status);
 
-        bool isCancelled() const {return m_AnalysisStatus==xfl::CANCELLED;}
+        bool isCancelled() const {return m_AnalysisStatus==xfl::CANCELLED || s_bCancel;}
         bool isRunning()   const {return m_AnalysisStatus==xfl::RUNNING;}
         bool isPending()   const {return m_AnalysisStatus==xfl::PENDING;}
         bool isFinished()  const {return m_AnalysisStatus==xfl::FINISHED || m_AnalysisStatus==xfl::CANCELLED;}
@@ -90,7 +90,6 @@ class FL5LIB_EXPORT Task3d
         void traceLog(const QString &str);
         virtual void traceStdLog(const std::string &str);
 
-        static void setCancelled(bool bCancel) {s_bCancel=bCancel;}
 
         static void setVortonStretch(bool bStretch) {s_bVortonStretch=bStretch;}
         static void setVortonRedist(bool bRedist) {s_bVortonRedist=bRedist;}
@@ -100,10 +99,12 @@ class FL5LIB_EXPORT Task3d
         static void setMaxNRHS(int nmax) {s_MaxNRHS=nmax;}
         static int maxNRHS() {return s_MaxNRHS;}
 
-
-
         static void setLiveUpdate(bool bLive) {s_bLiveUpdate=bLive;}
         static bool bLiveUpdate() {return s_bLiveUpdate;}
+
+        static void setCancelled(bool bCancel) {s_bCancel=bCancel;}
+        static void setKeepOpps(bool b) {s_bKeepOpps=b;}
+        static void outputToStdIO(bool b) {s_bStdOut=b;}
 
     protected:
         virtual void makeVortonRow(int qrhs) = 0;
@@ -135,7 +136,7 @@ class FL5LIB_EXPORT Task3d
         double tmp_vortonwakelength;
         Vector3d tmp_VInf;
 
-        static bool s_bCancel;
+
 
         static int s_MaxNRHS;
 
@@ -143,7 +144,9 @@ class FL5LIB_EXPORT Task3d
         static bool s_bVortonStretch;      /** option for vorton strength exchange */
         static bool s_bLiveUpdate;
 
-
+        static bool s_bKeepOpps;
+        static bool s_bCancel;
+        static bool s_bStdOut;
 
     public:
         // thread related variables to share the message queue with the calling threa

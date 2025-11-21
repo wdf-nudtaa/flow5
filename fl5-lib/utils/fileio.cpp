@@ -31,27 +31,27 @@
 #include <QFileInfo>
 #include <QDir>
 
-#include <api/fileio.h>
+#include <fileio.h>
 
-#include <api/flow5events.h>
-#include <api/units.h>
-#include <api/objects2d_globals.h>
-#include <api/foil.h>
-#include <api/objects2d.h>
-#include <api/oppoint.h>
-#include <api/polar.h>
-#include <api/splinefoil.h>
-#include <api/planeopp.h>
-#include <api/planepolar.h>
-#include <api/wpolarext.h>
-#include <api/objects3d.h>
-#include <api/planestl.h>
-#include <api/planexfl.h>
-#include <api/sailobjects.h>
-#include <api/boat.h>
-#include <api/boatpolar.h>
-#include <api/boatopp.h>
-#include <api/boat.h>
+#include <flow5events.h>
+#include <units.h>
+#include <objects2d_globals.h>
+#include <foil.h>
+#include <objects2d.h>
+#include <oppoint.h>
+#include <polar.h>
+#include <splinefoil.h>
+#include <planeopp.h>
+#include <planepolar.h>
+#include <wpolarext.h>
+#include <objects3d.h>
+#include <planestl.h>
+#include <planexfl.h>
+#include <sailobjects.h>
+#include <boat.h>
+#include <boatpolar.h>
+#include <boatopp.h>
+#include <boat.h>
 
 
 bool FileIO::s_bSaveOpps(false);
@@ -515,7 +515,7 @@ bool FileIO::serializeProjectXfl(QDataStream &ar, bool bIsStoring, PlanePolar *p
                 if(!pPlane || !pPlane->isXflType()) continue;
                 pPlaneXfl = dynamic_cast<PlaneXfl *>(pPlane);
                 double refarea=0;
-                Objects3d::appendWPolar(pWPolar);
+                Objects3d::appendPPolar(pWPolar);
                 if(pWPolar->referenceDim()==xfl::PLANFORM)
                 {
                     refarea = pPlaneXfl->planformArea(pWPolar->bIncludeOtherWingAreas());
@@ -1053,7 +1053,7 @@ bool FileIO::serialize3dObjectsFl5(QDataStream &ar, bool bIsStoring, int Archive
                 pPlane = Objects3d::plane(pWPolar->planeName());
                 if(pPlane)
                 {
-                    Objects3d::insertWPolar(pWPolar);
+                    Objects3d::insertPPolar(pWPolar);
                     if(pWPolar->referenceDim()==xfl::CUSTOM)
                     {
                     }
@@ -1088,7 +1088,7 @@ bool FileIO::serialize3dObjectsFl5(QDataStream &ar, bool bIsStoring, int Archive
             ar >> n;
             for(int i=0; i<n; i++)
             {
-                WPolarExt *pWPolarExt = new WPolarExt();
+                PlanePolarExt *pWPolarExt = new PlanePolarExt();
 
                 bool bLoaded = false;
                 if(ArchiveFormat<500750)
@@ -1102,7 +1102,7 @@ bool FileIO::serialize3dObjectsFl5(QDataStream &ar, bool bIsStoring, int Archive
                     pPlane = Objects3d::plane(pWPolarExt->planeName());
                     if(pPlane)
                     {
-                        Objects3d::insertWPolar(pWPolarExt);
+                        Objects3d::insertPPolar(pWPolarExt);
                     }
                     else delete pWPolarExt;
                 }
@@ -1132,7 +1132,7 @@ bool FileIO::serialize3dObjectsFl5(QDataStream &ar, bool bIsStoring, int Archive
 
                 if(pPlane && pWPolar)
                 {
-                    Objects3d::insertPOpp(pPOpp);
+                    Objects3d::insertPlaneOpp(pPOpp);
                 }
             }
             else

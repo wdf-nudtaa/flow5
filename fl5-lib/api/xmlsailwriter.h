@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include <api/xmlxsailwriter.h>
-#include <api/fl5lib_global.h>
+#include <xmlxsailwriter.h>
+#include <fl5lib_global.h>
 
 class Sail;
 

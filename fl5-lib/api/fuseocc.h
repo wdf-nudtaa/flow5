@@ -29,7 +29,7 @@
 #include <TopoDS_Shell.hxx>
 #include <TopoDS_ListOfShape.hxx>
 
-#include <api/fuse.h>
+#include <fuse.h>
 
 
 class FL5LIB_EXPORT FuseOcc : public Fuse
@@ -38,7 +38,6 @@ class FL5LIB_EXPORT FuseOcc : public Fuse
         FuseOcc();
 
         void computeSurfaceProperties(std::string &logmsg, const std::string &prefix) override;
-        void computeStructuralInertia(Vector3d const &PartPosition) override;
 
         int nPanel4() const override {return 0;}
         PART::enumPartType partType() const override {return PART::Fuse;}

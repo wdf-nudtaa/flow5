@@ -27,8 +27,8 @@
 #include <QString>
 
 
-#include <api/hanning.h>
-#include <api/constants.h>
+#include <hanning.h>
+#include <constants.h>
 
 #define FILTERORDER 40
 

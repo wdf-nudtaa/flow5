@@ -27,17 +27,17 @@
 
 
 
-#include <api/aeroforces.h>
-#include <api/enums_objects.h>
-#include <api/foil.h>
-#include <api/panel3.h>
-#include <api/panel4.h>
-#include <api/part.h>
-#include <api/spandistribs.h>
-#include <api/surface.h>
-#include <api/triangulation.h>
-#include <api/vector3d.h>
-#include <api/wingsection.h>
+#include <aeroforces.h>
+#include <enums_objects.h>
+#include <foil.h>
+#include <panel3.h>
+#include <panel4.h>
+#include <part.h>
+#include <spandistribs.h>
+#include <surface.h>
+#include <triangulation.h>
+#include <vector3d.h>
+#include <wingsection.h>
 
 
 class PlanePolar;

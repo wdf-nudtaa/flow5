@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <api/panel3.h>
-#include <api/panel4.h>
-#include <api/vortex.h>
+#include <panel3.h>
+#include <panel4.h>
+#include <vortex.h>
 
 
 void testPanel3_1();

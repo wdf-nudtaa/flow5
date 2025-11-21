@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <api/bspline.h>
-#include <api/extradrag.h>
-#include <api/objects_global.h>
-#include <api/xflobject.h>
+#include <bspline.h>
+#include <extradrag.h>
+#include <objects_global.h>
+#include <xflobject.h>
 
 class Inertia;
 
@@ -37,7 +37,6 @@ class FL5LIB_EXPORT Polar3d : public XflObject
 {
     friend class  BoatOpp;
     friend class  XflXmlReader;
-    friend class  XmlWPolarReader;
 
     public:
         Polar3d();
@@ -153,6 +152,9 @@ class FL5LIB_EXPORT Polar3d : public XflObject
         double XTrBot() const {return m_XTrBot;}
         void setXTrBot(double xbot) {m_XTrBot=xbot;}
 
+        bool bTransAtHinge() const {return m_bTransAtHinge;}
+        void setTransAtHinge(bool b) {m_bTransAtHinge=b;}
+
         bool bHPlane() const {return m_bGround || m_bFreeSurface;}
         bool bGroundEffect() const {return m_bGround;}
         void setGroundEffect(bool bGround) {m_bGround = bGround;}
@@ -193,7 +195,7 @@ class FL5LIB_EXPORT Polar3d : public XflObject
         bool isType7()           const {return m_Type==xfl::T7POLAR;}     /**< returns true if the polar is of the FIXEDAOAPOLAR type, false otherwise >*/
         bool isType8()           const {return m_Type==xfl::T8POLAR;}     /**< returns true if the polar is of the FIXEDAOAPOLAR type, false otherwise >*/
         bool isType123()         const {return isType1() || isType2() || isType3();}
-        bool isType12358()       const {return isType123() || isType5() || isType8();}
+        bool isType123458()      const {return isType123() || isType4() || isType5() || isType8();}
         bool isFixedSpeedPolar() const {return m_Type==xfl::T1POLAR;}   /**< returns true if the polar is of the FIXEDSPEEDPOLAR type, false otherwise >*/
         bool isFixedLiftPolar()  const {return m_Type==xfl::T2POLAR;}    /**< returns true if the polar is of the FIXEDLIFTPOLAR type, false otherwise >*/
         bool isGlidePolar()      const {return m_Type==xfl::T3POLAR;}        /**< returns true if the polar is of the GLIDEPOLAR type, false otherwise >*/
@@ -264,6 +266,7 @@ class FL5LIB_EXPORT Polar3d : public XflObject
         double   m_NCrit;              /**< the 2d free transition parameter for on the fly viscous calculations */
         double   m_XTrTop;             /**< the 2d forced top transition location for on the fly viscous calculations; unit is (x/c) */
         double   m_XTrBot;             /**< the 2d forced bottom transition location for on the fly viscous calculations; unit is (x/c) */
+        bool     m_bTransAtHinge;      /**< if true forces the laminar to turbulent transition at the location of the foil's hinge */
 
         double   m_BetaSpec;           /**< The sideslip angle for type 1,2, 4 polars */
         double   m_BankAngle;          /**< The bank angle */
@@ -280,7 +283,7 @@ class FL5LIB_EXPORT Polar3d : public XflObject
         double   m_BufferWakeFactor;   /**< the length of the buffer wake panels in MAC units */
         double   m_VortonCoreSize;     /**< the vorton's core size in meters used to calculate the mollification factor */
         double   m_VPWMaxLength;       /**< vortons further downstream than this length will be discarded - MAC units */
-        int      m_VPWIterations;      /**< the number of VPW iterarions */
+        int      m_VPWIterations;      /**< the number of VPW iterations */
 
         bool     m_bAutoInertia;       /**< true if the inertia to be taken into account is the one of the parent plane */
 

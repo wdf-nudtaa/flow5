@@ -26,7 +26,7 @@
 
 #include <QDataStream>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 
 struct FL5LIB_EXPORT fl5Color

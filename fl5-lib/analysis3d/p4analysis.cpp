@@ -31,14 +31,14 @@
 #include <iostream>
 
 
-#include <api/p4analysis.h>
+#include <p4analysis.h>
 
-#include <api/matrix.h>
-#include <api/objects2d.h>
-#include <api/panel4.h>
-#include <api/polar3d.h>
-#include <api/stabderivatives.h>
-#include <api/vortex.h>
+#include <matrix.h>
+#include <objects2d.h>
+#include <panel4.h>
+#include <polar3d.h>
+#include <stabderivatives.h>
+#include <vortex.h>
 
 
 

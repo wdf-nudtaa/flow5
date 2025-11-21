@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include <api/vector3d.h>
-#include <api/node.h>
-#include <api/cartesianframe.h>
-#include <api/enums_objects.h>
-#include <api/panelprecision.h>
+#include <vector3d.h>
+#include <node.h>
+#include <cartesianframe.h>
+#include <enums_objects.h>
+#include <panelprecision.h>
 
 
 class Surface;

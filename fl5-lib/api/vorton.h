@@ -39,7 +39,7 @@
  * Computers and Fluids 168 (2018) 73–86
  */
 
-#include <api/vector3d.h>
+#include <vector3d.h>
 
 
 class FL5LIB_EXPORT Vorton

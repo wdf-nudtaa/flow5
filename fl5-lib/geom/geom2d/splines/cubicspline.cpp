@@ -25,12 +25,12 @@
 
 #include <QDataStream>
 
-#include <api/cubicspline.h>
-#include <api/matrix.h>
-#include <api/gaussquadrature.h>
-#include <api/constants.h> 
-#include <api/mathelem.h>
-#include <api/node2d.h>
+#include <cubicspline.h>
+#include <matrix.h>
+#include <gaussquadrature.h>
+#include <constants.h> 
+#include <mathelem.h>
+#include <node2d.h>
 
 
 CubicSpline::CubicSpline() : Spline()
@@ -135,6 +135,7 @@ bool CubicSpline::updateSpline()
     }
 
     m_segVal.resize(nCtrlPoints());
+
     std::fill(m_segVal.begin(), m_segVal.end(), 0);
 //    m_segVal.fill(0);
 
@@ -148,6 +149,7 @@ bool CubicSpline::updateSpline()
     //    we use the default uniform parameter value
 
     for(int i=1; i<nCtrlPoints(); i++) m_segVal[i] = double(i)/double(nCtrlPoints()-1);
+
     if(!solve())
     {
         m_bSingular = true;
@@ -175,6 +177,7 @@ bool CubicSpline::solve()
     buildMatrix(size, 0, aij.data(), RHS.data());
 
     int info = matrix::solveLinearSystem(size, aij.data(), 1, RHS.data());
+
 
     if(info!=0)
     {
@@ -484,7 +487,6 @@ bool CubicSpline::getPoint(bool bBefore, double sfrac, Vector2d const &A, Vector
 
 bool CubicSpline::approximate(int nCtrlPts, std::vector<Node2d> const& node)
 {
-
     if(nCtrlPts<0)
     {
         //use them all

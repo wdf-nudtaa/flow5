@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <api/segment2d.h>
+#include <segment2d.h>
 
 
 class FL5LIB_EXPORT PSLG2d : public std::vector<Segment2d>

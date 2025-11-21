@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <api/vector3d.h>
+#include <vector3d.h>
 
 struct Boid
 {

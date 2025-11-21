@@ -28,10 +28,10 @@
  * @brief The fl5Object class FL5LIB_EXPORT is the base class FL5LIB_EXPORT for planes and boats
  */
 
-#include <api/xflobject.h>
-#include <api/enums_objects.h>
-#include <api/linestyle.h>
-#include <api/trimesh.h>
+#include <xflobject.h>
+#include <enums_objects.h>
+#include <linestyle.h>
+#include <trimesh.h>
 
 class FL5LIB_EXPORT fl5Object : public XflObject
 {

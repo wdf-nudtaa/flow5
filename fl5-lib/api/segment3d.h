@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#include <api/node.h>
+#include <node.h>
 
 class FL5LIB_EXPORT Segment3d
 {

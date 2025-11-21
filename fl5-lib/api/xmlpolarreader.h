@@ -27,7 +27,7 @@
 #include <QXmlStreamReader>
 #include <QFile>
 
-#include <api/xflxmlreader.h>
+#include <xflxmlreader.h>
 
 
 class Polar;

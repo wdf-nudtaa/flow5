@@ -26,10 +26,10 @@
 
 
 
-#include <api/cubicspline.h>
-#include <api/linestyle.h>
-#include <api/node2d.h>
-#include <api/xflobject.h>
+#include <cubicspline.h>
+#include <linestyle.h>
+#include <node2d.h>
+#include <xflobject.h>
 
 
 class BSpline;
@@ -79,9 +79,8 @@ class FL5LIB_EXPORT Foil : public XflObject
         void makeBaseFromCamberAndThickness();
         void rebuildPointSequenceFromBase();
 
-
+        bool rePanel(int NPanels, double amplitude);
         double normalizeGeometry();
-
         double deRotate();
 
         bool makeTopBotSurfaces();
@@ -120,6 +119,10 @@ class FL5LIB_EXPORT Foil : public XflObject
 
         double TEFlapAngle() const {return m_TEFlapAngle;}
         double LEFlapAngle() const {return m_LEFlapAngle;}
+
+        void setTEHinge(double fracchord, double fracheight) {m_TEXHinge=fracchord; m_TEYHinge=fracheight;}
+        void setTEXHinge(double fracchord) {m_TEXHinge=fracchord;}
+        void setTEYHinge(double fracheight) {m_TEYHinge=fracheight;}
         double TEXHinge() const {return m_TEXHinge;}
         double TEYHinge() const {return m_TEYHinge;}
         Vector2d TEHinge() const;
@@ -248,12 +251,12 @@ class FL5LIB_EXPORT Foil : public XflObject
         bool m_bTEFlap;          /**< true if the foil has a trailing edge flap */
         bool m_bLEFlap;          /**< true if the foil has a leading edge flap */
         double m_TEFlapAngle;    /**< the trailing edge flap angle, in degrees*/
-        double m_TEXHinge;       /**< the x-position of the trailing edge flap, in chord % */
-        double m_TEYHinge;       /**< the y-position of the trailng edge flap, in chord %*/
+        double m_TEXHinge;       /**< the x-position of the trailing edge flap, as a fraction of the chord length */
+        double m_TEYHinge;       /**< the y-position of the trailng edge flap, as a fraction of the chord length*/
 
         double m_LEFlapAngle;    /**< the leading edge flap angle, in degrees */
-        double m_LEXHinge;       /**< the x-position of the leading edge flap, in chord % */
-        double m_LEYHinge;       /**< the y-position of the leading edge flap, in chord %*/
+        double m_LEXHinge;       /**< the x-position of the leading edge flap, as a fraction of the chord length */
+        double m_LEYHinge;       /**< the y-position of the leading edge flap, as a fraction of the chord length */
 
         std::vector<Node2d> m_BaseCbLine;      /**< the mid camber line points for the base unflapped foil */
         std::vector<double> m_Thickness;         /**< the local thicknesses at each mid point*/

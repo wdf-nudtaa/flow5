@@ -27,7 +27,7 @@
 #include <cstring>
 
 #include "testmatrix.h"
-#include <api/matrix.h>
+#include <matrix.h>
 
 #include <complex>
 #include <chrono>
@@ -46,7 +46,7 @@
 
 
 
-#include <api/constants.h>
+#include <constants.h>
 
 
 void makeMatrix(double *A, int n)

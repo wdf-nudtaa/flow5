@@ -23,7 +23,7 @@
 *****************************************************************************/
 
 
-#include <api/fusexfl.h>
+#include <fusexfl.h>
 
 
 class FL5LIB_EXPORT FuseFlatFaces : public FuseXfl

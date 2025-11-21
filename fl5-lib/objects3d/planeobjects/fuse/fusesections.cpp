@@ -31,9 +31,9 @@
 #include <GeomAPI_PointsToBSplineSurface.hxx>
 
 
-#include <api/fusesections.h>
-#include <api/geom_global.h>
-#include <api/occ_globals.h>
+#include <fusesections.h>
+#include <geom_global.h>
+#include <occ_globals.h>
 
 
 FuseSections::FuseSections() : FuseXfl(Fuse::Sections)

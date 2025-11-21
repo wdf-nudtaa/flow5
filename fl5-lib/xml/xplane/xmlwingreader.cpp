@@ -26,9 +26,9 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/xmlwingreader.h>
+#include <xmlwingreader.h>
 
-#include <api/wingxfl.h>
+#include <wingxfl.h>
 
 XmlWingReader::XmlWingReader(QFile &file) : XmlXPlaneReader (file)
 {

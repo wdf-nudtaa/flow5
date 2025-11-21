@@ -26,17 +26,17 @@
 #include <QString>
 
 
-#include <api/llttask.h>
+#include <llttask.h>
 
 
-#include <api/llttask.h>
-#include <api/units.h>
-#include <api/objects2d.h>
-#include <api/planeopp.h>
-#include <api/planepolar.h>
-#include <api/polar.h>
-#include <api/wingxfl.h>
-#include <api/planexfl.h>
+#include <llttask.h>
+#include <units.h>
+#include <objects2d.h>
+#include <planeopp.h>
+#include <planepolar.h>
+#include <polar.h>
+#include <wingxfl.h>
+#include <planexfl.h>
 
 int LLTTask::s_IterLim = 100;
 int LLTTask::s_NLLTStations = 20;
@@ -47,7 +47,7 @@ double LLTTask::s_CvPrec = 0.01;
 LLTTask::LLTTask()
 {
     m_pWing = nullptr;
-    m_pWPolar = nullptr;
+    m_pPlPolar = nullptr;
 
     resetVariables();
 }
@@ -116,11 +116,11 @@ void LLTTask::initializeVelocity(double alpha, double &QInf)
     Foil *pFoil0(nullptr), *pFoil1(nullptr);
     double tau(0);
 
-    switch (m_pWPolar->type())
+    switch (m_pPlPolar->type())
     {
         case xfl::T1POLAR:
         {
-            QInf = m_pWPolar->m_QInfSpec;
+            QInf = m_pPlPolar->m_QInfSpec;
             break;
         }
         case xfl::T2POLAR:
@@ -142,14 +142,14 @@ void LLTTask::initializeVelocity(double alpha, double &QInf)
         default:
         {
             traceStdLog("******* LLT is only compatible with T1 and T2 polars ******\n\n");
-            QInf = m_pWPolar->m_QInfSpec;
+            QInf = m_pPlPolar->m_QInfSpec;
             break;
         }
     }
 
     for (int k=1; k<s_NLLTStations; k++)
     {
-        m_Re[k] = m_Chord.at(k) * QInf /m_pWPolar->viscosity();
+        m_Re[k] = m_Chord.at(k) * QInf /m_pPlPolar->viscosity();
     }
 }
 
@@ -254,8 +254,8 @@ void LLTTask::computeWing(double QInf, double Alpha, std::string &ErrMessage)
 
         // v6.48
         // added wingLE position to the calculation of lever arms - cf. Ticket 147
-        c4   = m_pPlane->wingLE(0).x + m_pWing->C4(yob)                                     - m_pWPolar->CoG().x; //m
-        zpos = m_pPlane->wingLE(0).z + m_pWing->ZPosition(yob*m_pWing->m_PlanformSpan/2.0)  - m_pWPolar->CoG().z; //m
+        c4   = m_pPlane->wingLE(0).x + m_pWing->C4(yob)                                     - m_pPlPolar->CoG().x; //m
+        zpos = m_pPlane->wingLE(0).z + m_pWing->ZPosition(yob*m_pWing->m_PlanformSpan/2.0)  - m_pPlPolar->CoG().z; //m
         Vector3d LeverArm(c4, 0, zpos); //m
         Vector3d Finv(m_ICd[m], 0.0, m_Cl[m]); // Inviscid force,  N/qS
         Vector3d Fvisc(m_PCd[m],0,0);          // Viscous force,   N/qS
@@ -285,7 +285,7 @@ void LLTTask::computeWing(double QInf, double Alpha, std::string &ErrMessage)
         if(bPointOutAlpha)
         {
             ErrorMessage = QString::asprintf("       Span pos = %9.2f ", cos(m*PI/s_NLLTStations)*m_pWing->planformSpan()/2.0*Units::mtoUnit());
-            ErrorMessage += QUnits::lengthUnitLabel();
+            ErrorMessage += Units::lengthUnitQLabel();
             ErrorMessage += ",  Re = ";
             QString str;
             str = QString::asprintf("%.0f", m_Re.at(m));
@@ -300,7 +300,7 @@ void LLTTask::computeWing(double QInf, double Alpha, std::string &ErrMessage)
         else if(bPointOutRe)
         {
             ErrorMessage = QString::asprintf("       Span pos = %9.2f ", cos(m*PI/s_NLLTStations)*m_pWing->planformSpan()/2.0*Units::mtoUnit());
-            ErrorMessage += QUnits::lengthUnitLabel();
+            ErrorMessage += Units::lengthUnitQLabel();
             ErrorMessage += ",  Re = ";
             QString str;
             str = QString::asprintf("%.0f", m_Re.at(m));
@@ -352,7 +352,7 @@ void LLTTask::computeWing(double QInf, double Alpha, std::string &ErrMessage)
 void LLTTask::setBending(double QInf)
 {
     //dynamic pressure, kg/m³
-    double q = 0.5*m_pWPolar->density() * QInf * QInf;
+    double q = 0.5*m_pPlPolar->density() * QInf * QInf;
 
     for (int j=1; j<s_NLLTStations; j++)
     {
@@ -497,13 +497,13 @@ int LLTTask::iterate(double &QInf, double Alpha)
             double yob = cos(double(k)*PI/double(s_NLLTStations));
             m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->planformSpan()/2.0, tau);
             m_Cl[k] = Objects2d::getPlrPointFromAlpha(Polar::CL, pFoil0, pFoil1, m_Re.at(k), Alpha + m_Ai.at(k)+ m_Twist.at(k), tau, bOutRe, bError);
-            if (m_pWPolar->isFixedLiftPolar())
+            if (m_pPlPolar->isFixedLiftPolar())
             {
                 Lift += Eta(k) * m_Cl.at(k) * m_Chord.at(k);
             }
         }
 
-        if(m_pWPolar->isFixedLiftPolar())
+        if(m_pPlPolar->isFixedLiftPolar())
         {
             Lift *= m_pWing->aspectRatio() / m_pWing->planformSpan();
             if(Lift<=0.0)  return -1;
@@ -512,7 +512,7 @@ int LLTTask::iterate(double &QInf, double Alpha)
 
             for (int k=1; k<s_NLLTStations; k++)
             {
-                m_Re[k] = m_Chord.at(k) * QInf /m_pWPolar->viscosity();
+                m_Re[k] = m_Chord.at(k) * QInf /m_pPlPolar->viscosity();
 
                 double yob = cos(double(k)*PI/double(s_NLLTStations));
                 m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->planformSpan()/2.0, tau);
@@ -543,7 +543,7 @@ void LLTTask::initializeGeom()
     m_bWingOut = false;
     m_bConverged = false;
 
-    if(m_pWPolar->isFixedLiftPolar()) m_QInf0 = sqrt(2.*m_pWPolar->mass()* 9.81 /m_pWPolar->density()/m_pWing->planformArea());
+    if(m_pPlPolar->isFixedLiftPolar()) m_QInf0 = sqrt(2.*m_pPlPolar->mass()* 9.81 /m_pPlPolar->density()/m_pWing->planformArea());
     else                              m_QInf0 = 0.0;
 
     computeLLTChords(s_NLLTStations, m_Chord.data(), m_Offset.data(), m_Twist.data());
@@ -569,7 +569,7 @@ void LLTTask::initializeGeom()
 
 void LLTTask::run()
 {
-    if (!m_pWPolar->isFixedaoaPolar())
+    if (!m_pPlPolar->isFixedaoaPolar())
     {
         alphaLoop();
     }
@@ -608,7 +608,7 @@ bool LLTTask::alphaLoop()
 
         if(s_bInitCalc)
         {
-            initializeVelocity(alpha, m_pWPolar->m_QInfSpec);
+            initializeVelocity(alpha, m_pPlPolar->m_QInfSpec);
             setLinearSolution(alpha);
         }
         //initialize first iteration
@@ -623,7 +623,7 @@ bool LLTTask::alphaLoop()
         strange = "Calculating " + ALPHAch + QString::asprintf(" = %5.2f", alpha) + DEGch + "...";
         traceLog(strange);
 
-        int iter = iterate(m_pWPolar->m_QInfSpec, alpha);
+        int iter = iterate(m_pPlPolar->m_QInfSpec, alpha);
 
         if (iter==-1 && !isCancelled())
         {
@@ -639,11 +639,28 @@ bool LLTTask::alphaLoop()
             traceOpp(alpha, m_Max_a, strange.toStdString());
 
             std::string str;
-            computeWing(m_pWPolar->m_QInfSpec, alpha, str);// generates wing results,
+            computeWing(m_pPlPolar->m_QInfSpec, alpha, str);// generates wing results,
             traceStdLog(str);
             if (m_bWingOut) m_bWarning = true;
-            PlaneOpp *pPOpp = createPlaneOpp(m_pWPolar->m_QInfSpec, alpha, m_bWingOut);// Adds WOpp point and adds result to polar
-            if(pPOpp) m_PlaneOppList.push_back(pPOpp);
+            PlaneOpp *pPOpp = createPlaneOpp(m_pPlPolar->m_QInfSpec, alpha, m_bWingOut);// Adds WOpp point and adds result to polar
+
+
+            // store the results
+            if(pPOpp)
+            {
+                if(!pPOpp->isOut()) // discard failed visc interpolated opps
+                    m_pPlPolar->addPlaneOpPointData(pPOpp);
+
+                if(s_bKeepOpps)
+                {
+                    m_PlaneOppList.push_back(pPOpp);
+                }
+                else
+                {
+                    delete pPOpp;
+                    pPOpp = nullptr; // don't leave a pointer dangling
+                }
+            }
             s_bInitCalc = false;
         }
         else
@@ -667,7 +684,7 @@ void LLTTask::setObjects(PlaneXfl *pPlane, PlanePolar *pWPolar)
 {
     m_pPlane   = pPlane;
     m_pWing    = pPlane->mainWing();
-    m_pWPolar  = pWPolar;
+    m_pPlPolar  = pWPolar;
 }
 
 
@@ -718,21 +735,21 @@ void LLTTask::computeLLTChords(int NStation, double *lltchord, double *lltoffset
 
 PlaneOpp* LLTTask::createPlaneOpp(double QInf, double Alpha, bool bWingOut)
 {
-    PlaneOpp *pNewPOpp = new PlaneOpp(m_pPlane, m_pWPolar, 0, 0);
+    PlaneOpp *pNewPOpp = new PlaneOpp(m_pPlane, m_pPlPolar, 0, 0);
 
     WingXfl const*pWing = m_pPlane->mainWing();
     pNewPOpp->addWingOpp(0);
 
     AeroForces AF; // dummy argument, filled a posteriori
-    pNewPOpp->m_WingOpp[0].createWOpp(pWing, m_pWPolar, m_SpanDistribs, AF);
+    pNewPOpp->m_WingOpp[0].createWOpp(pWing, m_pPlPolar, m_SpanDistribs, AF);
 
     WingOpp &mainwopp = pNewPOpp->WOpp(0);
     SpanDistribs &maindist = mainwopp.m_SpanDistrib;
     AeroForces &af = pNewPOpp->aeroForces();
 
-    af.setReferenceArea(m_pWPolar->referenceArea());
-    af.setReferenceSpan(m_pWPolar->referenceSpanLength());
-    af.setReferenceChord(m_pWPolar->referenceChordLength());
+    af.setReferenceArea(m_pPlPolar->referenceArea());
+    af.setReferenceSpan(m_pPlPolar->referenceSpanLength());
+    af.setReferenceChord(m_pPlPolar->referenceChordLength());
 
     af.setOpp(Alpha, 0.0, 0.0, QInf);
 
@@ -750,7 +767,7 @@ PlaneOpp* LLTTask::createPlaneOpp(double QInf, double Alpha, bool bWingOut)
     }
 
 
-    double q = 0.5*m_pWPolar->density() * 1.0 * 1.0;
+    double q = 0.5*m_pPlPolar->density() * 1.0 * 1.0;
 
     pNewPOpp->m_Alpha = Alpha;
     pNewPOpp->m_QInf  = QInf;
@@ -758,25 +775,25 @@ PlaneOpp* LLTTask::createPlaneOpp(double QInf, double Alpha, bool bWingOut)
     pNewPOpp->m_GroundHeight = 0.0;
 
     Vector3d FFF; // wind axis
-    FFF.x = m_CDi * m_pWPolar->referenceArea();            // N/q
-    FFF.z = m_CL * m_pWPolar->referenceArea();             // N/q
+    FFF.x = m_CDi * m_pPlPolar->referenceArea();            // N/q
+    FFF.z = m_CL * m_pPlPolar->referenceArea();             // N/q
     // store in body axis
     double cosa = cos(Alpha*PI/180.0);
     double sina = sin(Alpha*PI/180.0);
     af.setFff({FFF.x*cosa-FFF.z*sina, 0.0, FFF.x*sina+FFF.z*cosa});
 
-    af.setProfileDrag(m_CDv* m_pWPolar->referenceArea());
+    af.setProfileDrag(m_CDv* m_pPlPolar->referenceArea());
 
     Vector3d Mi;
-    Mi.x = m_GRm * m_pWPolar->referenceChordLength() * m_pWPolar->referenceArea();            // N.m/q
-    Mi.y = m_ICm * m_pWPolar->referenceChordLength() * m_pWPolar->referenceArea();            // N.m/q
-    Mi.z = m_IYm * m_pWPolar->referenceChordLength() * m_pWPolar->referenceArea();            // N.m/q
+    Mi.x = m_GRm * m_pPlPolar->referenceChordLength() * m_pPlPolar->referenceArea();            // N.m/q
+    Mi.y = m_ICm * m_pPlPolar->referenceChordLength() * m_pPlPolar->referenceArea();            // N.m/q
+    Mi.z = m_IYm * m_pPlPolar->referenceChordLength() * m_pPlPolar->referenceArea();            // N.m/q
     af.setMi(Mi);
 
     Vector3d Mv;
     Mv.x = 0.0;
-    Mv.y = m_VCm * m_pWPolar->referenceChordLength() * m_pWPolar->referenceArea();            // N.m/q
-    Mv.z = m_VYm * m_pWPolar->referenceChordLength() * m_pWPolar->referenceArea();            // N.m/q
+    Mv.y = m_VCm * m_pPlPolar->referenceChordLength() * m_pPlPolar->referenceArea();            // N.m/q
+    Mv.z = m_VYm * m_pPlPolar->referenceChordLength() * m_pPlPolar->referenceArea();            // N.m/q
     af.setMv(Mv);
 
 //    af.setCP(m_CP);
@@ -819,7 +836,7 @@ PlaneOpp* LLTTask::createPlaneOpp(double QInf, double Alpha, bool bWingOut)
 
     //add the data to the polar object
     if(!pNewPOpp->m_bOut)
-        m_pWPolar->addPlaneOpPointData(pNewPOpp);
+        m_pPlPolar->addPlaneOpPointData(pNewPOpp);
 
     return pNewPOpp;
 }

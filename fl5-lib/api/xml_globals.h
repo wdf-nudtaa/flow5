@@ -29,9 +29,9 @@
 #include <QString>
 
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
-#include <api/enums_objects.h>
+#include <enums_objects.h>
 
 namespace xml
 {

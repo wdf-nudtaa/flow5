@@ -25,12 +25,12 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/xmlbtpolarwriter.h>
+#include <xmlbtpolarwriter.h>
 
-#include <api/boatpolar.h>
-#include <api/objects_global.h>
-#include <api/units.h>
-#include <api/xml_globals.h>
+#include <boatpolar.h>
+#include <objects_global.h>
+#include <units.h>
+#include <xml_globals.h>
 
 XmlBtPolarWriter::XmlBtPolarWriter(QFile &XFile) : XflXmlWriter(XFile)
 {

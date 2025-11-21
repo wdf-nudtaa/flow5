@@ -29,10 +29,10 @@
 #include <vector>
 
 
-#include <api/enums_objects.h>
-#include <api/task3d.h>
-#include <api/vector3d.h>
-#include <api/spandistribs.h>
+#include <enums_objects.h>
+#include <task3d.h>
+#include <vector3d.h>
+#include <spandistribs.h>
 
 
 
@@ -92,7 +92,7 @@ class FL5LIB_EXPORT LLTTask : public Task3d
         bool hasErrors() const override {return m_bError || m_bWarning;}
 
         PlaneXfl *plane() {return m_pPlane;}
-        PlanePolar *wPolar() {return m_pWPolar;}
+        PlanePolar *wPolar() {return m_pPlPolar;}
 
         std::vector<PlaneOpp*> const & planeOppList() const {return m_PlaneOppList;}
         void clearPlaneOppList();
@@ -131,7 +131,7 @@ class FL5LIB_EXPORT LLTTask : public Task3d
 
         PlaneXfl *m_pPlane;                            /**< A pointer to the Plane object for which the main wing calculation shall be performed >*/
         WingXfl *m_pWing;                              /**< A pointer to the Wing object for which the calculation shall be performed >*/
-        PlanePolar *m_pWPolar;                          /**< A pointer to the WPolar object for which the calculation shall be performed >*/
+        PlanePolar *m_pPlPolar;                          /**< A pointer to the WPolar object for which the calculation shall be performed >*/
 
         std::vector<double> m_AoAList;   /**< The list of operating points to analyze */
 

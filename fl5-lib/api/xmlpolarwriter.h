@@ -27,7 +27,7 @@
 #include <QFile>
 #include <QXmlStreamWriter>
 
-#include <api/xflxmlwriter.h>
+#include <xflxmlwriter.h>
 
 class Polar;
 

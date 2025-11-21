@@ -42,14 +42,14 @@
  * Angular data is stored in degrees
 */
 
-#include <api/fuse.h>
-#include <api/inertia.h>
-#include <api/plane.h>
-#include <api/wingxfl.h>
-#include <api/enums_objects.h>
-#include <api/quadmesh.h>
-#include <api/trimesh.h>
-#include <api/linestyle.h>
+#include <fuse.h>
+#include <inertia.h>
+#include <plane.h>
+#include <wingxfl.h>
+#include <enums_objects.h>
+#include <quadmesh.h>
+#include <trimesh.h>
+#include <linestyle.h>
 
 
 class FL5LIB_EXPORT PlaneSTL : public Plane
@@ -90,8 +90,8 @@ class FL5LIB_EXPORT PlaneSTL : public Plane
         double span()           const override {return m_ReferenceSpan;} /** @todo duplicate with planform and projected spans? */
         double rootChord()      const override {return m_ReferenceChord;}
         double tipChord()       const override {return m_ReferenceChord;}
-        double projectedArea(bool)  const override {return m_ReferenceArea;}
-        double planformArea(bool)   const override {return m_ReferenceArea;}
+        double projectedArea(bool =false)  const override {return m_ReferenceArea;}
+        double planformArea(bool =false)   const override {return m_ReferenceArea;}
         double projectedSpan()  const override {return m_ReferenceSpan;}
         double planformSpan()   const override {return m_ReferenceSpan;}
         double aspectRatio()    const override {if(fabs(m_ReferenceArea)>0.00001) return m_ReferenceSpan*m_ReferenceSpan/m_ReferenceArea; else return 0.0;}

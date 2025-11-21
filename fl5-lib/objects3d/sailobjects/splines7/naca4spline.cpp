@@ -28,9 +28,9 @@
 
 #include <QDataStream>
 
-#include <api/naca4spline.h>
+#include <naca4spline.h>
 
-#include <api/constants.h>
+#include <constants.h>
 
 
 Naca4Spline::Naca4Spline() : s7Spline()

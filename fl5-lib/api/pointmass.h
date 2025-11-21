@@ -29,7 +29,7 @@
 
 #include <string>
 
-#include <api/vector3d.h>
+#include <vector3d.h>
 
 
 class FL5LIB_EXPORT PointMass

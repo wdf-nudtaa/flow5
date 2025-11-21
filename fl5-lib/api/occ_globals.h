@@ -38,8 +38,8 @@
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_BSplineSurface.hxx>
 
-#include <api/triangle3d.h>
-#include <api/bspline3d.h>
+#include <triangle3d.h>
+#include <bspline3d.h>
 
 class Fuse;
 class WingXfl;

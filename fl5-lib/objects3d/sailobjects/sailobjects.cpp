@@ -24,11 +24,11 @@
 
 
 
-#include <api/sailobjects.h>
+#include <sailobjects.h>
 
-#include <api/boat.h>
-#include <api/boatpolar.h>
-#include <api/boatopp.h>
+#include <boat.h>
+#include <boatpolar.h>
+#include <boatopp.h>
 
 std::vector<Boat*> SailObjects::s_oaBoat;
 std::vector<BoatPolar*> SailObjects::s_oaBtPolar;

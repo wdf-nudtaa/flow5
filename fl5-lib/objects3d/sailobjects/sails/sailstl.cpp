@@ -25,11 +25,11 @@
 #include <QString>
 
 
-#include <api/sailstl.h>
+#include <sailstl.h>
 
-#include <api/trimesh.h>
-#include <api/units.h>
-#include <api/utils.h>
+#include <trimesh.h>
+#include <units.h>
+#include <utils.h>
 
 
 SailStl::SailStl() : ExternalSail()
@@ -204,8 +204,8 @@ void SailStl::flipXZ()
 void SailStl::properties(std::string &sailprops, const std::string &prefx, bool bFull) const
 {
     QString props;
-    QString strlength = QUnits::lengthUnitLabel();
-    QString strarea = QUnits::areaUnitLabel();
+    QString strlength = Units::lengthUnitQLabel();
+    QString strarea = Units::areaUnitQLabel();
     QString strange;
     QString frontspacer = QString::fromStdString(prefx);
 

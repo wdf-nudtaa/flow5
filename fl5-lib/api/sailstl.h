@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <api/externalsail.h>
-#include <api/triangle3d.h>
+#include <externalsail.h>
+#include <triangle3d.h>
 
 class FL5LIB_EXPORT SailStl : public ExternalSail
 {

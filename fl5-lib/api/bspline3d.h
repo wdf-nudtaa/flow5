@@ -25,8 +25,8 @@
 #pragma once
 
 
-#include <api/vector3d.h>
-#include <api/linestyle.h>
+#include <vector3d.h>
+#include <linestyle.h>
 
 class FL5LIB_EXPORT BSpline3d
 {

@@ -25,9 +25,8 @@
 
 #define _MATH_DEFINES_DEFINED
 
-#include <api/opp3d.h>
+#include <opp3d.h>
 
-bool Opp3d::s_bStoreOpps3d = true;
 
 Opp3d::Opp3d() : XflObject()
 {

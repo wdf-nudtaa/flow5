@@ -25,12 +25,12 @@
 
 #include <QDataStream>
 
-#include <api/bspline.h>
+#include <bspline.h>
 
-#include <api/constants.h>
-#include <api/geom_global.h>
-#include <api/mathelem.h>
-#include <api/matrix.h>
+#include <constants.h>
+#include <geom_global.h>
+#include <mathelem.h>
+#include <matrix.h>
 
 BSpline::BSpline() : Spline()
 {

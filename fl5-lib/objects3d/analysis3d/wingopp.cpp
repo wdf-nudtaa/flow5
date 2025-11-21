@@ -23,11 +23,11 @@
 *****************************************************************************/
 
 
-#include <api/wingopp.h>
-#include <api/wingxfl.h>
+#include <wingopp.h>
+#include <wingxfl.h>
 
-#include <api/geom_global.h>
-#include <api/planepolar.h>
+#include <geom_global.h>
+#include <planepolar.h>
 
 
 

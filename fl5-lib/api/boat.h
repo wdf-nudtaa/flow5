@@ -27,8 +27,8 @@
 #include <vector>
 
 
-#include <api/fl5object.h>
-#include <api/fuse.h>
+#include <fl5object.h>
+#include <fuse.h>
 
 class BoatOpp;
 class BoatPolar;

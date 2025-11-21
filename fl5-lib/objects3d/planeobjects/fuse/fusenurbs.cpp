@@ -24,8 +24,8 @@
 
 
 
-#include <api/fusenurbs.h>
-#include <api/geom_global.h>
+#include <fusenurbs.h>
+#include <geom_global.h>
 
 FuseNurbs::FuseNurbs() : FuseXfl()
 {

@@ -26,7 +26,7 @@
 
 #include <vector>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 
 class FL5LIB_EXPORT Hanning

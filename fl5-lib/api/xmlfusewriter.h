@@ -27,7 +27,7 @@
 
 #include <QFile>
 
-#include <api/xflxmlwriter.h>
+#include <xflxmlwriter.h>
 
 
 class FuseXfl;

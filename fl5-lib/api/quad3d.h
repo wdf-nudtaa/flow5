@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <api/vector3d.h>
-#include <api/segment3d.h>
-#include <api/triangle3d.h>
-#include <api/quad2d.h>
+#include <vector3d.h>
+#include <segment3d.h>
+#include <triangle3d.h>
+#include <quad2d.h>
 /**
  * @note the quad does not necessarily lie in a plane
  */

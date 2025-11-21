@@ -25,9 +25,9 @@
 
 #define _MATH_DEFINES_DEFINED
 
-#include <api/sailglobals.h>
-#include <api/vector3d.h>
-#include <api/constants.h>
+#include <sailglobals.h>
+#include <vector3d.h>
+#include <constants.h>
 
 
 void setWindAxis(double const Beta, Vector3d &WindDirection, Vector3d &WindNormal, Vector3d &WindSide)

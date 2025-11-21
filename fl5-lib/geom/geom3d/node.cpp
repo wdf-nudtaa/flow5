@@ -28,7 +28,7 @@
 
 
 
-#include <api/node.h>
+#include <node.h>
 
 
 void Node::addTriangleIndex(int index)

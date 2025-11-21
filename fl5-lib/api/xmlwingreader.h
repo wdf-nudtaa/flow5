@@ -25,7 +25,7 @@
 #pragma once
 
 
-#include <api/xmlxplanereader.h>
+#include <xmlxplanereader.h>
 
 class WingXfl;
 

@@ -29,19 +29,19 @@
 
 #include <QDir>
 
-#include <api/xflxmlreader.h>
+#include <xflxmlreader.h>
 
-#include <api/extradrag.h>
-#include <api/foil.h>
-#include <api/fusexfl.h>
-#include <api/inertia.h>
-#include <api/nurbssurface.h>
-#include <api/objects2d.h>
-#include <api/objects2d_globals.h>
-#include <api/pointmass.h>
-#include <api/polar3d.h>
-#include <api/wingxfl.h>
-#include <api/xml_globals.h>
+#include <extradrag.h>
+#include <foil.h>
+#include <fusexfl.h>
+#include <inertia.h>
+#include <nurbssurface.h>
+#include <objects2d.h>
+#include <objects2d_globals.h>
+#include <pointmass.h>
+#include <polar3d.h>
+#include <wingxfl.h>
+#include <xml_globals.h>
 
 
 XflXmlReader::XflXmlReader(QFile &file) : QXmlStreamReader()
@@ -640,13 +640,18 @@ bool XflXmlReader::readWing(WingXfl *pWing, Vector3d &WingLE, double &Rx, double
                             if (fi.exists() && fi.isReadable())
                             {
                                 Foil *pFoil = new Foil();
-                                objects::readFoilFile(filename.toStdString(), pFoil);
-                                if(pFoil)
+                                int iLineError(0);
+
+                                if(objects::readFoilFile(filename.toStdString(), pFoil, iLineError))
                                 {
                                     pWingSec->m_LeftFoilName = pFoil->name();
                                     Objects2d::insertThisFoil(pFoil);
                                 }
-                                else        pWingSec->m_LeftFoilName = readElementText().trimmed().toStdString();
+                                else
+                                {
+                                    delete pFoil;
+                                    pWingSec->m_LeftFoilName = readElementText().trimmed().toStdString();
+                                }
 
                             }
                         }
@@ -661,15 +666,19 @@ bool XflXmlReader::readWing(WingXfl *pWing, Vector3d &WingLE, double &Rx, double
                             QFileInfo fi(filename);
                             if (fi.exists() && fi.isReadable())
                             {
+                                int iLineError(0);
+
                                 Foil *pFoil = new Foil();
-                                objects::readFoilFile(filename.toStdString(), pFoil);
-                                if(pFoil)
+                                if(objects::readFoilFile(filename.toStdString(), pFoil, iLineError))
                                 {
                                     pWingSec->m_RightFoilName = pFoil->name();
                                     Objects2d::insertThisFoil(pFoil);
                                 }
                                 else
+                                {
+                                    delete pFoil;
                                     pWingSec->m_RightFoilName =readElementText().trimmed().toStdString();
+                                }
 
                             }
                         }

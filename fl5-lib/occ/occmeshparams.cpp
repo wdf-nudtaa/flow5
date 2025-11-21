@@ -28,10 +28,10 @@
 
 #include <QDataStream>
 
-#include <api/occmeshparams.h>
+#include <occmeshparams.h>
 
-#include <api/units.h>
-#include <api/utils.h>
+#include <units.h>
+#include <utils.h>
 
 OccMeshParams::OccMeshParams()
 {
@@ -55,7 +55,7 @@ std::string OccMeshParams::listParams(std::string const &prefix)
     if(m_bLinDefAbs)
     {
         strange = QString::asprintf("Absolute lin. defl. = %.3f", m_LinDeflectionAbs*Units::mtoUnit());
-        strange += QUnits::lengthUnitLabel() + "\n";
+        strange += Units::lengthUnitQLabel() + "\n";
     }
     else
     {

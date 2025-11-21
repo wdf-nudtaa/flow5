@@ -17,7 +17,7 @@ TEMPLATE = lib
 
 DEFINES += XFOIL_LIBRARY
 
-CONFIG += c++20
+CONFIG += c++17
 
 
 SOURCES += \
@@ -39,7 +39,7 @@ linux-g++{
     }
 
     inc.path = $$PREFIX/include/$$TARGET
-    inc.files += xfoil.h xfoil_params.h
+    inc.files += *.h
 
 
     target.path = $$PREFIX/lib

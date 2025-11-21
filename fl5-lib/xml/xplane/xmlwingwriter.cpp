@@ -25,8 +25,8 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/xmlwingwriter.h>
-#include <api/wingxfl.h>
+#include <xmlwingwriter.h>
+#include <wingxfl.h>
 
 
 XmlWingWriter::XmlWingWriter(QFile &XFile) : XflXmlWriter(XFile)

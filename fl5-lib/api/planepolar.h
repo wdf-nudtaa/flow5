@@ -45,13 +45,13 @@
 #include <string>
 
 
-#include <api/aeroforces.h>
-#include <api/anglecontrol.h>
-#include <api/ctrlrange.h>
-#include <api/eigenvalues.h>
-#include <api/enums_objects.h>
-#include <api/polar3d.h>
-#include <api/vector3d.h>
+#include <aeroforces.h>
+#include <anglecontrol.h>
+#include <ctrlrange.h>
+#include <eigenvalues.h>
+#include <enums_objects.h>
+#include <polar3d.h>
+#include <vector3d.h>
 
 #include <complex>
 

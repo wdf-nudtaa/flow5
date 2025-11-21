@@ -28,15 +28,15 @@
 
 #include <QDebug>
 
-#include <api/geom_global.h>
+#include <geom_global.h>
 
-#include <api/constants.h>
-#include <api/nurbssurface.h>
-#include <api/quaternion.h>
-#include <api/segment2d.h>
-#include <api/spline.h>
-#include <api/triangle3d.h>
-#include <api/node.h>
+#include <constants.h>
+#include <nurbssurface.h>
+#include <quaternion.h>
+#include <segment2d.h>
+#include <spline.h>
+#include <triangle3d.h>
+#include <node.h>
 
 bool geom::intersectXYPlane(Vector3d const &A,  Vector3d const &U,  Vector3d &I)
 {

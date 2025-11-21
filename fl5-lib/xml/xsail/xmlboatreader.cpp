@@ -28,19 +28,19 @@
 
 
 
-#include <api/xmlboatreader.h>
+#include <xmlboatreader.h>
 
-#include <api/bezierspline.h>
-#include <api/boat.h>
-#include <api/bspline.h>
-#include <api/cubicspline.h>
-#include <api/fusexfl.h>
-#include <api/pointmass.h>
-#include <api/pointspline.h>
-#include <api/sail.h>
-#include <api/sailnurbs.h>
-#include <api/sailspline.h>
-#include <api/sailwing.h>
+#include <bezierspline.h>
+#include <boat.h>
+#include <bspline.h>
+#include <cubicspline.h>
+#include <fusexfl.h>
+#include <pointmass.h>
+#include <pointspline.h>
+#include <sail.h>
+#include <sailnurbs.h>
+#include <sailspline.h>
+#include <sailwing.h>
 
 XmlBoatReader::XmlBoatReader(QFile &file) : XmlXSailReader(file)
 {

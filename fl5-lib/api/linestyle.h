@@ -28,7 +28,7 @@
 #include <QString>
 #include <QDataStream>
 
-#include <api/fl5color.h>
+#include <fl5color.h>
 
 #define NPOINTSTYLES   15
 #define NLINESTYLES    6

@@ -25,10 +25,10 @@
 #include <QDataStream>
 
 
-#include <api/spline.h>
+#include <spline.h>
 
 
-#include <api/mathelem.h>
+#include <mathelem.h>
 
 
 Spline::Spline()

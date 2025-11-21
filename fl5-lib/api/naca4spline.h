@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <api/s7spline.h>
+#include <s7spline.h>
 
 
 class FL5LIB_EXPORT Naca4Spline : public s7Spline

@@ -52,25 +52,25 @@
 #include <TopoDS_Wire.hxx>
 #include <gp_Ax2.hxx>
 
-#include <api/fusexfl.h>
+#include <fusexfl.h>
 
-#include <api/constants.h>
-#include <api/frame.h>
-#include <api/geom_global.h>
-#include <api/occ_globals.h>
-#include <api/panel3.h>
-#include <api/panel4.h>
-#include <api/pointmass.h>
-#include <api/quad2d.h>
-#include <api/quad3d.h>
-#include <api/segment2d.h>
-#include <api/surface.h>
-#include <api/triangulation.h>
-#include <api/units.h>
+#include <constants.h>
+#include <frame.h>
+#include <geom_global.h>
+#include <occ_globals.h>
+#include <panel3.h>
+#include <panel4.h>
+#include <pointmass.h>
+#include <quad2d.h>
+#include <quad3d.h>
+#include <segment2d.h>
+#include <surface.h>
+#include <triangulation.h>
+#include <units.h>
 
 
 
-#include <api/occ_globals.h>
+#include <occ_globals.h>
 
 
 FuseXfl::FuseXfl(Fuse::enumType fusetype) : Fuse()
@@ -396,23 +396,23 @@ void FuseXfl::computeSurfaceProperties(std::string &msg, const std::string &pref
     m_Length = length();
 
     strong = QString::asprintf("Length            = %11g ", m_Length*Units::mtoUnit());
-    strong += QUnits::lengthUnitLabel();
+    strong += Units::lengthUnitQLabel();
     logmsg += prefix + strong + "\n";
 
     strong = QString::asprintf("Total wetted area = %11g ", m_WettedArea*Units::m2toUnit());
-    strong += QUnits::areaUnitLabel();
+    strong += Units::areaUnitQLabel();
     logmsg += prefix + strong + "\n";
 
     strong = QString::asprintf("Max. frame area   = %11g ", m_MaxFrameArea*Units::m2toUnit());
-    strong += QUnits::areaUnitLabel();
+    strong += Units::areaUnitQLabel();
     logmsg += prefix + strong + "\n";
 
     strong = QString::asprintf("Max. frame width  = %11g ", m_MaxWidth*Units::mtoUnit());
-    strong += QUnits::lengthUnitLabel();
+    strong += Units::lengthUnitQLabel();
     logmsg += prefix + strong + "\n";
 
     strong = QString::asprintf("Max. frame height = %11g ", m_MaxHeight*Units::mtoUnit());
-    strong += QUnits::lengthUnitLabel();
+    strong += Units::lengthUnitQLabel();
     logmsg += prefix + strong + "\n";
 
     msg = logmsg.toStdString();

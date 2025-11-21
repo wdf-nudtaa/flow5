@@ -27,11 +27,11 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/xmlplanereader.h>
+#include <xmlplanereader.h>
 
-#include <api/fusenurbs.h>
-#include <api/fusexfl.h>
-#include <api/planexfl.h>
+#include <fusenurbs.h>
+#include <fusexfl.h>
+#include <planexfl.h>
 
 XmlPlaneReader::XmlPlaneReader(QFile &file) : XmlXPlaneReader(file)
 {

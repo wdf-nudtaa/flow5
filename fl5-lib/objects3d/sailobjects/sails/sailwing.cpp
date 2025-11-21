@@ -26,16 +26,16 @@
 
 
 
-#include <api/sailwing.h>
+#include <sailwing.h>
 
-#include <api/objects2d.h>
-#include <api/foil.h>
-#include <api/sailnurbs.h>
+#include <objects2d.h>
+#include <foil.h>
+#include <sailnurbs.h>
 
-#include <api/constants.h>
-#include <api/units.h>
-#include <api/trimesh.h>
-#include <api/panel4.h>
+#include <constants.h>
+#include <units.h>
+#include <trimesh.h>
+#include <panel4.h>
 
 double SailWing::s_MinSurfaceLength = 0.0001;
 

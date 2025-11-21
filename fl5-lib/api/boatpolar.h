@@ -28,10 +28,10 @@
 
 
 
-#include <api/vector3d.h>
-#include <api/polar3d.h>
-#include <api/utils.h>
-#include <api/aeroforces.h>
+#include <vector3d.h>
+#include <polar3d.h>
+#include <utils.h>
+#include <aeroforces.h>
 
 class Boat;
 class BoatOpp;

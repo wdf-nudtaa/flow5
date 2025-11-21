@@ -29,16 +29,16 @@
 #include <thread>
 
 
-#include <api/p3analysis.h>
+#include <p3analysis.h>
 
-#include <api/mathelem.h>
-#include <api/matrix.h>
-#include <api/gaussquadrature.h>
-#include <api/polar3d.h>
-#include <api/objects2d.h>
-#include <api/stabderivatives.h>
-#include <api/vortex.h>
-#include <api/vorton.h>
+#include <mathelem.h>
+#include <matrix.h>
+#include <gaussquadrature.h>
+#include <polar3d.h>
+#include <objects2d.h>
+#include <stabderivatives.h>
+#include <vortex.h>
+#include <vorton.h>
 
 
 

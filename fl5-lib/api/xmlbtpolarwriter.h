@@ -26,7 +26,7 @@
 
 
 
-#include <api/xflxmlwriter.h>
+#include <xflxmlwriter.h>
 
 class BSpline;
 class BoatPolar;

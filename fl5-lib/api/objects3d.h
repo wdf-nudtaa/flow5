@@ -31,8 +31,8 @@
 
 #include <vector>
 
-#include <api/linestyle.h>
-#include <api/fl5lib_global.h>
+#include <linestyle.h>
+#include <fl5lib_global.h>
 
 class Plane;
 class PlaneSTL;
@@ -48,12 +48,12 @@ namespace Objects3d
     // object variable lists
     extern int s_Index;
     extern std::vector<Plane*> s_oaPlane;   /**< The array of void pointers to the Plane objects. */
-    extern std::vector<PlanePolar*> s_oaWPolar;  /**< The array of void pointers to the WPolar objects. */
-    extern std::vector<PlaneOpp*> s_oaPOpp;    /**< The array of void pointers to the PlaneOpp objects. */
+    extern std::vector<PlanePolar*> s_oaPlanePolar;  /**< The array of void pointers to the WPolar objects. */
+    extern std::vector<PlaneOpp*> s_oaPlaneOpp;    /**< The array of void pointers to the PlaneOpp objects. */
 
     FL5LIB_EXPORT  inline std::vector<Plane*>    const &planes() {return s_oaPlane;}
-    FL5LIB_EXPORT  inline std::vector<PlanePolar*>   const &wPlars() {return s_oaWPolar;}
-    FL5LIB_EXPORT  inline std::vector<PlaneOpp*> const &planeOpps() {return s_oaPOpp;}
+    FL5LIB_EXPORT  inline std::vector<PlanePolar*>   const &wPlars() {return s_oaPlanePolar;}
+    FL5LIB_EXPORT  inline std::vector<PlaneOpp*> const &planeOpps() {return s_oaPlaneOpp;}
 
     FL5LIB_EXPORT  Plane* addPlane(Plane *pPlane);
     FL5LIB_EXPORT  void deleteObjects();
@@ -75,24 +75,24 @@ namespace Objects3d
     FL5LIB_EXPORT  void insertPlane(Plane *pModPlane);
     FL5LIB_EXPORT  void renamePlane(Plane *pPlane, std::string const &newname);
 
-    FL5LIB_EXPORT  void addWPolar(PlanePolar *pWPolar);
-    FL5LIB_EXPORT  void appendWPolar(PlanePolar *pWPolar);
-    FL5LIB_EXPORT  void insertWPolar(PlanePolar *pNewWPolar);
-    FL5LIB_EXPORT  inline void removeWPolarAt(int idx) {if(idx<0 ||idx>=int(s_oaWPolar.size())) return; s_oaWPolar.erase(s_oaWPolar.begin()+idx);}
+    FL5LIB_EXPORT  void addPPolar(PlanePolar *pPPolar);
+    FL5LIB_EXPORT  void appendPPolar(PlanePolar *pPPolar);
+    FL5LIB_EXPORT  void insertPPolar(PlanePolar *pNewPPolar);
+    FL5LIB_EXPORT  inline void removeWPolarAt(int idx) {if(idx<0 ||idx>=int(s_oaPlanePolar.size())) return; s_oaPlanePolar.erase(s_oaPlanePolar.begin()+idx);}
     FL5LIB_EXPORT  void renameWPolar(PlanePolar *pWPolar, std::string const &newname);
 
-    FL5LIB_EXPORT  void insertPOpp(PlaneOpp *pPOpp);
+    FL5LIB_EXPORT  void insertPlaneOpp(PlaneOpp *pPOpp);
     FL5LIB_EXPORT  bool containsPOpp(PlaneOpp *pPOpp);
-    FL5LIB_EXPORT  inline void removePOppAt(int idx) {if(idx<0 ||idx>=int(s_oaPOpp.size())) return; s_oaPOpp.erase(s_oaPOpp.begin()+idx);}
-    FL5LIB_EXPORT  inline void appendPOpp(PlaneOpp *pPOpp) {s_oaPOpp.push_back(pPOpp);}
+    FL5LIB_EXPORT  inline void removePOppAt(int idx) {if(idx<0 ||idx>=int(s_oaPlaneOpp.size())) return; s_oaPlaneOpp.erase(s_oaPlaneOpp.begin()+idx);}
+    FL5LIB_EXPORT  inline void appendPOpp(PlaneOpp *pPOpp) {s_oaPlaneOpp.push_back(pPOpp);}
 
     FL5LIB_EXPORT  inline int nPlanes()  {return int(s_oaPlane.size());}
-    FL5LIB_EXPORT  inline int nPolars()  {return int(s_oaWPolar.size());}
-    FL5LIB_EXPORT  inline int nPOpps()   {return int(s_oaPOpp.size());}
+    FL5LIB_EXPORT  inline int nPolars()  {return int(s_oaPlanePolar.size());}
+    FL5LIB_EXPORT  inline int nPOpps()   {return int(s_oaPlaneOpp.size());}
 
     FL5LIB_EXPORT  inline Plane* planeAt(int ip)    {if(ip>=0 && ip<int(s_oaPlane.size()))  return s_oaPlane.at(ip);  else return nullptr;}
-    FL5LIB_EXPORT  inline PlanePolar* wPolarAt(int iw)  {if(iw>=0 && iw<int(s_oaWPolar.size())) return s_oaWPolar.at(iw); else return nullptr;}
-    FL5LIB_EXPORT  inline PlaneOpp* POppAt(int io)  {if(io>=0 && io<int(s_oaPOpp.size()))   return s_oaPOpp.at(io);   else return nullptr;}
+    FL5LIB_EXPORT  inline PlanePolar* wPolarAt(int iw)  {if(iw>=0 && iw<int(s_oaPlanePolar.size())) return s_oaPlanePolar.at(iw); else return nullptr;}
+    FL5LIB_EXPORT  inline PlaneOpp* POppAt(int io)  {if(io>=0 && io<int(s_oaPlaneOpp.size()))   return s_oaPlaneOpp.at(io);   else return nullptr;}
 
     FL5LIB_EXPORT  int  newUniquePartIndex();
 
@@ -115,6 +115,9 @@ namespace Objects3d
 
     FL5LIB_EXPORT  void cleanObjects(std::string &log);
     FL5LIB_EXPORT  void updateWPolarstoV750();
+
+    FL5LIB_EXPORT PlaneOpp *storePlaneOpps(QList<PlaneOpp*> const &POppList);
+    FL5LIB_EXPORT PlaneOpp *storePlaneOpps(std::vector<PlaneOpp*> const &POppList);
 
 }
 

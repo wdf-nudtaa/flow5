@@ -29,11 +29,11 @@
 
 #include <cmath>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 
-#include <api/geom_params.h>
-#include <api/constants.h>
+#include <geom_params.h>
+#include <constants.h>
 
 class FL5LIB_EXPORT Vector3d
 {

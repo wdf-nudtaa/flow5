@@ -26,13 +26,13 @@
 #include <QString>
 #include <QTextStream>
 
-#include <api/utils.h>
-#include <api/constants.h>
-#include <api/foil.h>
-#include <api/polar.h>
-#include <api/oppoint.h>
-#include <api/geom_params.h>
-#include <api/fl5core.h>
+#include <utils.h>
+#include <constants.h>
+#include <foil.h>
+#include <polar.h>
+#include <oppoint.h>
+#include <geom_params.h>
+#include <fl5core.h>
 
 std::vector<std::string> Polar::s_VariableNames = {ALPHAstr + " ("+DEGstr + ")", THETAstr + " ("+DEGstr + ")", "Cl", "Cd", "Cdp", "Cm",
                                      "HMom", "Cpmin", "Cl/Cd", "|Cl|^(3/2)/Cd", "1/sqrt(Cl)", "Re", "XCp",
@@ -86,7 +86,8 @@ Polar::Polar(const Polar &polar)
 void Polar::exportToString(std::string &outstring, bool bDataOnly, bool bCSV) const
 {
     QString strong, Header;
-    QTextStream out;
+    QString strange;
+    QTextStream out(&strange);
 
 
     if(!bDataOnly)
@@ -173,7 +174,8 @@ void Polar::exportToString(std::string &outstring, bool bDataOnly, bool bCSV) co
     }
     out << "\n\n";
 
-    outstring = out.readAll().toStdString();
+    outstring = strange.toStdString();
+//    outstring = out.readAll().toStdString();
 }
 
 

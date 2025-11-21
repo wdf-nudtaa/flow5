@@ -27,10 +27,10 @@
 
 #include <cassert>
 
-#include <api/cartesianframe.h>
-#include <api/vector3d.h>
-#include <api/segment3d.h>
-#include <api/triangle2d.h>
+#include <cartesianframe.h>
+#include <vector3d.h>
+#include <segment3d.h>
+#include <triangle2d.h>
 
 class FL5LIB_EXPORT Triangle3d
 {

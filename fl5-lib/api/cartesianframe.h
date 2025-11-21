@@ -29,8 +29,8 @@
 #include <cstring>
 
 
-#include <api/vector3d.h>
-#include <api/matrix.h>
+#include <vector3d.h>
+#include <matrix.h>
 
 class FL5LIB_EXPORT CartesianFrame
 {

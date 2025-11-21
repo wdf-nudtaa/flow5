@@ -27,7 +27,7 @@
 #include <QString>
 #include <QDataStream>
 
-#include <api/wingsection.h>
+#include <wingsection.h>
 
 
 

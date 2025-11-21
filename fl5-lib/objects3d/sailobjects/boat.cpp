@@ -26,23 +26,23 @@
 
 
 
-#include <api/boat.h>
-#include <api/sailspline.h>
-#include <api/sailnurbs.h>
-#include <api/sailwing.h>
-#include <api/sailocc.h>
-#include <api/sailstl.h>
-#include <api/boatpolar.h>
-#include <api/boatopp.h>
-#include <api/fuse.h>
-#include <api/fuseocc.h>
-#include <api/fusestl.h>
-#include <api/fusexfl.h>
-#include <api/fusenurbs.h>
-#include <api/fuseflatfaces.h>
-#include <api/fusesections.h>
+#include <boat.h>
+#include <sailspline.h>
+#include <sailnurbs.h>
+#include <sailwing.h>
+#include <sailocc.h>
+#include <sailstl.h>
+#include <boatpolar.h>
+#include <boatopp.h>
+#include <fuse.h>
+#include <fuseocc.h>
+#include <fusestl.h>
+#include <fusexfl.h>
+#include <fusenurbs.h>
+#include <fuseflatfaces.h>
+#include <fusesections.h>
 
-#include <api/units.h>
+#include <units.h>
 
 Boat::Boat()
 {
@@ -789,12 +789,12 @@ std::string Boat::properties(bool bFull) const
         if(m_Sail.size()>0)
         {
             props += QString::asprintf("Main sail area  = %g", m_Sail.at(0)->refArea()*Units::m2toUnit());
-            props += " " + QUnits::areaUnitLabel() + "\n";
+            props += " " + Units::areaUnitQLabel() + "\n";
         }
         if(m_Sail.size()>1)
         {
             props += QString::asprintf("Jib area        = %g", m_Sail.at(1)->refArea()*Units::m2toUnit());
-            props += " " + QUnits::areaUnitLabel() + "\n";
+            props += " " + Units::areaUnitQLabel() + "\n";
         }
     }
 

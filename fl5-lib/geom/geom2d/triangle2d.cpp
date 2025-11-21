@@ -25,12 +25,12 @@
 #include <cstring>
 
 
-#include <api/triangle2d.h>
+#include <triangle2d.h>
 
-#include <api/constants.h>
-#include <api/matrix.h>
-#include <api/geom_global.h>
-#include <api/pslg2d.h>
+#include <constants.h>
+#include <matrix.h>
+#include <geom_global.h>
+#include <pslg2d.h>
 
 double Triangle2d::s_QualityBound=sqrt(2.0);
 

@@ -31,7 +31,7 @@
 
 #include <QDataStream>
 
-#include <api/vector3d.h>
+#include <vector3d.h>
 
 class WingXfl;
 
@@ -71,7 +71,7 @@ struct FL5LIB_EXPORT SpanDistribs
         std::vector<double> m_BendingMoment; /**< the bending moment on the strips */
         std::vector<double> m_VTwist;        /**< the virtual twist in viscous loops */
         std::vector<double> m_Gamma;         /**< the circulation on the strip */
-        std::vector<bool> m_bOut;            /**< true if the local viscous interpolation has failed */
+        std::vector<bool> m_bConverged;      /**< true if the local viscous interpolation or OTF calculation has converged */
         std::vector<Vector3d> m_Vd;          /**< the downwash vector at span stations in m/s. The downwash is calculated at the mid wake point, i.e. where the induced drag is evaluated. */
         std::vector<Vector3d> m_F;           /**< the force vector at span stations, in N and in body axes */
 

@@ -22,7 +22,7 @@
 
 *****************************************************************************/
 
-#include <api/apilog.h>
+#include <apilog.h>
 
 
 std::vector<std::string> Api::g_fl5Log;

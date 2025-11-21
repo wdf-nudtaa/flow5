@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
-#include <api/linestyle.h>
+#include <linestyle.h>
 
 
 class FL5LIB_EXPORT XflObject

@@ -27,14 +27,14 @@
 #pragma once
 
 
-#include <api/aeroforces.h>
-#include <api/enums_objects.h>
-#include <api/enums_objects.h>
-#include <api/opp3d.h>
-#include <api/stabderivatives.h>
-#include <api/vector3d.h>
-#include <api/vorton.h>
-#include <api/wingopp.h>
+#include <aeroforces.h>
+#include <enums_objects.h>
+#include <enums_objects.h>
+#include <opp3d.h>
+#include <stabderivatives.h>
+#include <vector3d.h>
+#include <vorton.h>
+#include <wingopp.h>
 
 #include <complex>
 

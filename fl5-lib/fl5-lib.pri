@@ -2,6 +2,8 @@
 HEADERS += \
     $$PWD/api/fl5core.h \
     $$PWD/api/planepolar.h \
+    $$PWD/api/xmlplanepolarreader.h \
+    $$PWD/api/xmlplanepolarwriter.h \
     $$PWD/math/testmatrix.h \
     api/aeroforces.h \
     api/analysisrange.h \
@@ -150,8 +152,6 @@ HEADERS += \
     api/xmlplanewriter.h \
     api/xmlwingreader.h \
     api/xmlwingwriter.h \
-    api/xmlwpolarreader.h \
-    api/xmlwpolarwriter.h \
     api/xmlxplanereader.h \
     api/xmlboatreader.h \
     api/xmlboatwriter.h \
@@ -165,7 +165,10 @@ HEADERS += \
 SOURCES += \
     $$PWD/math/testmatrix.cpp \
     $$PWD/objects3d/analysis3d/planepolar.cpp \
+    $$PWD/objects3d/analysis3d/planepolarext.cpp \
     $$PWD/utils/fl5core.cpp \
+    $$PWD/xml/xplane/xmlplanepolarreader.cpp \
+    $$PWD/xml/xplane/xmlplanepolarwriter.cpp \
     analysis3d/boattask.cpp \
     analysis3d/llttask.cpp \
     analysis3d/p3analysis.cpp \
@@ -227,7 +230,6 @@ SOURCES += \
     objects3d/analysis3d/spandistribs.cpp \
     objects3d/analysis3d/stabderivatives.cpp \
     objects3d/analysis3d/wingopp.cpp \
-    objects3d/analysis3d/wpolarext.cpp \
     objects3d/globals/objects_global.cpp \
     objects3d/objects3d.cpp \
     objects3d/planeobjects/fuse/fuse.cpp \
@@ -290,8 +292,6 @@ SOURCES += \
     xml/xplane/xmlplanewriter.cpp \
     xml/xplane/xmlwingreader.cpp \
     xml/xplane/xmlwingwriter.cpp \
-    xml/xplane/xmlwpolarreader.cpp \
-    xml/xplane/xmlwpolarwriter.cpp \
     xml/xplane/xmlxplanereader.cpp \
     xml/xsail/xmlboatreader.cpp \
     xml/xsail/xmlboatwriter.cpp \

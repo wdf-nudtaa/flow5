@@ -26,7 +26,7 @@
 #pragma once
 
 
-#include <api/fuse.h>
+#include <fuse.h>
 
 class FL5LIB_EXPORT FuseStl : public Fuse
 {
@@ -54,6 +54,7 @@ class FL5LIB_EXPORT FuseStl : public Fuse
 
         void computeSurfaceProperties(std::string &msg, const std::string &prefx) override;
         void computeWettedArea() override ;
+        void computeStructuralInertia(Vector3d const &PartPosition) override;
 
         int makeDefaultTriMesh(std::string &logmsg, const std::string &prefix) override;
 

@@ -40,87 +40,18 @@
 #include <TopTools_ListIteratorOfListOfShape.hxx>
 #include <TopoDS.hxx>
 
-#include <api/fuseocc.h>
-#include <api/panel4.h>
-#include <api/constants.h>
-#include <api/units.h>
-#include <api/panel3.h>
-#include <api/occ_globals.h>
+#include <fuseocc.h>
+#include <panel4.h>
+#include <constants.h>
+#include <units.h>
+#include <panel3.h>
+#include <occ_globals.h>
 
 
 FuseOcc::FuseOcc() : Fuse()
 {
     m_FuseType = Fuse::Occ;
     m_Name = "CAD type fuse";
-}
-
-
-void FuseOcc::computeStructuralInertia(const Vector3d &PartPosition)
-{
-    if(!m_bAutoInertia) return;
-
-    Vector3d CoG;
-
-    GProp_GProps aProps; // Global properties object
-    // initializing Global properties object with surface properties of aShell
-
-    TopoDS_ListIteratorOfListOfShape iterator;
-    int nShapes = 0;
-    for (iterator.Initialize(m_Shape); iterator.More(); iterator.Next())
-    {
-        int nShells = 0;
-        TopExp_Explorer shapeExplorer;
-        for (shapeExplorer.Init(iterator.Value(),TopAbs_SHELL); shapeExplorer.More(); shapeExplorer.Next())
-        {
-            // Computes the surface global properties of the shape S, i.e. the global properties induced by each face
-            // of the shape S, and brings them together with the global properties still retained by the framework SProps.
-            // If the current system of SProps was empty, its global properties become equal to the surface global
-            // properties of S. For this computation, no surface density is attached to the faces. Consequently, the
-            // added mass corresponds to the sum of the areas of the faces of S. The density of the component systems,
-            // i.e. that of each component of the current system of SProps, and that of S which is considered to be
-            // equal to 1, must be coherent. Note that this coherence cannot be checked. You are advised to use a
-            // framework for each different value of density, and then to bring these frameworks together into a
-            // global one. The point relative to which the inertia of the system is computed is the reference point
-            // of the framework SProps. Note : if your programming ensures that the framework SProps retains only
-            // surface global properties, brought together, for example, by the function SurfaceProperties, for
-            // objects the density of which is equal to 1 (or is not defined), the function Mass will return the
-            // total area of faces of the system analysed by SProps. Warning No check is performed to verify that the
-            // shape S retains truly surface properties. If S is simply a vertex, an edge or a wire, it is not considered
-            // to present any additional global properties. SkipShared is special flag, which allows to take in calculation
-            // shared topological entities or not For ex., if SkipShared = True, faces, shared by two or more shells,
-            // are taken into calculation only once.
-            GProp_GProps shellprops;
-            BRepGProp::SurfaceProperties(shapeExplorer.Current(), shellprops);
-            aProps.Add(shellprops, 1.0);
-            nShells++;
-        }
-        (void)nShells;
-        nShapes++;
-    }
-    (void)nShapes;
-    gp_Mat IM = aProps.MatrixOfInertia();
-
-    m_WettedArea = aProps.Mass(); // with unit density
-
-    double CoGIxx = IM(1,1)/m_WettedArea*m_Inertia.structuralMass();
-    double CoGIyy = IM(2,2)/m_WettedArea*m_Inertia.structuralMass();
-    double CoGIzz = IM(3,3)/m_WettedArea*m_Inertia.structuralMass();
-    double CoGIxz = IM(1,3)/m_WettedArea*m_Inertia.structuralMass();
-
-    gp_Pnt com = aProps.CentreOfMass();
-    CoG.set(com.X()-PartPosition.x, com.Y()-PartPosition.y, com.Z()-PartPosition.z);
-
-    m_Inertia.setCoG_s(CoG);
-    m_Inertia.setIxx_s(CoGIxx);
-    m_Inertia.setIyy_s(CoGIyy);
-    m_Inertia.setIzz_s(CoGIzz);
-    m_Inertia.setIxz_s(CoGIxz);
-
-/*
-    qDebug("fuse %s inertia:\n", fuseName().toStdString().c_str());
-    qDebug("%s\n",m_Inertia.toString().toStdString().c_str());
-    qDebug("____\n\n");
-*/
 }
 
 

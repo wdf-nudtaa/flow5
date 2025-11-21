@@ -26,7 +26,7 @@
 #include <iostream>
 #include <iomanip>
 #include <QString>
-
+#include <time.h>
 
 #include <QString>
 
@@ -41,7 +41,7 @@
 #endif
 
 
-#include <api/utils.h>
+#include <utils.h>
 
 
 
@@ -216,30 +216,40 @@ void xfl::writeString(QDataStream &ar, std::string const &strong)
 */
 int xfl::readValues(std::string const &theline, float val[], int nValues)
 {
-    std::string line = theline;
-    trim(line);
+//    std::string line = theline;
+//    trim(line);
 
-    std::vector<std::string> fsplit = split(line, ' ');
+    std::istringstream buffer(theline);
+    std::vector<std::string> split;
 
-    for(int i=int(fsplit.size())-1; i>=0; i--)
-        if(fsplit.at(i).length()==0) fsplit.erase(fsplit.begin()+i);
+    std::copy(std::istream_iterator<std::string>(buffer),
+              std::istream_iterator<std::string>(),
+              std::back_inserter(split));
+
+    int nread = 0;
 
 
-    if(int(fsplit.size())!=nValues) return 0;
+    std::string::size_type sz(0);
 
-    float flt(0);
-    int nread=0;
-    for(uint i=0; i<fsplit.size(); i++)
+
+    try
     {
-        std::string str = fsplit.at(i);
-        if(str.length()>0)
+        for(uint is=0; is<split.size() && nread<nValues; is++)
         {
-            trim(str);
-
-            flt = 0;
-            if(sscanf(str.c_str(), "%f", &flt))   val[nread++] = flt;
+            val[nread++] = std::stof(split.at(is), &sz);
         }
-        if(nread>=nValues) break;
+    }
+    catch (const std::invalid_argument& ia)
+    {
+          std::cerr << "Invalid argument: " << ia.what() << '\n';
+    }
+    catch (const std::out_of_range& oor)
+    {
+        std::cerr << "Out of Range error: " << oor.what() << '\n';
+    }
+    catch(...)
+    {
+        std::cerr << "Unknown error reading floats"<< '\n';
     }
 
     return nread;
@@ -352,17 +362,6 @@ bool xfl::stringFromFile(std::string &string, std::string const &path)
       return false;
     }
     return true;
-}
-
-
-std::string xfl::timeToString()
-{
-    std::time_t t = std::time(0);
-    std::ostringstream oss;
-//    oss << "UTC:   " << std::put_time(std::gmtime(&t), "%c %Z");
-    oss << std::put_time(std::localtime(&t), "%c %Z");
-//    oss  << std::put_time(std::localtime(&t), "%Y/%m/%d %T");
-    return oss.str();
 }
 
 

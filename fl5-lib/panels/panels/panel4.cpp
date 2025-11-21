@@ -26,13 +26,13 @@
 
 
 
-#include <api/panel4.h>
-#include <api/panel3.h>
-#include <api/vortex.h>
-#include <api/panelprecision.h>
+#include <panel4.h>
+#include <panel3.h>
+#include <vortex.h>
+#include <panelprecision.h>
 
-#include <api/units.h>
-#include <api/utils.h>
+#include <units.h>
+#include <utils.h>
 
 
 double Panel4::s_VortexFracPos = 0.25;
@@ -787,11 +787,11 @@ std::string Panel4::properties(bool bLong) const
     props = QString::asprintf("Quad Panel %d\n", m_index);
 
     strong = QString::asprintf("  CoG  = (%7.3f, %7.3f, %7.3f)", m_CollPt.x*Units::mtoUnit(), m_CollPt.y*Units::mtoUnit(), m_CollPt.z*Units::mtoUnit());
-    strong += QUnits::lengthUnitLabel() + "\n";
+    strong += Units::lengthUnitQLabel() + "\n";
     props += strong;
 
     strong = QString::asprintf("  Area = %.3g ", m_Area*Units::m2toUnit());
-    props += strong + QUnits::areaUnitLabel() + "\n";
+    props += strong + Units::areaUnitQLabel() + "\n";
 
     strong = QString::asprintf("  Warp angle = %2f ", warpAngle());
     props += strong + DEGch + "\n";
@@ -799,8 +799,8 @@ std::string Panel4::properties(bool bLong) const
     strong = QString::asprintf("  Min. internal angle = %2f ", minAngle());
     props += strong + DEGch + "\n";
 
-    props += QString::asprintf("  Width  = %5g ", width() *Units::mtoUnit()) + QUnits::lengthUnitLabel() + "\n";
-    props += QString::asprintf("  Length = %5g ", length()*Units::mtoUnit()) + QUnits::lengthUnitLabel() + "\n";
+    props += QString::asprintf("  Width  = %5g ", width() *Units::mtoUnit()) + Units::lengthUnitQLabel() + "\n";
+    props += QString::asprintf("  Length = %5g ", length()*Units::mtoUnit()) + Units::lengthUnitQLabel() + "\n";
 
     if(!bLong) return props.toStdString();
 

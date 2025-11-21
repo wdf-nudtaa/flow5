@@ -23,9 +23,12 @@
 *****************************************************************************/
 
 #include <chrono>
-#include <QString>
-
 #include <string>
+#include <thread>
+
+
+#include <QString>
+#include <QDebug>
 
 
 #if defined ACCELERATE
@@ -40,25 +43,25 @@
 #endif
 
 
-#include <api/planetask.h>
+#include <planetask.h>
 
-#include <api/geom_params.h>
-#include <api/mesh_globals.h>
-#include <api/objects2d.h>
-#include <api/objects_global.h>
-#include <api/p3linanalysis.h>
-#include <api/p3unianalysis.h>
-#include <api/p4analysis.h>
-#include <api/panelanalysis.h>
-#include <api/planeopp.h>
-#include <api/planexfl.h>
-#include <api/polar.h>
-#include <api/stabderivatives.h>
-#include <api/units.h>
-#include <api/utils.h>
-#include <api/wingxfl.h>
-#include <api/planepolar.h>
-#include <api/xfoiltask.h>
+#include <geom_params.h>
+#include <mesh_globals.h>
+#include <objects2d.h>
+#include <objects_global.h>
+#include <p3linanalysis.h>
+#include <p3unianalysis.h>
+#include <p4analysis.h>
+#include <panelanalysis.h>
+#include <planeopp.h>
+#include <planepolar.h>
+#include <planexfl.h>
+#include <polar.h>
+#include <stabderivatives.h>
+#include <units.h>
+#include <utils.h>
+#include <wingxfl.h>
+#include <xfoiltask.h>
 
 
 bool PlaneTask::s_bViscInitTwist = false;
@@ -66,18 +69,18 @@ double PlaneTask::s_ViscRelax = 0.5;
 double PlaneTask::s_ViscAlphaPrecision = 0.01;
 int PlaneTask::s_ViscMaxIter = 35;
 
-
 PlaneTask::PlaneTask() : Task3d()
 {
     m_pPlane  = nullptr;
-    m_pWPolar = nullptr;
+    m_pPlPolar = nullptr;
 
-    m_Ctrl = -10000.0;
+    m_Ctrl = -LARGEVALUE;
     m_Alpha = 0.0;
     m_QInf = m_Beta = m_Phi = 0.0;
 
-    m_AF.resetAll();
+    m_bDerivatives = true;
 
+    m_AF.resetAll();
 }
 
 
@@ -126,7 +129,7 @@ void PlaneTask::setT8OppList(std::vector<T8Opp> const &ranges)
 bool PlaneTask::initializeTask()
 {
     QString strange, strong;
-    QString lenlab = QUnits::lengthUnitLabel();
+    QString lenlab = Units::lengthUnitQLabel();
 
     m_bWarning = m_bError = false;
 
@@ -137,19 +140,19 @@ bool PlaneTask::initializeTask()
     std::fill(m_gamma.begin(), m_gamma.end(), 0);
 
     traceStdLog(m_pPlane->name() + EOLstr);
-    traceStdLog(m_pWPolar->name()+"\n\n");
+    traceStdLog(m_pPlPolar->name()+"\n\n");
 
     // check that reference dims are valid
-    if(!checkWPolarData(m_pPlane, m_pWPolar))
+    if(!checkWPolarData(m_pPlane, m_pPlPolar))
     {
         traceStdLog("Aborting analysis\n");
         return false;
     }
 
     // check flaps and ViscOTF
-    if(m_pWPolar->hasActiveFlap())
+    if(m_pPlPolar->hasActiveFlap())
     {
-        if(!m_pWPolar->isViscOnTheFly())
+        if(!m_pPlPolar->isViscOnTheFly())
         {
             traceStdLog("Warning: XFoil on the fly calculations should be selected when TE flaps are active\n\n");
         }
@@ -159,7 +162,8 @@ bool PlaneTask::initializeTask()
 
     if     (m_pPolar3d->isFixedSpeedPolar())  strange = "Type 1 - Fixed speed polar";
     else if(m_pPolar3d->isFixedLiftPolar())   strange = "Type 2 - Fixed lift polar";
-    else if(m_pPolar3d->isBetaPolar())        strange = "Type 5 - Beta polar";
+    else if(m_pPolar3d->isFixedaoaPolar())    strange = "Type 4 - Fixed "+ ALPHAch + " polar";
+    else if(m_pPolar3d->isBetaPolar())        strange = "Type 5 - " + BETAch + " polar";
     else if(m_pPolar3d->isControlPolar())     strange = "Type 6 - Control polar";
     else if(m_pPolar3d->isStabilityPolar())   strange = "Type 7 - Stability polar";
     else if(m_pPolar3d->isBoatPolar())        strange = "Sail analysis";
@@ -167,14 +171,14 @@ bool PlaneTask::initializeTask()
     traceLog(strange+"\n\n");
 
     strange = RHOch + QString::asprintf(" = %9.5g ", m_pPolar3d->density()*Units::densitytoUnit());
-    traceLog(strange+ QString::fromStdString(Units::densityUnitLabel()) + EOLch);
+    traceLog(strange+ Units::densityUnitQLabel() + EOLch);
     strange = NUch  + QString::asprintf(" = %9.5g ", m_pPolar3d->viscosity()*Units::viscositytoUnit());
-    traceLog(strange+ QString::fromStdString(Units::viscosityUnitLabel())+"\n\n");
+    traceLog(strange+ Units::viscosityUnitQLabel()+"\n\n");
 
     strange = QString::asprintf("RFF         = %g\n", Panel::RFF());
     traceLog(strange);
     strange = QString::asprintf("Core radius = %g ", Vortex::coreRadius()*Units::mtoUnit());
-    strange += QUnits::lengthUnitLabel()  + EOLch;
+    strange += Units::lengthUnitQLabel()  + EOLch;
 
     if(Vortex::coreRadius()<1.e-6)
     {
@@ -199,7 +203,7 @@ bool PlaneTask::initializeTask()
 
     PlaneXfl *pPlaneXfl = dynamic_cast<PlaneXfl *>(m_pPlane);
 
-    if(m_pWPolar->isQuadMethod())
+    if(m_pPlPolar->isQuadMethod())
     {
         traceStdLog("Initializing the quad analysis\n");
         if(!pPlaneXfl)
@@ -210,7 +214,7 @@ bool PlaneTask::initializeTask()
         m_pP4A = new P4Analysis;
         m_pPA = m_pP4A;
     }
-    else if(m_pWPolar->isTriangleMethod())
+    else if(m_pPlPolar->isTriangleMethod())
     {
         traceStdLog("Initializing the triangle analysis\n");
 
@@ -238,11 +242,11 @@ bool PlaneTask::initializeTask()
         }
         traceStdLog("   ...done\n\n");
 
-        std::clock_t begin = clock();
+        auto start = std::chrono::system_clock::now();
 
         traceStdLog("Connecting triangular panels...");
 
-        if(!m_pPlane->connectTriMesh(false, m_pWPolar->bThickSurfaces(), true))
+        if(!m_pPlane->connectTriMesh(false, m_pPlPolar->bThickSurfaces(), true))
         {
             strange = "\n   Error making trailing edge connections -- aborting.\n\n";
             traceLog(strange);
@@ -252,12 +256,12 @@ bool PlaneTask::initializeTask()
 
         m_pPlane->restoreMesh();
 
-        if(m_pWPolar->isTriUniformMethod())
+        if(m_pPlPolar->isTriUniformMethod())
         {
             m_pP3A = new P3UniAnalysis;
             m_pPA = m_pP3A;
         }
-        if(m_pWPolar->isTriLinearMethod())
+        if(m_pPlPolar->isTriLinearMethod())
         {
             // make the node normals on the fly
             // node normals are required to compute local Cp coefficients at nodes
@@ -266,23 +270,18 @@ bool PlaneTask::initializeTask()
             m_pPA = m_pP3A;
         }
 
-        std::clock_t end = clock();
-        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+        auto end = std::chrono::system_clock::now();
+        int duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        strange = QString::asprintf("   done in %.3f s\n", double(duration)/1000.0);
 
-        strange = QString::asprintf("   done in: %.3f s\n\n", elapsed_secs);
 
         traceLog(strange);
     }
 
-    switch(m_pWPolar->type())
+    switch(m_pPlPolar->type())
     {
         case xfl::BOATPOLAR:
         {
-            return false;
-        }
-        case xfl::T4POLAR:
-        {
-            traceStdLog("T4 analysis are deprecated\n");
             return false;
         }
         case xfl::EXTERNALPOLAR:
@@ -293,6 +292,7 @@ bool PlaneTask::initializeTask()
         case xfl::T1POLAR:
         case xfl::T2POLAR:
         case xfl::T3POLAR:
+        case xfl::T4POLAR:
         case xfl::T5POLAR:
         case xfl::T7POLAR:
         case xfl::T8POLAR:
@@ -300,46 +300,46 @@ bool PlaneTask::initializeTask()
             m_pPlane->restoreMesh();
 
             std::string outstring;
-            if(pPlaneXfl) pPlaneXfl->setFlaps(m_pWPolar, outstring);
+            if(pPlaneXfl) pPlaneXfl->setFlaps(m_pPlPolar, outstring);
 
             traceStdLog(outstring);
 
-            if(fabs(m_pWPolar->phi())>AOAPRECISION)
+            if(fabs(m_pPlPolar->phi())>AOAPRECISION)
             {
-                if(m_pWPolar->isTriangleMethod())
-                    pPlaneXfl->triMesh().rotate(0,0,m_pWPolar->phi());
-                else if(m_pWPolar->isQuadMethod())
-                    pPlaneXfl->quadMesh().rotate(0,0,m_pWPolar->phi());
+                if(m_pPlPolar->isTriangleMethod())
+                    pPlaneXfl->triMesh().rotate(0,0,m_pPlPolar->phi());
+                else if(m_pPlPolar->isQuadMethod())
+                    pPlaneXfl->quadMesh().rotate(0,0,m_pPlPolar->phi());
             }
 
-            if(pPlaneXfl && m_pWPolar->isQuadMethod())
+            if(pPlaneXfl && m_pPlPolar->isQuadMethod())
             {
                 m_pP4A->setQuadMesh(pPlaneXfl->quadMesh());
-                m_pP4A->initializeAnalysis(m_pWPolar, m_nRHS);
+                m_pP4A->initializeAnalysis(m_pPlPolar, m_nRHS);
             }
 
-            else if(m_pWPolar->isTriangleMethod())
+            else if(m_pPlPolar->isTriangleMethod())
             {
                 m_pP3A->setTriMesh(m_pPlane->triMesh());
-                m_pP3A->initializeAnalysis(m_pWPolar, m_nRHS);
+                m_pP3A->initializeAnalysis(m_pPlPolar, m_nRHS);
             }
 
             break;
         }
         case xfl::T6POLAR:
         {
-            if(pPlaneXfl && m_pWPolar->isQuadMethod())
+            if(pPlaneXfl && m_pPlPolar->isQuadMethod())
             {
                 m_pP4A->setQuadMesh(pPlaneXfl->refQuadMesh());
-                m_pP4A->initializeAnalysis(m_pWPolar, m_nRHS);
+                m_pP4A->initializeAnalysis(m_pPlPolar, m_nRHS);
             }
-            else if(m_pWPolar->isTriangleMethod())
+            else if(m_pPlPolar->isTriangleMethod())
             {
                 m_pP3A->setTriMesh(m_pPlane->triMesh());
-                m_pP3A->initializeAnalysis(m_pWPolar, m_nRHS);
+                m_pP3A->initializeAnalysis(m_pPlPolar, m_nRHS);
             }
 
-            if(m_pWPolar->bViscousLoop())
+            if(m_pPlPolar->bViscousLoop())
             {
                 strange = "The viscous loop is activated:\n";
                 strong = QString::asprintf("   Max. iterations         = %d\n", s_ViscMaxIter);
@@ -352,7 +352,7 @@ bool PlaneTask::initializeTask()
                 traceLog(strange);
             }
 
-            if(m_pWPolar->bVortonWake())
+            if(m_pPlPolar->bVortonWake())
             {
                 strange = "Vortex particle wake:\n";
                 strong = QString::asprintf("   Max. iterations  = %d\n", m_pPolar3d->VPWIterations());
@@ -414,8 +414,8 @@ void PlaneTask::allocatePlaneResultArrays()
 void PlaneTask::setObjects(Plane *pPlane, PlanePolar *pWPolar)
 {
     m_pPlane = pPlane;
-    m_pWPolar = pWPolar;
-    m_pPolar3d = m_pWPolar;
+    m_pPlPolar = pWPolar;
+    m_pPolar3d = m_pPlPolar;
 
     m_AF.resetAll();
     m_AF.setReferenceDims(pWPolar->referenceArea(), pWPolar->referenceChordLength(), pWPolar->referenceSpanLength());
@@ -429,7 +429,7 @@ void PlaneTask::setObjects(Plane *pPlane, PlanePolar *pWPolar)
         for(int iw=0; iw<pPlaneXfl->nWings(); iw++)
         {
             WingXfl *pWing = pPlaneXfl->wing(iw);
-            if(m_pWPolar->bProjectedDim())
+            if(m_pPlPolar->bProjectedDim())
                 m_PartAF[iw].setReferenceDims(pWing->projectedArea(), pWing->MAC(), pWing->projectedSpan());
             else
                 m_PartAF[iw].setReferenceDims(pWing->planformArea(),  pWing->MAC(), pWing->planformSpan());
@@ -439,22 +439,22 @@ void PlaneTask::setObjects(Plane *pPlane, PlanePolar *pWPolar)
         }
     }
 
-    if(m_pWPolar && m_pWPolar->bAutoInertia())
+    if(m_pPlPolar && m_pPlPolar->bAutoInertia())
     {
         if(pPlane)
         {
             double mass = pPlane->totalMass();
             Vector3d CoG = pPlane->inertia().CoG_t();
-            m_pWPolar->setMass(mass);
-            m_pWPolar->setCoG(CoG);
-            m_pWPolar->setIxx(pPlane->inertia().Ixx_t());
-            m_pWPolar->setIyy(pPlane->inertia().Iyy_t());
-            m_pWPolar->setIzz(pPlane->inertia().Izz_t());
-            m_pWPolar->setIxz(pPlane->inertia().Ixz_t());
+            m_pPlPolar->setMass(mass);
+            m_pPlPolar->setCoG(CoG);
+            m_pPlPolar->setIxx(pPlane->inertia().Ixx_t());
+            m_pPlPolar->setIyy(pPlane->inertia().Iyy_t());
+            m_pPlPolar->setIzz(pPlane->inertia().Izz_t());
+            m_pPlPolar->setIxz(pPlane->inertia().Ixz_t());
 
-            if(m_pWPolar->isType6())
+            if(m_pPlPolar->isType6())
             {
-                m_pWPolar->retrieveInertia(pPlane);
+                m_pPlPolar->retrieveInertia(pPlane);
             }
         }
     }
@@ -495,7 +495,7 @@ bool PlaneTask::checkWPolarData(Plane const *pPlane, PlanePolar *pWPolar)
             {
                 // needed for wake construction
                 strange = QString::asprintf("   error: Plane has MAC = %g", pPlane->mac()*Units::mtoUnit());
-                strange += QUnits::lengthUnitLabel()  + EOLch;
+                strange += Units::lengthUnitQLabel()  + EOLch;
                 logmsg += strange;
                 bCheck = false;
             }
@@ -504,7 +504,7 @@ bool PlaneTask::checkWPolarData(Plane const *pPlane, PlanePolar *pWPolar)
             {
                 // needed for coefficient calculations
                 strange = QString::asprintf("   error: reference chord length is %g", pWPolar->referenceChordLength()*Units::mtoUnit());
-                strange += QUnits::lengthUnitLabel()  + EOLch;
+                strange += Units::lengthUnitQLabel()  + EOLch;
                 logmsg += strange;
                 bCheck = false;
             }
@@ -512,7 +512,7 @@ bool PlaneTask::checkWPolarData(Plane const *pPlane, PlanePolar *pWPolar)
             {
                 // needed for coefficient calculations
                 strange = QString::asprintf("   error: reference span length is %g", pWPolar->referenceSpanLength()*Units::mtoUnit());
-                strange += QUnits::lengthUnitLabel()  + EOLch;
+                strange += Units::lengthUnitQLabel()  + EOLch;
                 logmsg += strange;
                 bCheck = false;
             }
@@ -520,7 +520,7 @@ bool PlaneTask::checkWPolarData(Plane const *pPlane, PlanePolar *pWPolar)
             {
                 // needed for coefficient calculations
                 strange = QString::asprintf("   error: reference area is %g", pWPolar->referenceArea()*Units::m2toUnit());
-                strange += QUnits::areaUnitLabel()  + EOLch;
+                strange += Units::areaUnitQLabel()  + EOLch;
                 logmsg += strange;
                 bCheck = false;
             }
@@ -544,27 +544,11 @@ bool PlaneTask::checkWPolarData(Plane const *pPlane, PlanePolar *pWPolar)
 }
 
 
-void PlaneTask::clearPOppList()
-{
-    for(int ip=int(m_PlaneOppList.size()-1); ip>=0; ip--)
-    {
-        delete m_PlaneOppList.at(ip);
-        m_PlaneOppList.erase(m_PlaneOppList.begin()+ip);
-    }
-}
-
-
 void PlaneTask::loop()
 {
-    if(m_pWPolar && m_pWPolar->isFixedaoaPolar())
+    if(m_pPlPolar->isType123458())
     {
-        traceStdLog("Fixed aoa polars are deprecated and not supported in flow5");
-        return;
-    }
-
-    if(m_pWPolar->isType12358())
-    {
-        if(m_pWPolar->isType8())
+        if(m_pPlPolar->isType8())
         {
             // use specified T8 range
         }
@@ -576,40 +560,45 @@ void PlaneTask::loop()
             double alpha(0), beta(0), qinf(0);
             for(uint qrhs=0; qrhs<m_AngleList.size(); qrhs++)
             {
-                if(m_pWPolar->isType1())
+                if(m_pPlPolar->isType1())
                 {
                     alpha = m_AngleList.at(qrhs);
-                    beta  = m_pWPolar->betaSpec();
-                    qinf  = m_pWPolar->velocity();
+                    beta  = m_pPlPolar->betaSpec();
+                    qinf  = m_pPlPolar->velocity();
                 }
-                else if(m_pWPolar->isFixedLiftPolar() || m_pWPolar->isGlidePolar())
+                else if(m_pPlPolar->isFixedLiftPolar() || m_pPlPolar->isGlidePolar())
                 {
                     alpha = m_AngleList.at(qrhs);
-                    beta  = m_pWPolar->betaSpec();
+                    beta  = m_pPlPolar->betaSpec();
                     qinf =  1.0;
                 }
-                else if(m_pWPolar->isType5())
+                else if(m_pPlPolar->isType4())
                 {
-                    alpha = m_pWPolar->alphaSpec();
+                    alpha = m_pPlPolar->alphaSpec();
+                    beta  = m_pPlPolar->betaSpec();
+                    qinf  = m_AngleList.at(qrhs);
+                }
+                else if(m_pPlPolar->isType5())
+                {
+                    alpha = m_pPlPolar->alphaSpec();
                     beta  = m_AngleList.at(qrhs);
-                    qinf  = m_pWPolar->velocity();
+                    qinf  = m_pPlPolar->velocity();
                 }
                 m_T8Opps.push_back({true, alpha, beta, qinf});
             }
         }
         T123458Loop();
     }
-    else if(m_pWPolar->isType6())
+    else if(m_pPlPolar->isType6())
     {
         T6Loop();
     }
-    else if(m_pWPolar->isType7())
+    else if(m_pPlPolar->isType7())
     {
         T7Loop();
     }
 
 }
-
 
 
 bool PlaneTask::T6Loop()
@@ -624,7 +613,7 @@ bool PlaneTask::T6Loop()
 
     std::vector<Vector3d> VField(m_pPA->nPanels()), VVPW(m_pPA->nPanels());
 
-    if(m_pWPolar->isVLM()) m_pPA->m_nStations = m_pPlane->nStations(); // for assertion checks only
+    if(m_pPlPolar->isVLM()) m_pPA->m_nStations = m_pPlane->nStations(); // for assertion checks only
 
     bool bConvergedLast = false;
 
@@ -635,6 +624,13 @@ bool PlaneTask::T6Loop()
 
     for (m_qRHS=0; m_qRHS<m_nRHS; m_qRHS++)
     {
+        if(s_bCancel)
+        {
+            m_AnalysisStatus = xfl::CANCELLED;
+            return false;
+        }
+
+
         log.clear();
         traceStdLog("\n");
         m_bStopVPWIterations = false;
@@ -642,11 +638,11 @@ bool PlaneTask::T6Loop()
         m_Ctrl = m_T6CtrlList.at(m_qRHS);
         strange = QString::asprintf("    Processing control value= %.3f\n", m_Ctrl);
 
-        if(!m_pWPolar->isAdjustedVelocity())
+        if(!m_pPlPolar->isAdjustedVelocity())
         {
-            QInfStab = m_pWPolar->QInfCtrl(m_Ctrl);
+            QInfStab = m_pPlPolar->QInfCtrl(m_Ctrl);
             str = "      V" + INFch + QString::asprintf(" = %.3f ", QInfStab*Units::mstoUnit());
-            strange += str + QUnits::speedUnitLabel()  + EOLch;
+            strange += str + Units::speedUnitQLabel()  + EOLch;
             if(fabs(QInfStab)<1.e-6)
             {
                 strange +="         null velocity... skipping operating point\n";
@@ -659,29 +655,29 @@ bool PlaneTask::T6Loop()
             strange += "      V" + INFch + " = adjusted\n";
         }
 
-        m_Alpha = m_pWPolar->aoaCtrl(m_Ctrl);
+        m_Alpha = m_pPlPolar->aoaCtrl(m_Ctrl);
         str = "      " + ALPHAch + QString::asprintf("  = %.3f", m_Alpha);
         strange += str + DEGch  + EOLch;
 
-        m_Beta = m_pWPolar->betaCtrl(m_Ctrl);
+        m_Beta = m_pPlPolar->betaCtrl(m_Ctrl);
         str = "      " + BETAch  + QString::asprintf("  = %.3f", m_Beta);
         strange += str + DEGch  + EOLch;
         BetaStab = -m_Beta;
 
-        m_Phi = m_pWPolar->phiCtrl(m_Ctrl);
+        m_Phi = m_pPlPolar->phiCtrl(m_Ctrl);
         str = "      " + PHIch   + QString::asprintf("  = %.3f", m_Phi);
         strange += str + DEGch  + EOLch;
 
-        double mass = m_pWPolar->massCtrl(m_Ctrl);
+        double mass = m_pPlPolar->massCtrl(m_Ctrl);
         str = QString::asprintf("      mass     = %.3f ", mass*Units::kgtoUnit());
-        strange += str + QUnits::massUnitLabel()  + EOLch;
+        strange += str + Units::massUnitQLabel()  + EOLch;
 
-        Vector3d CoG = m_pWPolar->CoGCtrl(m_Ctrl);
+        Vector3d CoG = m_pPlPolar->CoGCtrl(m_Ctrl);
         str = QString::asprintf("      CoG.x    = %.3f ", CoG.x*Units::mtoUnit());
-        strange += str + QUnits::lengthUnitLabel()  + EOLch;
+        strange += str + Units::lengthUnitQLabel()  + EOLch;
 
         str = QString::asprintf("      CoG.z    = %.3f ", CoG.z*Units::mtoUnit());
-        strange += str + QUnits::lengthUnitLabel()  + EOLch;
+        strange += str + Units::lengthUnitQLabel()  + EOLch;
         traceLog(strange);
 
         //reset the initial geometry before a new angle is processed
@@ -697,12 +693,12 @@ bool PlaneTask::T6Loop()
             std::string str;
             if(m_pP4A && m_pPlane->isXflType())
             {
-                pPlaneXfl->setRangePositions4(m_pWPolar, m_Ctrl, str);
+                pPlaneXfl->setRangePositions4(m_pPlPolar, m_Ctrl, str);
                 m_pP4A->setQuadMesh(pPlaneXfl->quadMesh());
             }
             else if(m_pP3A)
             {
-                pPlaneXfl->setRangePositions3(m_pWPolar, m_Ctrl, str);
+                pPlaneXfl->setRangePositions3(m_pPlPolar, m_Ctrl, str);
                 m_pP3A->setTriMesh(m_pPlane->triMesh());
             }
             log += QString::fromStdString(str);
@@ -726,9 +722,9 @@ bool PlaneTask::T6Loop()
         // wake panels aligned with x-axis up to beta 11
         // wake panels aligned the with the freestream direction since beta 12
         // little or no difference to the results as long as the downwash is evaluated on the wake itself
-        m_pPA->makeWakePanels(objects::windDirection(AlphaStab, 0.0), m_pWPolar->bVortonWake());
+        m_pPA->makeWakePanels(objects::windDirection(AlphaStab, 0.0), m_pPlPolar->bVortonWake());
 
-        if(m_pWPolar->bVortonWake())
+        if(m_pPlPolar->bVortonWake())
         {
             m_pPA->clearVortons(); // from the previous operating point calculation
             m_pPA->m_VortexNeg.clear();
@@ -751,7 +747,7 @@ bool PlaneTask::T6Loop()
         if(m_pPA->m_bMatrixError) return false;
         if (isCancelled()) return true;
 
-        if(!m_pWPolar->isVLM())
+        if(!m_pPlPolar->isVLM())
         {
             m_pPA->addWakeContribution();
             if(m_pPA->m_bMatrixError) return false;
@@ -786,7 +782,7 @@ bool PlaneTask::T6Loop()
         bool bViscLoopError = false;
         // initial velocity is 1 m/s, and is scaled at each iteration
         m_QInf = 1.0;
-        if(m_pWPolar->isAdjustedVelocity()) QInfStab = 1.0;
+        if(m_pPlPolar->isAdjustedVelocity()) QInfStab = 1.0;
 
         // start the roll-up iterations
         if(s_bViscInitTwist || !bConvergedLast)     std::fill(m_gamma.begin(), m_gamma.end(), 0);
@@ -798,12 +794,12 @@ bool PlaneTask::T6Loop()
         {
             strange.clear();
 
-            if(m_pWPolar->bVortonWake())
+            if(m_pPlPolar->bVortonWake())
                 m_pPA->makeRHSVWVelocities(VVPW);
 
             bViscLoopError = false;
             int nViscIter = 1;
-            if(m_pWPolar->bViscousLoop()) nViscIter = std::max(nViscIter, s_ViscMaxIter);
+            if(m_pPlPolar->bViscousLoop()) nViscIter = std::max(nViscIter, s_ViscMaxIter);
             for(int inl=0; inl<nViscIter; inl++)
             {
                 Vector3d VInf(objects::windDirection(AlphaStab, BetaStab)*m_QInf);
@@ -825,19 +821,19 @@ bool PlaneTask::T6Loop()
                         qDebug(" %17g   %17g", m_pPA->m_Sigma.at(ip), m_pPA->m_uRHS.at(ip));
                 }*/
 
-                if(m_pWPolar->isQuadMethod())
+                if(m_pPlPolar->isQuadMethod())
                     m_pP4A->m_Mu = m_pP4A->m_uRHS;
                 else
                 {
-                    if(m_pWPolar->isTriLinearMethod())
+                    if(m_pPlPolar->isTriLinearMethod())
                         m_pP3A->m_Mu = m_pP3A->m_uRHS;
-                    if(m_pWPolar->isTriUniformMethod())
+                    if(m_pPlPolar->isTriUniformMethod())
                         m_pPA->makeVertexDoubletDensities(m_pP3A->m_uRHS, m_pP3A->m_Mu);
                 }
 
                 computeInducedForces(0, 0, m_QInf); //  the mesh has been rotated, use the x-aligned wind direction
 
-                if(m_pWPolar->isAdjustedVelocity())
+                if(m_pPlPolar->isAdjustedVelocity())
                 {
                     std::string str;
                     double v = computeBalanceSpeeds(0, mass, m_bError, "      ", str);
@@ -874,10 +870,10 @@ bool PlaneTask::T6Loop()
                     F = m_WingForce.front();
                 }
 //                CL = F.dot(windNormal(AlphaStab, BetaStab))/m_pWPolar->referenceArea();
-                CL = F.dot(objects::windNormal(0, 0))/m_pWPolar->referenceArea();
+                CL = F.dot(objects::windNormal(0, 0))/m_pPlPolar->referenceArea();
 
 
-                if(m_pWPolar->isViscous() && m_pWPolar->bViscousLoop())
+                if(m_pPlPolar->isViscous() && m_pPlPolar->bViscousLoop())
                 {
                     std::string strerr;
                     if(updateVirtualTwist(QInfStab, error, strerr))
@@ -901,7 +897,7 @@ bool PlaneTask::T6Loop()
                 if (isCancelled()) return true;
             } // end viscous loop
 
-            if(m_pWPolar->isViscous() && m_pWPolar->bViscousLoop())
+            if(m_pPlPolar->isViscous() && m_pPlPolar->bViscousLoop())
             {
                 if(!bViscLoopError)
                 {
@@ -945,7 +941,7 @@ bool PlaneTask::T6Loop()
                 traceVPWLog(m_Ctrl);
             }
 
-            if(m_pWPolar->bVortonWake())
+            if(m_pPlPolar->bVortonWake())
                 traceLog(QString::asprintf("      VPW iteration %3d/%3d      CL=%9.5f\n", ivw+1, nWakeIter, CL));
 
             if(isCancelled()) return true;
@@ -975,9 +971,11 @@ bool PlaneTask::T6Loop()
             //add the data to the polar object
             if(!pPOpp->isOut())
             {
-                m_pWPolar->addPlaneOpPointData(pPOpp);
-                m_PlaneOppList.push_back(pPOpp);
+                m_pPlPolar->addPlaneOpPointData(pPOpp);
             }
+
+            if(s_bKeepOpps) m_PlaneOppList.push_back(pPOpp);
+            else            delete pPOpp;
         }
 
         if (isCancelled()) return true;
@@ -999,19 +997,19 @@ void PlaneTask::addTwistedVelField(double QInf, double alpha, std::vector<Vector
     int iStrip = 0;
     int iPanel = 0;
 
-    int coef = m_pWPolar->bThinSurfaces() ? 1 : 2; // top and bottom surfaces
-    if(m_pWPolar->isTriangleMethod()) coef *= 2; // 2 triangles/quad
+    int coef = m_pPlPolar->bThinSurfaces() ? 1 : 2; // top and bottom surfaces
+    if(m_pPlPolar->isTriangleMethod()) coef *= 2; // 2 triangles/quad
     for(int iw=0; iw<pPlaneXfl->nWings(); iw++)
     {
         WingXfl const *pWing = pPlaneXfl->wingAt(iw);
-        int nWingPanels = m_pWPolar->isQuadMethod() ? pWing->nPanel4() : pWing->nPanel3();
+        int nWingPanels = m_pPlPolar->isQuadMethod() ? pWing->nPanel4() : pWing->nPanel3();
         int iWingPanel0=iPanel;
         for(int is=0; is<pWing->nSurfaces(); is++)
         {
             Surface const &surf = pWing->surfaceAt(is);
 
             // left tip patch
-            if(m_pWPolar->bThickSurfaces() && surf.isClosedLeftSide())
+            if(m_pPlPolar->bThickSurfaces() && surf.isClosedLeftSide())
             {
                 do
                 {
@@ -1037,7 +1035,7 @@ void PlaneTask::addTwistedVelField(double QInf, double alpha, std::vector<Vector
             }
 
             // right tip patch
-            if(m_pWPolar->bThickSurfaces() && surf.isClosedRightSide())
+            if(m_pPlPolar->bThickSurfaces() && surf.isClosedRightSide())
             {
                 // there is a right tip patch in two cases
                 //  - the wing is one-sided and closed at its inner side
@@ -1078,12 +1076,12 @@ bool PlaneTask::updateVirtualTwist(double QInf, double &error, std::string &logm
 
     double *Cp3Vtx=nullptr;
     int qrhs = 0;
-    if(m_pWPolar->isTriangleMethod())
+    if(m_pPlPolar->isTriangleMethod())
     {
         Cp3Vtx = m_pP3A->m_Cp.data() + qrhs*3*m_pP3A->nPanels();
     }
     double *mu4=nullptr,*cp4=nullptr;
-    if(m_pWPolar->isQuadMethod())
+    if(m_pPlPolar->isQuadMethod())
     {
         mu4    = m_pP4A->m_Mu.data()    + qrhs*m_pP4A->m_Panel4.size();
         cp4    = m_pP4A->m_Cp.data()    + qrhs*m_pP4A->m_Panel4.size();
@@ -1097,14 +1095,14 @@ bool PlaneTask::updateVirtualTwist(double QInf, double &error, std::string &logm
         WingXfl *pWing = pPlaneXfl->wing(iw);
 
         // compute the lift coefficient on strips
-        if(m_pWPolar->isTriangleMethod())
+        if(m_pPlPolar->isTriangleMethod())
         {
-            pWing->panel3ComputeStrips(m_pP3A->m_Panel3, m_pWPolar, CoG, m_Alpha, m_Beta, QInf, Cp3Vtx, m_SpanDistFF[iw]);
+            pWing->panel3ComputeStrips(m_pP3A->m_Panel3, m_pPlPolar, CoG, m_Alpha, m_Beta, QInf, Cp3Vtx, m_SpanDistFF[iw]);
         }
-        else if(m_pWPolar->isQuadMethod())
+        else if(m_pPlPolar->isQuadMethod())
         {
             // Compute aero data on strips
-            pWing->panel4ComputeStrips(m_pP4A->m_Panel4, m_pWPolar, CoG, m_Alpha, m_Beta, QInf, cp4, mu4, m_SpanDistFF[iw]);
+            pWing->panel4ComputeStrips(m_pP4A->m_Panel4, m_pPlPolar, CoG, m_Alpha, m_Beta, QInf, cp4, mu4, m_SpanDistFF[iw]);
         }
 
         SpanDistribs const&sd = m_SpanDistFF.at(iw);
@@ -1115,7 +1113,7 @@ bool PlaneTask::updateVirtualTwist(double QInf, double &error, std::string &logm
             Surface const &surf = pWing->surface(jSurf);
             for(int k=0; k<surf.NYPanels(); k++)
             {
-                double Re = sd.m_Chord.at(m) * QInf / m_pWPolar->viscosity();
+                double Re = sd.m_Chord.at(m) * QInf / m_pPlPolar->viscosity();
 
                 double Cl_vlm = sd.m_Cl.at(m);
 
@@ -1130,7 +1128,7 @@ bool PlaneTask::updateVirtualTwist(double QInf, double &error, std::string &logm
                 if(bOutRe || bOutAlpha)
                 {
                     strange = "       " + QString::fromStdString(pWing->name()) + QString::asprintf("  Span pos[%d]=%11g ", m, sd.m_StripPos.at(m)*Units::mtoUnit());
-                    strange += QUnits::lengthUnitLabel();
+                    strange += Units::lengthUnitQLabel();
                     strange += ",  Re = ";
                     strong = QString::asprintf("%.0f", Re);
                     strange += strong;
@@ -1198,9 +1196,9 @@ void PlaneTask::outputStateMatrices(PlaneOpp const *pPOpp)
     //output control derivatives
 
     //build the control matrix
-    for(int ie=0; ie<m_pWPolar->nAVLCtrls(); ie++)
+    for(int ie=0; ie<m_pPlPolar->nAVLCtrls(); ie++)
     {
-        strange = "      _____Control Matrices for set " + QString::fromStdString(m_pWPolar->AVLCtrl(ie).name())+" __________\n";
+        strange = "      _____Control Matrices for set " + QString::fromStdString(m_pPlPolar->AVLCtrl(ie).name())+" __________\n";
         log += strange;
 
         strange = "       Longitudinal control matrix\n";
@@ -1218,7 +1216,6 @@ void PlaneTask::outputStateMatrices(PlaneOpp const *pPOpp)
 
     traceLog(log);
 }
-
 
 
 PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double phi, double QInf, double mass, Vector3d const &CoG, bool bInGeomAxes)
@@ -1244,7 +1241,7 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
     }
 
     double const *mu3=(nullptr), *sigma3(nullptr), *Cp3Vtx(nullptr);
-    if(m_pP3A && m_pWPolar->isTriangleMethod())
+    if(m_pP3A && m_pPlPolar->isTriangleMethod())
     {
         mu3    = m_pP3A->m_Mu.data();
         sigma3 = m_pP3A->m_Sigma.data();
@@ -1253,7 +1250,7 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
     double const *mu4(nullptr), *sigma4(nullptr);
     double *cp4(nullptr);
 
-    if(m_pWPolar->isQuadMethod())
+    if(m_pPlPolar->isQuadMethod())
     {
         mu4    = m_pP4A->m_Mu.data();
         sigma4 = m_pP4A->m_Sigma.data();
@@ -1263,15 +1260,15 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
     m_AF.resetResults();
 //    m_PartAF.resize(m_pPlane->nParts());
 
-    if(m_pWPolar->isType6())
+    if(m_pPlPolar->isType6())
     {
         m_AF.setOpp(alpha, m_Beta, m_Phi, QInf);
         for(int i=0; i<int(m_PartAF.size()); i++)  m_PartAF[i].setOpp(alpha, beta, m_Phi, QInf);
     }
     else
     {
-        m_AF.setOpp(alpha, beta, m_pWPolar->phi(), QInf);
-        for(int i=0; i<int(m_PartAF.size()); i++)  m_PartAF[i].setOpp(alpha, beta, m_pWPolar->phi(), QInf);
+        m_AF.setOpp(alpha, beta, m_pPlPolar->phi(), QInf);
+        for(int i=0; i<int(m_PartAF.size()); i++)  m_PartAF[i].setOpp(alpha, beta, m_pPlPolar->phi(), QInf);
     }
 
     Vector3d Force, PlaneCP, Mi;
@@ -1304,15 +1301,15 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
             WingXfl *pWing = pPlaneXfl->wing(iw);
 
             //Compute aero forces and span distributions
-            if(m_pWPolar->isQuadMethod())
+            if(m_pPlPolar->isQuadMethod())
             {
-                pWing->panel4ComputeInviscidForces(m_pP4A->m_Panel4, m_pWPolar, CoG, alpha, beta, QInf, cp4, mu4, m_PartAF[iw]);
-                pWing->panel4ComputeStrips(m_pP4A->m_Panel4, m_pWPolar, CoG, alpha, beta, QInf, cp4, mu4, m_SpanDistFF[iw]);
+                pWing->panel4ComputeInviscidForces(m_pP4A->m_Panel4, m_pPlPolar, CoG, alpha, beta, QInf, cp4, mu4, m_PartAF[iw]);
+                pWing->panel4ComputeStrips(m_pP4A->m_Panel4, m_pPlPolar, CoG, alpha, beta, QInf, cp4, mu4, m_SpanDistFF[iw]);
             }
-            else if(m_pWPolar->isTriangleMethod())
+            else if(m_pPlPolar->isTriangleMethod())
             {
-                pWing->panel3ComputeInviscidForces(m_pP3A->m_Panel3, m_pWPolar, CoG, alpha, beta, Cp3Vtx, m_PartAF[iw]);
-                pWing->panel3ComputeStrips(m_pP3A->m_Panel3, m_pWPolar, CoG, alpha, beta, QInf, Cp3Vtx, m_SpanDistFF[iw]);
+                pWing->panel3ComputeInviscidForces(m_pP3A->m_Panel3, m_pPlPolar, CoG, alpha, beta, Cp3Vtx, m_PartAF[iw]);
+                pWing->panel3ComputeStrips(m_pP3A->m_Panel3, m_pPlPolar, CoG, alpha, beta, QInf, Cp3Vtx, m_SpanDistFF[iw]);
             }
 
             if(bInGeomAxes)
@@ -1326,7 +1323,7 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
                 partmi    = m_PartAF.at(iw).Mi();
             }
 
-            if(m_pWPolar->isType6()) partforce.y *= -1.0;
+            if(m_pPlPolar->isType6()) partforce.y *= -1.0;
 
             m_AF.addFsum(partforce);
             Mi += partmi;           //N.m/q
@@ -1334,46 +1331,47 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
             m_PartAF[iw].setMi(partmi);           //N.m/q
 
 
-            if     (m_pWPolar->isQuadMethod())     pWing->panelComputeBending(m_pP4A->m_Panel4, m_pWPolar->bThinSurfaces(), m_SpanDistFF[iw]);
-            else if(m_pWPolar->isTriangleMethod()) pWing->panelComputeBending(m_pP3A->m_Panel3, m_pWPolar->bThinSurfaces(), m_SpanDistFF[iw]);
+            if     (m_pPlPolar->isQuadMethod())     pWing->panelComputeBending(m_pP4A->m_Panel4, m_pPlPolar->bThinSurfaces(), m_SpanDistFF[iw]);
+            else if(m_pPlPolar->isTriangleMethod()) pWing->panelComputeBending(m_pP3A->m_Panel3, m_pPlPolar->bThinSurfaces(), m_SpanDistFF[iw]);
 
             iStation += pWing->nStations();
-            if(s_bCancel) break;
+            if(s_bCancel) return nullptr;
         }
 
-        if(m_pWPolar->isViscInterpolated())
+        if(s_bCancel) return nullptr;
+
+        if(m_pPlPolar->isViscInterpolated())
             traceStdLog("          Adding interpolated viscous drag...\n");
         else
             traceStdLog("          Calculating XFoil viscous drag on the fly...\n");
 
         iStation = 0;
 
-        for(int iw=0; iw<nWings; iw++)
+        if(m_pPlPolar->isViscous())
         {
-            WingXfl *pWing = pPlaneXfl->wing(iw);
-            if(m_pWPolar->isViscous())
+            for(int iw=0; iw<nWings; iw++)
             {
+                WingXfl *pWing = pPlaneXfl->wing(iw);
                 traceStdLog("             Processing "+ pWing->name() + EOLstr);
-
                 std::string logmsg;
 
                 bool bViscOK = true;
 
-                if(m_pWPolar->isViscInterpolated())
+                if(m_pPlPolar->isViscInterpolated())
                 {
-                    bViscOK = computeViscousDrag(pWing, alpha, beta, QInf, m_pWPolar, CoG, iStation, m_SpanDistFF[iw], logmsg);
+                    bViscOK = computeViscousDrag(pWing, alpha, beta, QInf, m_pPlPolar, CoG, iStation, m_SpanDistFF[iw], logmsg);
                     if(logmsg.length()!=0)
                     {
-                        traceStdLog("             ...Viscous interpolation failures: \n");
+                        traceStdLog("                ...Viscous interpolation failures:\n");
                         traceStdLog(logmsg);
                     }
                 }
                 else
                 {
-                    bViscOK = computeViscousDragOTF(pWing, alpha, beta, QInf, m_pWPolar, CoG, m_pWPolar->flapCtrls(iw), m_SpanDistFF[iw], logmsg);
+                    bViscOK = computeViscousDragOTF(pWing, alpha, beta, QInf, m_pPlPolar, CoG, m_pPlPolar->flapCtrls(iw), m_SpanDistFF[iw], logmsg);
                     if(logmsg.length()!=0)
                     {
-                        traceStdLog("             ...XFoil OTF failures: ");
+                        traceStdLog("                ...XFoil OTF failures:\n");
                         traceStdLog(logmsg);
                     }
                 }
@@ -1383,7 +1381,7 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
                     m_bError = true;
                     return nullptr; // no point in calculating the rest
                 }
-                pWing->computeViscousForces(m_pWPolar, alpha, beta, m_SpanDistFF[iw], m_PartAF[iw]);
+                pWing->computeViscousForces(m_pPlPolar, alpha, beta, m_SpanDistFF[iw], m_PartAF[iw]);
                 m_AF.addProfileDrag(m_PartAF.at(iw).profileDrag());           //N/q
                 m_AF.addMv(m_PartAF.at(iw).Mv());                             //N.m/q
 
@@ -1392,19 +1390,20 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
             }
         }
         traceStdLog("             ...done.\n");
+        if(s_bCancel) return nullptr;
 
         // add fuse contribution to Centre of Pressure position, to pressure moments and to viscous properties
         if(m_pPlane->hasFuse())
         {
             Fuse *pFuse = pPlaneXfl->fuse(0);
             int ipart = m_pPlane->nWings();
-            if(!m_pWPolar->bIgnoreBodyPanels())
+            if(!m_pPlPolar->bIgnoreBodyPanels())
             {
                 Vector3d Force, Moment;
-                if(m_pWPolar->isTriangleMethod())
-                    pFuse->computeAero(m_pP3A->m_Panel3, Cp3Vtx, m_pWPolar, alpha, PlaneCP, Force, Moment);
-                else if(m_pWPolar->isQuadMethod())
-                    pFuse->computeAero(m_pP4A->m_Panel4, cp4,    m_pWPolar, alpha, PlaneCP, Force, Moment);
+                if(m_pPlPolar->isTriangleMethod())
+                    pFuse->computeAero(m_pP3A->m_Panel3, Cp3Vtx, m_pPlPolar, alpha, PlaneCP, Force, Moment);
+                else if(m_pPlPolar->isQuadMethod())
+                    pFuse->computeAero(m_pP4A->m_Panel4, cp4,    m_pPlPolar, alpha, PlaneCP, Force, Moment);
 
                 if(bInGeomAxes)
                 {
@@ -1418,7 +1417,7 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
                 }
 
                 m_AF.addFsum(partforce);           // N/q
-                if(m_pWPolar->bFuseMi())
+                if(m_pPlPolar->bFuseMi())
                 {
                     Mi += partmi;               // N.m/q
                     m_PartAF[ipart].setFsum(partforce);                             // N/q
@@ -1426,10 +1425,10 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
                 }
             }
 
-            if(m_pWPolar->hasFuseDrag())
+            if(m_pPlPolar->hasFuseDrag())
             {
                 Vector3d Force, Moment;
-                pFuse->computeViscousForces(m_pWPolar, alpha, QInf, Force, Moment);
+                pFuse->computeViscousForces(m_pPlPolar, alpha, QInf, Force, Moment);
                 m_AF.addFuseDrag(Force.dot(windD));
                 m_PartAF[ipart].setFuseDrag(Force.dot(windD));
 
@@ -1441,6 +1440,7 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
             }
         }
     }
+    if(s_bCancel) return nullptr;
 
     if(m_pPlane->isSTLType())
     {
@@ -1451,8 +1451,8 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
             Force += m_WingForce.at(0);                           // (N/q), body axes
 
         AeroForces AF;
-        if(m_pWPolar && Cp3Vtx)
-            computeInviscidAero(m_pP3A->m_Panel3, Cp3Vtx, m_pWPolar, alpha, AF);
+        if(m_pPlPolar && Cp3Vtx)
+            computeInviscidAero(m_pP3A->m_Panel3, Cp3Vtx, m_pPlPolar, alpha, AF);
         m_AF.addFsum(AF.Fsum());
         Mi = AF.Mi();
     }
@@ -1461,9 +1461,9 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
     m_AF.setMi(Mi);
 
     // add all extra drag
-    if(m_pWPolar && m_pWPolar->hasExtraDrag())
+    if(m_pPlPolar && m_pPlPolar->hasExtraDrag())
     {
-        m_AF.setExtraDrag(m_pWPolar->extraDragTotal(m_AF.CL()));
+        m_AF.setExtraDrag(m_pPlPolar->extraDragTotal(m_AF.CL()));
     }
 
     Vector3d M0;
@@ -1473,16 +1473,18 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
     }
     m_AF.setM0(M0);
 
-    PlaneOpp *pPOpp(nullptr);
-    if(m_pWPolar)
-    {
-        if(m_pWPolar->isType6())     beta = -beta;
+    if(s_bCancel) return nullptr;
 
-        if(m_pWPolar->isTriangleMethod())
+    PlaneOpp *pPOpp(nullptr);
+    if(m_pPlPolar)
+    {
+        if(m_pPlPolar->isType6())     beta = -beta;
+
+        if(m_pPlPolar->isTriangleMethod())
         {
             pPOpp = createPlaneOpp(ctrl, alpha, beta, phi, QInf, mass, CoG, Cp3Vtx, mu3, sigma3);
         }
-        else if (m_pWPolar->isQuadMethod())
+        else if (m_pPlPolar->isQuadMethod())
         {
             pPOpp = createPlaneOpp(ctrl, alpha, beta, phi, QInf, mass, CoG, cp4, mu4, sigma4);
         }
@@ -1582,7 +1584,7 @@ double PlaneTask::computeBalanceSpeeds(double Alpha, double mass, bool &bWarning
         bWarning  = true;
         return -100.0;
     }
-    double v = sqrt(2.0* 9.81 * mass/m_pWPolar->density()/Lift);
+    double v = sqrt(2.0* 9.81 * mass/m_pPlPolar->density()/Lift);
     log = prefix + "V" + INFstr + QString::asprintf("=%7.3f ", v*Units::mstoUnit()).toStdString();
     log += Units::speedUnitLabel();
     return v;
@@ -1610,8 +1612,8 @@ double PlaneTask::computeGlideSpeed(double Alpha, double mass, std::string &log)
         return -100.0;
     }
 
-    double CL = Lift/m_pWPolar->referenceArea();
-    double CDi = Force.dot(objects::windDirection(Alpha, m_Beta))/m_pWPolar->referenceArea();
+    double CL = Lift/m_pPlPolar->referenceArea();
+    double CDi = Force.dot(objects::windDirection(Alpha, m_Beta))/m_pPlPolar->referenceArea();
     double v0=0.1;    // m/s
     double v1=1000.0; // m/s
     double CDv1=0.0;
@@ -1631,20 +1633,20 @@ double PlaneTask::computeGlideSpeed(double Alpha, double mass, std::string &log)
             pWing->computeViscousForces(m_pWPolar, Alpha, m_Beta);
             CDv0 += pWing->AF().profileDrag();*/
 
-            if(m_pWPolar->isViscOnTheFly())
-                computeViscousDragOTF(pWing, Alpha, 0.0, v1, m_pWPolar, Vector3d(), m_pWPolar->flapCtrls(iw), m_SpanDistFF[iw], strange);
+            if(m_pPlPolar->isViscOnTheFly())
+                computeViscousDragOTF(pWing, Alpha, 0.0, v1, m_pPlPolar, Vector3d(), m_pPlPolar->flapCtrls(iw), m_SpanDistFF[iw], strange);
             else
-                computeViscousDrag(pWing, Alpha, 0.0, v1, m_pWPolar, Vector3d(), iStation, m_SpanDistFF[iw], strange);
-            pWing->computeViscousForces(m_pWPolar, Alpha, m_Beta, m_SpanDistFF[iw], m_PartAF[iw]);
+                computeViscousDrag(pWing, Alpha, 0.0, v1, m_pPlPolar, Vector3d(), iStation, m_SpanDistFF[iw], strange);
+            pWing->computeViscousForces(m_pPlPolar, Alpha, m_Beta, m_SpanDistFF[iw], m_PartAF[iw]);
             CDv1 += m_PartAF.at(iw).profileDrag(); // N/q
 
             iStation += pWing->nStations();
         }
 //        CDv0 /= m_pWPolar->referenceArea();
-        CDv1 /= m_pWPolar->referenceArea();
+        CDv1 /= m_pPlPolar->referenceArea();
 
 //        v0 = sqrt(2*mass*9.81/m_pWPolar->density()/m_pWPolar->referenceArea()/sqrt(CL*CL+(CDi+CDv0)*(CDi+CDv0)));
-        v1 = sqrt(2*mass*9.81/m_pWPolar->density()/m_pWPolar->referenceArea()/sqrt(CL*CL+(CDi+CDv1)*(CDi+CDv1)));
+        v1 = sqrt(2*mass*9.81/m_pPlPolar->density()/m_pPlPolar->referenceArea()/sqrt(CL*CL+(CDi+CDv1)*(CDi+CDv1)));
 
         iter++;
     }
@@ -1677,17 +1679,17 @@ void PlaneTask::computeInducedForces(double alpha, double beta, double QInf)
         {
             WingXfl *pWing = m_pPlane->wing(iw);
             Vector3d forcebodyaxes;
-            if(m_pWPolar->isQuadMethod())
+            if(m_pPlPolar->isQuadMethod())
                 m_pP4A->inducedForce(pWing->nPanel4(), QInf, alpha, beta, pos, forcebodyaxes, m_SpanDistFF[iw]);
-            else if(m_pP3A && m_pWPolar->isTriangleMethod())
+            else if(m_pP3A && m_pPlPolar->isTriangleMethod())
                 m_pP3A->inducedForce(pWing->nPanel3(), QInf, alpha, beta, pos, forcebodyaxes, m_SpanDistFF[iw]);
 
             //save the results... will save another FF calculation when computing the operating points
             m_WingForce[iw] = forcebodyaxes;     // N/q, body axes
 //            m_SpanDistFF[iw] = pWing->spanDistFF();
 
-            if      (m_pWPolar->isTriangleMethod()) pos += pWing->nPanel3();
-            else if (m_pWPolar->isQuadMethod())     pos += pWing->nPanel4();
+            if      (m_pPlPolar->isTriangleMethod()) pos += pWing->nPanel3();
+            else if (m_pPlPolar->isQuadMethod())     pos += pWing->nPanel4();
 
             if(isCancelled())return;
         }
@@ -1720,15 +1722,15 @@ void PlaneTask::computeInducedDrag(double alpha, double beta, double QInf)
             }
             else
             {
-                if(m_pWPolar->isQuadMethod())
+                if(m_pPlPolar->isQuadMethod())
                     m_pP4A->trefftzDrag(pWing->nPanel4(), QInf, alpha, beta, pos, FFForceBodyAxes, m_SpanDistFF[iw]);
-                else if(m_pWPolar->isTriangleMethod())
+                else if(m_pPlPolar->isTriangleMethod())
                     m_pP3A->trefftzDrag(pWing->nPanel3(), QInf, alpha, beta, pos, FFForceBodyAxes, m_SpanDistFF[iw]);
             }
             m_WingForce[iw] += FFForceBodyAxes;     // N/q, body axes
 
-            if      (m_pWPolar->isTriangleMethod()) pos += pWing->nPanel3();
-            else if (m_pWPolar->isQuadMethod())     pos += pWing->nPanel4();
+            if      (m_pPlPolar->isTriangleMethod()) pos += pWing->nPanel3();
+            else if (m_pPlPolar->isQuadMethod())     pos += pWing->nPanel4();
 
             if(isCancelled())return;
         }
@@ -1752,13 +1754,13 @@ PlaneOpp *PlaneTask::createPlaneOpp(double ctrl, double alpha, double beta, doub
     if(m_pPlane->isXflType()) pPlaneXfl = dynamic_cast<PlaneXfl const*>(m_pPlane);
 
     int nPanel3=0, nPanel4=0;
-    if(m_pWPolar->isTriangleMethod()) nPanel3=m_pP3A->nPanels();
+    if(m_pPlPolar->isTriangleMethod()) nPanel3=m_pP3A->nPanels();
     else                              nPanel4=m_pP4A->nPanels();
 
-    PlaneOpp *pPOpp = new PlaneOpp(m_pPlane, m_pWPolar, nPanel4, nPanel3);
+    PlaneOpp *pPOpp = new PlaneOpp(m_pPlane, m_pPlPolar, nPanel4, nPanel3);
     if(!pPOpp) return nullptr;
 
-    pPOpp->setTheStyle(m_pWPolar->theStyle());
+    pPOpp->setTheStyle(m_pPlPolar->theStyle());
     pPOpp->setVisible(true);
 
     PlaneOpp *pLastPOpp(nullptr);
@@ -1773,9 +1775,9 @@ PlaneOpp *PlaneTask::createPlaneOpp(double ctrl, double alpha, double beta, doub
             WingXfl const*pWing = pPlaneXfl->wingAt(iw);
 
             pPOpp->addWingOpp(pWing->nPanel4());
-            pPOpp->m_WingOpp[iw].createWOpp(pWing, m_pWPolar, m_SpanDistFF.at(iw), m_PartAF.at(iw));
+            pPOpp->m_WingOpp[iw].createWOpp(pWing, m_pPlPolar, m_SpanDistFF.at(iw), m_PartAF.at(iw));
 
-            if(m_pWPolar->isViscous() && m_pWPolar->bViscousLoop())
+            if(m_pPlPolar->isViscous() && m_pPlPolar->bViscousLoop())
             {
                 //save the virtual twist for the operating point display
                 SpanDistribs &sd = pPOpp->m_WingOpp[iw].m_SpanDistrib;
@@ -1792,7 +1794,7 @@ PlaneOpp *PlaneTask::createPlaneOpp(double ctrl, double alpha, double beta, doub
     if(pPOpp->hasWOpp())
         pWOpp = &pPOpp->m_WingOpp[0];
 
-    if(m_pWPolar->isTriangleMethod())
+    if(m_pPlPolar->isTriangleMethod())
     {
         int N = m_pP3A->nPanels();
         int N3 = N*3;
@@ -1800,7 +1802,7 @@ PlaneOpp *PlaneTask::createPlaneOpp(double ctrl, double alpha, double beta, doub
         if(Gamma) memcpy(pPOpp->m_gamma.data(), Gamma,   ulong(N3)*sizeof(double));
         if(Sigma) memcpy(pPOpp->m_sigma.data(), Sigma,   ulong(N)*sizeof(double));
     }
-    else if (m_pWPolar->isQuadMethod())
+    else if (m_pPlPolar->isQuadMethod())
     {
         int N = m_pP4A->nPanels();
         if(Cp)    memcpy(pPOpp->m_Cp.data(),    Cp,    ulong(N)*sizeof(double));
@@ -1813,10 +1815,10 @@ PlaneOpp *PlaneTask::createPlaneOpp(double ctrl, double alpha, double beta, doub
 
     pPOpp->m_Mass   = mass;
     pPOpp->m_CoG    = CoG;
-    pPOpp->m_Inertia[0] = m_pWPolar->Ixx();
-    pPOpp->m_Inertia[1] = m_pWPolar->Iyy();
-    pPOpp->m_Inertia[2] = m_pWPolar->Izz();
-    pPOpp->m_Inertia[3] = m_pWPolar->Ixz();
+    pPOpp->m_Inertia[0] = m_pPlPolar->Ixx();
+    pPOpp->m_Inertia[1] = m_pPlPolar->Iyy();
+    pPOpp->m_Inertia[2] = m_pPlPolar->Izz();
+    pPOpp->m_Inertia[3] = m_pPlPolar->Ixz();
 
 
     pPOpp->setAlpha(alpha);
@@ -1881,7 +1883,7 @@ PlaneOpp *PlaneTask::createPlaneOpp(double ctrl, double alpha, double beta, doub
         }
     }
 
-    if(m_pWPolar->bVortonWake())
+    if(m_pPlPolar->bVortonWake())
     {
         pPOpp->m_Vorton = m_pPA->m_Vorton;
         pPOpp->m_VortexNeg = m_pPA->m_VortexNeg;
@@ -1903,7 +1905,7 @@ bool PlaneTask::T7Loop()
 
     m_Ctrl = 0.0;
     m_Beta = 0.0;
-    m_Phi  = m_pWPolar->phi();
+    m_Phi  = m_pPlPolar->phi();
 
     m_pPA->makeWakePanels(objects::windDirection(0,0), false);
 
@@ -1913,8 +1915,8 @@ bool PlaneTask::T7Loop()
     m_pPA->makeLocalVelocities(m_pPA->m_uRHS, m_pPA->m_vRHS, m_pPA->m_wRHS, m_pPA->m_uVLocal, m_pPA->m_vVLocal, m_pPA->m_wVLocal, objects::windDirection(0,0));
     traceStdLog("   done\n");
 
-    Vector3d CoG = m_pWPolar->CoGCtrl(m_Ctrl);
-    double mass = m_pWPolar->massCtrl(m_Ctrl);
+    Vector3d CoG = m_pPlPolar->CoGCtrl(m_Ctrl);
+    double mass = m_pPlPolar->massCtrl(m_Ctrl);
 
     outstring.clear();
 
@@ -1926,7 +1928,7 @@ bool PlaneTask::T7Loop()
 
     traceStdLog("      Computing trimmed conditions\n");
 
-    if(!m_pPA->computeTrimmedConditions(mass, CoG, AlphaEq, u0, m_pWPolar->bFuseMi()))
+    if(!m_pPA->computeTrimmedConditions(mass, CoG, AlphaEq, u0, m_pPlPolar->bFuseMi()))
     {
         if(isCancelled()) return true;
         //no zero moment alpha
@@ -1956,12 +1958,17 @@ bool PlaneTask::T7Loop()
 
         if (isCancelled()) return true;
 
-        m_PlaneOppList.push_back(pPOpp);
         if(computeStability(pPOpp, true))
         {
             //add the data to the polar object
-            if(pPOpp && !pPOpp->isOut())
-                m_pWPolar->addPlaneOpPointData(pPOpp);
+            if(pPOpp)
+            {
+                if(!pPOpp->isOut())
+                    m_pPlPolar->addPlaneOpPointData(pPOpp);
+
+                if(s_bKeepOpps) m_PlaneOppList.push_back(pPOpp);
+                else            delete pPOpp;
+            }
         }
         traceStdLog("       Done operating point\n\n");
     }
@@ -1974,19 +1981,19 @@ bool PlaneTask::computeStability(PlaneOpp *pPOpp, bool bOutput)
 {
     std::string str;
     // Compute stability and control derivatives in stability axes
-    m_pPA->computeStabilityDerivatives(pPOpp->alpha(), pPOpp->QInf(), pPOpp->cog(), m_pWPolar->bFuseMi(), pPOpp->m_SD, m_Force0, m_Moment0);
+    m_pPA->computeStabilityDerivatives(pPOpp->alpha(), pPOpp->QInf(), pPOpp->cog(), m_pPlPolar->bFuseMi(), pPOpp->m_SD, m_Force0, m_Moment0);
     if(isCancelled()) return true;
 
-    pPOpp->m_SD.resizeControlDerivatives(m_pWPolar->nAVLCtrls());
+    pPOpp->m_SD.resizeControlDerivatives(m_pPlPolar->nAVLCtrls());
 
-    if(m_pWPolar->hasActiveAVLControl())
+    if(m_pPlPolar->hasActiveAVLControl())
         computeControlDerivatives(m_Ctrl, pPOpp->alpha(), pPOpp->QInf(), pPOpp->m_SD); //single derivative, w.r.t. the polar's control variable
     if(isCancelled()) return true;
 
 
 
-    pPOpp->m_SD.setMetaData(m_pWPolar->referenceSpanLength(), m_pWPolar->referenceChordLength(), m_pWPolar->referenceArea(),
-                            pPOpp->QInf(), pPOpp->mass(), pPOpp->cog().x, m_pWPolar->density());
+    pPOpp->m_SD.setMetaData(m_pPlPolar->referenceSpanLength(), m_pPlPolar->referenceChordLength(), m_pPlPolar->referenceArea(),
+                            pPOpp->QInf(), pPOpp->mass(), pPOpp->cog().x, m_pPlPolar->density());
     pPOpp->m_SD.computeNDStabDerivatives();
     if (bOutput) outputNDStabDerivatives(pPOpp->QInf(), pPOpp->m_SD);
 
@@ -1999,11 +2006,11 @@ bool PlaneTask::computeStability(PlaneOpp *pPOpp, bool bOutput)
     else
     {
         // Compute inertia in stability axes
-        m_pWPolar->Ixx();
+        m_pPlPolar->Ixx();
 
-        pPOpp->computeStabilityInertia(m_pWPolar->inertia());
+        pPOpp->computeStabilityInertia(m_pPlPolar->inertia());
 
-        pPOpp->buildStateMatrices(m_pWPolar->nAVLCtrls());
+        pPOpp->buildStateMatrices(m_pPlPolar->nAVLCtrls());
         if(bOutput) outputStateMatrices(pPOpp);
 
         // Solve for eigenvalues
@@ -2011,7 +2018,7 @@ bool PlaneTask::computeStability(PlaneOpp *pPOpp, bool bOutput)
         if(!pPOpp->solveEigenvalues(str))
         {
             traceStdLog("             Unsuccessful attempt to compute eigenvalues\n");
-            if(m_pWPolar->isType7()) m_bError = true;
+            if(m_pPlPolar->isType7()) m_bError = true;
             else m_bWarning = true;
         }
         else
@@ -2049,8 +2056,8 @@ bool PlaneTask::T123458Loop()
 
     traceStdLog("     done\n");
 
-    Vector3d CoG = m_pWPolar->CoGCtrl(m_Ctrl);
-    double mass = m_pWPolar->massCtrl(m_Ctrl);
+    Vector3d CoG = m_pPlPolar->CoGCtrl(m_Ctrl);
+    double mass = m_pPlPolar->massCtrl(m_Ctrl);
 
     if(isCancelled()) return true;
 
@@ -2061,13 +2068,19 @@ bool PlaneTask::T123458Loop()
 
     for(uint io=0; io<m_T8Opps.size(); io++)
     {
+        if(s_bCancel)
+        {
+            m_AnalysisStatus = xfl::CANCELLED;
+            return false;
+        }
+
         T8Opp const &t8opp = m_T8Opps.at(io);
 
         if(!t8opp.isActive()) continue;
         m_qRHS = io;
         m_Alpha = t8opp.alpha();
         m_Beta  = t8opp.beta();
-        m_Phi   = m_pWPolar->phi();
+        m_Phi   = m_pPlPolar->phi();
         m_QInf  = t8opp.Vinf();
         m_Ctrl  = 0.0;
 
@@ -2076,8 +2089,8 @@ bool PlaneTask::T123458Loop()
         outstring += BETAch  + QString::asprintf("=%g", m_Beta)  + DEGch + ", ";
         outstring += PHIch   + QString::asprintf("=%g", m_Phi)   + DEGch + ", ";
 
-        if(m_pWPolar->isType1() || m_pWPolar->isType5() || m_pWPolar->isType8())
-            outstring += "V" + INFch + QString::asprintf("=%g ", m_QInf*Units::mstoUnit()) + QUnits::speedUnitLabel() + EOLch;
+        if(m_pPlPolar->isType1() || m_pPlPolar->isType4() || m_pPlPolar->isType5() || m_pPlPolar->isType8())
+            outstring += "V" + INFch + QString::asprintf("=%g ", m_QInf*Units::mstoUnit()) + Units::speedUnitQLabel() + EOLch;
         else
             outstring += "V" + INFch + ": adjusted" + EOLch;
 
@@ -2094,22 +2107,26 @@ bool PlaneTask::T123458Loop()
         computeInducedForces(m_Alpha, m_Beta, 1.0);
         computeInducedDrag(  m_Alpha, m_Beta, 1.0);
 
-        if(m_pWPolar->isType1() || m_pWPolar->isType5())
+        if(m_pPlPolar->isType1() || m_pPlPolar->isType5())
         {
-            m_QInf = m_pWPolar->velocity();
+            m_QInf = m_pPlPolar->velocity();
         }
-        else if(m_pWPolar->isType2() || m_pWPolar->isType3())
+        else if(m_pPlPolar->isType2() || m_pPlPolar->isType3())
         {
             std::string str;
             traceStdLog("       Calculating balance speeds...\n");
-            if (m_pWPolar->isFixedLiftPolar())
-                m_QInf = computeBalanceSpeeds(m_Alpha, m_pWPolar->mass(), m_bError, "", str);
-            else if(m_pWPolar->isGlidePolar())
-                m_QInf = computeGlideSpeed(m_Alpha, m_pWPolar->mass(), str);
+            if (m_pPlPolar->isFixedLiftPolar())
+                m_QInf = computeBalanceSpeeds(m_Alpha, m_pPlPolar->mass(), m_bError, "", str);
+            else if(m_pPlPolar->isGlidePolar())
+                m_QInf = computeGlideSpeed(m_Alpha, m_pPlPolar->mass(), str);
             strange = "             " + QString::fromStdString(str) + EOLch;
             traceLog(strange);
         }
-        else if(m_pWPolar->isType8())
+        else if(m_pPlPolar->isType4())
+        {
+            m_QInf = t8opp.m_Vinf;
+        }
+        else if(m_pPlPolar->isType8())
         {
             m_QInf = t8opp.m_Vinf;
         }
@@ -2117,6 +2134,8 @@ bool PlaneTask::T123458Loop()
         {
             assert(false);
         }
+
+        if(m_QInf<0) continue;
 
         scaleResultsToSpeed(1.0, m_QInf);
 
@@ -2138,7 +2157,7 @@ bool PlaneTask::T123458Loop()
 
         str = "       Calculating plane\n";
         traceLog(str);
-        PlaneOpp *pPOpp = computePlane(m_Ctrl, m_Alpha, m_Beta, m_pWPolar->phi(), m_QInf, mass, CoG, false);
+        PlaneOpp *pPOpp = computePlane(m_Ctrl, m_Alpha, m_Beta, m_pPlPolar->phi(), m_QInf, mass, CoG, false);
         if(!pPOpp)
         {
             traceStdLog("\n          Error generating the operating point... discarding\n\n");
@@ -2147,13 +2166,23 @@ bool PlaneTask::T123458Loop()
 
         if (isCancelled()) return true;
 
-        computeStability(pPOpp, true);
+        if(m_bDerivatives)
+            computeStability(pPOpp, true);
+        else
+        {
+            traceStdLog("          Skipping derivatives and eigenthings\n");
+        }
 
-        //add the data to the polar object
-        if(pPOpp && !pPOpp->isOut())
-            m_pWPolar->addPlaneOpPointData(pPOpp);
+        // store the results
+        if(pPOpp)
+        {
+            if(!pPOpp->isOut()) // discard failed visc interpolated opps
+                m_pPlPolar->addPlaneOpPointData(pPOpp);
 
-        m_PlaneOppList.push_back(pPOpp);
+            if(s_bKeepOpps) m_PlaneOppList.push_back(pPOpp);
+            else            delete pPOpp;
+        }
+
         traceStdLog("          Done operating point\n\n");
     }
 
@@ -2164,9 +2193,9 @@ bool PlaneTask::T123458Loop()
 void PlaneTask::outputNDStabDerivatives(double u0, StabDerivatives const &SD)
 {
 
-    double q = 1./2. * m_pWPolar->density() * u0 * u0;
-    double b   = m_pWPolar->referenceSpanLength();
-    double S   = m_pWPolar->referenceArea();
+    double q = 1./2. * m_pPlPolar->density() * u0 * u0;
+    double b   = m_pPlPolar->referenceSpanLength();
+    double S   = m_pPlPolar->referenceArea();
     double mac = m_pPlane->mac();
 
     QString str;
@@ -2195,7 +2224,7 @@ void PlaneTask::outputNDStabDerivatives(double u0, StabDerivatives const &SD)
     str = QString::asprintf("Mq  = %11.5g         Cmq  = %11.5g\n", SD.Mq, SD.Cmq);
     logmsg += prefix + str;
 
-    str = QString::asprintf("Neutral Point position = %g ", SD.XNP*Units::mtoUnit()) + QUnits::lengthUnitLabel();
+    str = QString::asprintf("Neutral Point position = %g ", SD.XNP*Units::mtoUnit()) + Units::lengthUnitQLabel();
     str +="\n\n";
     logmsg += prefix + str;
 
@@ -2221,7 +2250,7 @@ void PlaneTask::outputNDStabDerivatives(double u0, StabDerivatives const &SD)
     logmsg += prefix + str + EOLch;
 
     //output control derivatives
-    if(!m_pWPolar->hasActiveAVLControl())
+    if(!m_pPlPolar->hasActiveAVLControl())
     {
         traceLog(logmsg);
         return;
@@ -2229,7 +2258,7 @@ void PlaneTask::outputNDStabDerivatives(double u0, StabDerivatives const &SD)
 
     str = "             Control derivatives\n";
     logmsg += str;
-    for(int ie=0; ie<m_pWPolar->nAVLCtrls(); ie++)
+    for(int ie=0; ie<m_pPlPolar->nAVLCtrls(); ie++)
     {
         if(int(SD.ControlNames.size())>ie)
         {
@@ -2254,12 +2283,12 @@ void PlaneTask::computeControlDerivatives(double t7ctrl, double alphaeq, double 
     Vector3d WindDirection, Force, Moment, V0, is, js, ks;
 
     int N = 0;
-    if      (m_pWPolar->isQuadMethod())     N = m_pP4A->nPanels();
-    else if (m_pWPolar->isTriangleMethod()) N = m_pP3A->nPanels();
+    if      (m_pPlPolar->isQuadMethod())     N = m_pP4A->nPanels();
+    else if (m_pPlPolar->isTriangleMethod()) N = m_pP3A->nPanels();
 
     double const *sigma = nullptr;
-    if      (m_pWPolar->isQuadMethod())     sigma = m_pP4A->m_Sigma.data();
-    else if (m_pWPolar->isTriangleMethod()) sigma = m_pP3A->m_Sigma.data();
+    if      (m_pPlPolar->isQuadMethod())     sigma = m_pP4A->m_Sigma.data();
+    else if (m_pPlPolar->isTriangleMethod()) sigma = m_pP3A->m_Sigma.data();
 
     // Define the stability axes and the freestream velocity field
     double cosa = cos(alphaeq*PI/180.0);
@@ -2272,11 +2301,11 @@ void PlaneTask::computeControlDerivatives(double t7ctrl, double alphaeq, double 
 
     double DeltaCtrl = 0.001;
 
-    for(int ie=0; ie<m_pWPolar->nAVLCtrls(); ie++)
+    for(int ie=0; ie<m_pPlPolar->nAVLCtrls(); ie++)
     {
-        traceStdLog("      Processing control set " + m_pWPolar->AVLCtrl(ie).name() + EOLstr);
-        SD.ControlNames[ie] = m_pWPolar->AVLCtrl(ie).name();
-        if(!m_pWPolar->AVLCtrl(ie).hasActiveAngle())
+        traceStdLog("      Processing control set " + m_pPlPolar->AVLCtrl(ie).name() + EOLstr);
+        SD.ControlNames[ie] = m_pPlPolar->AVLCtrl(ie).name();
+        if(!m_pPlPolar->AVLCtrl(ie).hasActiveAngle())
         {
             SD.Xde[ie] = SD.Yde[ie] = SD.Zde[ie] = SD.Lde[ie] = SD.Mde[ie] = SD.Nde[ie] = 0.0;
             traceStdLog("        No active gain... skipping\n\n");
@@ -2290,11 +2319,11 @@ void PlaneTask::computeControlDerivatives(double t7ctrl, double alphaeq, double 
             PlaneXfl *pPlaneXfl = dynamic_cast<PlaneXfl*>(m_pPlane);
             if(m_pP4A)
             {
-                setControlPositions(pPlaneXfl, m_pWPolar, m_pP4A->m_Panel4, DeltaCtrl, ie, outstring);
+                setControlPositions(pPlaneXfl, m_pPlPolar, m_pP4A->m_Panel4, DeltaCtrl, ie, outstring);
             }
             else if(m_pP3A)
             {
-                setControlPositions(pPlaneXfl, m_pWPolar, m_pP3A->m_Panel3,
+                setControlPositions(pPlaneXfl, m_pPlPolar, m_pP3A->m_Panel3,
                                     m_pP3A->m_pRefTriMesh->nodes(), DeltaCtrl, ie, outstring);
             }
         }
@@ -2319,32 +2348,32 @@ void PlaneTask::computeControlDerivatives(double t7ctrl, double alphaeq, double 
         // only needed for triuniform method to align with TriLinAnalysis
         std::vector<double> cRHSVertex;
         double *muc = nullptr;
-        Vector3d CoG = m_pWPolar->CoGCtrl(t7ctrl);
+        Vector3d CoG = m_pPlPolar->CoGCtrl(t7ctrl);
         Vector3d VInf = objects::windDirection(alphaeq, 0.0) * u0;
 
-        if(m_pWPolar->isQuadMethod())
+        if(m_pPlPolar->isQuadMethod())
         {
             muc = m_pPA->m_cRHS.data();
-            m_pPA->forces(muc, sigma, alphaeq, 0.0, CoG, m_pWPolar->bFuseMi(), VField, Force, Moment);
+            m_pPA->forces(muc, sigma, alphaeq, 0.0, CoG, m_pPlPolar->bFuseMi(), VField, Force, Moment);
         }
-        else if(m_pWPolar->isTriangleMethod())
+        else if(m_pPlPolar->isTriangleMethod())
         {
             std::vector<double> notanrhs(m_pPA->m_cRHS.size());
             m_pPA->makeLocalVelocities(m_pPA->m_cRHS, notanrhs, notanrhs, m_pPA->m_uVLocal, m_pPA->m_vVLocal, m_pPA->m_wVLocal, objects::windDirection(alphaeq, 0.0));
-            if(m_pWPolar->isTriUniformMethod() && m_pP3A)
+            if(m_pPlPolar->isTriUniformMethod() && m_pP3A)
             {
                 cRHSVertex.resize(3*N);
                 m_pP3A->makeVertexDoubletDensities(m_pPA->m_cRHS, cRHSVertex);
                 muc = cRHSVertex.data();
             }
-            else if(m_pWPolar->isTriLinearMethod())
+            else if(m_pPlPolar->isTriLinearMethod())
             {
                 muc = m_pPA->m_cRHS.data();
             }
 
             std::fill(VField.begin(), VField.end(), VInf);
             m_pPA->computeOnBodyCp(VField, m_pPA->m_uVLocal, m_pPA->m_Cp);
-            m_pPA->forces(muc, sigma, alphaeq, 0.0, CoG, m_pWPolar->bFuseMi(), VField, Force, Moment);
+            m_pPA->forces(muc, sigma, alphaeq, 0.0, CoG, m_pPlPolar->bFuseMi(), VField, Force, Moment);
         }
 
         // make the forward difference with nominal results
@@ -2652,13 +2681,13 @@ void PlaneTask::run()
     {
         m_bWarning = m_bError = true;
         m_AnalysisStatus = xfl::FINISHED;
-//        emit taskFinished();
+
         return;
     }
 
     m_AnalysisStatus = xfl::RUNNING;
 
-    if(s_bCancel || !m_pWPolar)
+    if(s_bCancel || !m_pPlPolar)
     {
         m_AnalysisStatus = xfl::CANCELLED;
         return;
@@ -2750,7 +2779,7 @@ bool PlaneTask::computeViscousDrag(WingXfl *pWing, double alpha, double beta, do
             }
 
             strong = "           " + QString::asprintf("     Span position %9.2f ", sd.m_StripPos.at(m)*Units::mtoUnit());
-            strong += QUnits::lengthUnitLabel();
+            strong += Units::lengthUnitQLabel();
             strong += QString::asprintf(",  Re = %9.0f", sd.m_Re.at(m));
 
             if(bOutVar)
@@ -2793,6 +2822,195 @@ bool PlaneTask::computeViscousDrag(WingXfl *pWing, double alpha, double beta, do
 }
 
 
+bool PlaneTask::computeSurfaceDragOTF(Surface const &surf, int iStartStation, double theta, SpanDistribs &spandist)
+{
+    QString logg;
+    QString strange;
+
+    Foil foilA, foilB;
+    foilA.copy(surf.foilA(), true);
+    foilB.copy(surf.foilB(), true);
+
+    int m = iStartStation;
+
+    if(surf.hasTEFlap())
+    {
+        foilA.setTEFlapAngle(theta);
+        foilA.setFlaps();
+        foilB.setTEFlapAngle(theta);
+        foilB.setFlaps();
+    }
+    else
+    {
+        foilA.applyBase();
+        foilB.applyBase();
+    }
+
+
+    std::vector<double> ClList, ReList;
+
+    for(int k=0; k<surf.NYPanels(); k++)
+    {
+        ClList.push_back(spandist.m_Cl.at(m+k));
+        ReList.push_back(spandist.m_Re.at(m+k));
+    }
+
+    std::vector<double> CdAList, XTrTopAList, XTrBotAList;
+    std::vector<double> CdBList, XTrTopBList, XTrBotBList;
+    std::vector<bool> CvAList, CvBList;
+
+    XFoilTask *pTask = new XFoilTask();
+
+    Polar a2dPolar;
+    a2dPolar.setType(xfl::T1POLAR);
+    a2dPolar.setReType(1);
+    a2dPolar.setMaType(1);
+    a2dPolar.setMach(0.0);
+    a2dPolar.setNCrit(m_pPolar3d->NCrit());
+
+    // Process left side foil
+    double XTrTop = m_pPolar3d->XTrTop();
+    double XTrBot = m_pPolar3d->XTrBot();
+    if(surf.hasTEFlap() && m_pPlPolar->bTransAtHinge())
+    {
+        XTrTop = std::min(XTrTop, foilA.TEXHinge());
+        XTrBot = std::min(XTrBot, foilA.TEXHinge());
+    }
+    a2dPolar.setXTripTop(XTrTop);
+    a2dPolar.setXTripBot(XTrBot);
+
+    // Process span stations incrementally and in sequence, assuming that
+    // 2d BL is similar from one station to the next
+
+    pTask->initialize(&foilA, &a2dPolar, false);
+    pTask->processClList(ClList, ReList, CdAList, XTrTopAList, XTrBotAList, CvAList);
+
+    int cnt = 0;
+    for(uint ic=0; ic<CvAList.size(); ic++) cnt += CvAList.at(ic);
+    strange = QString::asprintf("                  %d/%d converged left span stations\n", cnt, int(CvAList.size()));
+    logg += strange;
+
+    // fall back: re-try unconverged points with BL initialization
+    for(uint k=0; k<CvAList.size(); k++)
+    {
+        if(!CvAList.at(k))
+        {
+            strange = QString::asprintf("                    Fallback left side,  station %2d, Cl=%7.3f... ", k+1,  ClList.at(k));
+            logg += strange;
+
+            bool bResult(false);
+            pTask->processCl(ClList.at(k), ReList.at(k), CdAList[k], XTrTopAList[k], XTrBotAList[k], bResult);
+            CvAList[k] = bResult;
+
+            if(CvAList.at(k)) logg += "converged\n";
+            else              logg += "failed\n";
+        }
+
+        if(!CvAList.at(k))
+        {
+            spandist.m_bConverged[m+k] = false;
+            strange = QString::fromStdString(surf.leftFoilName());
+            strange += QString::asprintf(", Span pos. %.3f ", spandist.m_StripPos.at(m+k)*Units::mtoUnit());
+            strange += Units::lengthUnitQLabel();
+            strange += QString::asprintf(",  Cl=%.3f, Re=%.0f", ClList.at(k), ReList.at(k));
+            logg += strange + EOLch;
+
+
+            delete pTask;
+            return false; // XFoil OTF fail, operating point will be discarded
+        }
+
+        if(isCancelled())
+        {
+            delete pTask;
+            return false;
+        }
+    }
+
+
+    // Process right side foil
+    XTrTop = m_pPolar3d->XTrTop();
+    XTrBot = m_pPolar3d->XTrBot();
+    if(surf.hasTEFlap() && m_pPlPolar->bTransAtHinge())
+    {
+        XTrTop = std::min(XTrTop, foilB.TEXHinge());
+        XTrBot = std::min(XTrBot, foilB.TEXHinge());
+    }
+    a2dPolar.setXTripTop(XTrTop);
+    a2dPolar.setXTripBot(XTrBot);
+    pTask->initialize(&foilB, &a2dPolar, false);
+    pTask->processClList(ClList, ReList, CdBList, XTrTopBList, XTrBotBList, CvBList);
+
+    cnt = 0;
+    for(uint ic=0; ic<CvBList.size(); ic++) cnt += CvBList.at(ic);
+    strange = QString::asprintf("                  %d/%d converged right span stations\n", cnt, int(CvBList.size()));
+    logg += strange;
+
+    // fall back: re-try unconverged points with BL initialization
+    for(uint k=0; k<CvBList.size(); k++)
+    {
+        if(!CvBList.at(k))
+        {
+            strange = QString::asprintf("                    Fallback right side, station %2d, Cl=%7.3f... ", k+1,  ClList.at(k));
+            logg += strange;
+
+            bool bResult(false);
+            pTask->processCl(ClList.at(k), ReList.at(k), CdBList[k], XTrTopBList[k], XTrBotBList[k], bResult);
+            CvBList[k] = bResult;
+
+            if(CvBList.at(k)) logg += "converged\n";
+            else              logg += "failed\n";
+        }
+
+        if(!CvBList.at(k))
+        {
+            spandist.m_bConverged[m+k] = false;
+            strange = QString::fromStdString(surf.rightFoilName());
+            strange += QString::asprintf(", Span pos. %.3f ", spandist.m_StripPos.at(m+k)*Units::mtoUnit());
+            strange += Units::lengthUnitQLabel();
+            strange += QString::asprintf(",  Cl=%.3f, Re=%.0f", ClList.at(k), ReList.at(k));
+            logg += strange + EOLch;
+
+            delete pTask;
+            return false; // XFoil OTF fail, operating point will be discarded
+        }
+
+        if(isCancelled())
+        {
+            delete pTask;
+            return false;
+        }
+    }
+
+    delete pTask;
+
+    m = iStartStation;
+    for(int k=0; k<surf.NYPanels(); k++)
+    {
+        double tau = 0.0;
+        Vector3d PtC4;
+        surf.getC4(k, PtC4, tau);
+        if (tau<0.0) tau = 0.0; // redundant
+        if (tau>1.0) tau = 1.0; // redundant
+
+        /** @todo what's the use + wrong if flap*/
+        spandist.m_Alpha_0[m] = Objects2d::getZeroLiftAngle(surf.foilA(), surf.foilB(), spandist.m_Re.at(m), tau);
+
+        // interpolate
+        assert(CvAList.at(k) && CvBList.at(k));
+
+        spandist.m_bConverged[m] = true;
+        spandist.m_PCd[m]    = CdAList.at(k)     * (1.0-tau) + CdBList.at(k)     * tau;
+        spandist.m_XTrTop[m] = XTrTopAList.at(k) * (1.0-tau) + XTrTopBList.at(k) * tau;
+        spandist.m_XTrBot[m] = XTrBotAList.at(k) * (1.0-tau) + XTrBotBList.at(k) * tau;
+
+        m++; // wing station counter
+        if(s_bCancel) break;
+    }
+    return true;
+}
+
+
 bool PlaneTask::computeViscousDragOTF(WingXfl *pWing, double alpha, double beta, double QInf,
                                       PlanePolar const *pWPolar, Vector3d const &cog, AngleControl const &TEFlapAngles, SpanDistribs &SpanResFF,
                                       std::string &logmsg)
@@ -2800,7 +3018,7 @@ bool PlaneTask::computeViscousDragOTF(WingXfl *pWing, double alpha, double beta,
     // on the fly viscous drag calculation
     // for each surface, calulate the drag at each end foil for each lift and reynolds at each span station
     // then interpolate
-    QString strong, strange;
+
     QString logg;
 
     assert(pWing->nFlaps()==TEFlapAngles.nValues());
@@ -2809,190 +3027,70 @@ bool PlaneTask::computeViscousDragOTF(WingXfl *pWing, double alpha, double beta,
     Vector3d winddirection = objects::windDirection(alpha, beta);
     Vector3d windside      = objects::windSide(alpha, beta);
 
-    SpanDistribs &sd = SpanResFF;
-    // Calculate the Reynolds number on each strip
+    for (int m=0; m<pWing->nStations(); m++)
+    {
+        SpanResFF.m_Re[m] = SpanResFF.m_Chord.at(m) * QInf /pWPolar->viscosity();
+    }
 
-    sd.m_Re.clear();
-    for (int m=0; m<pWing->nStations(); m++)  sd.m_Re.push_back(SpanResFF.m_Chord.at(m) * QInf /pWPolar->viscosity());
-
-    Polar a2dPolar;
-    a2dPolar.setType(xfl::T1POLAR);
-    a2dPolar.setReType(1);
-    a2dPolar.setMaType(1);
-    a2dPolar.setMach(0.0);
-    a2dPolar.setNCrit(m_pPolar3d->NCrit());
-    a2dPolar.setXTripTop(m_pPolar3d->XTrTop());
-    a2dPolar.setXTripBot(m_pPolar3d->XTrBot());
-
+    double theta(0);
     int iCtrl = 0;
     int m=0;// wing station counter
+
+    std::vector<std::thread> threads;
+
     for (int jsurf=0; jsurf<pWing->nSurfaces(); jsurf++)
     {
-        traceLog(QString::asprintf("                Processing surface %d\n", jsurf+1));
+//        traceLog(QString::asprintf("                Processing surface %d\n", jsurf+1));
         Surface const &surf = pWing->surface(jsurf);
+        if(surf.hasTEFlap()) theta = TEFlapAngles.value(iCtrl++);
+        else                 theta = 0.0;
 
-        Foil foilA, foilB;
-        foilA.copy(surf.foilA(), true);
-        foilB.copy(surf.foilB(), true);
+        threads.push_back(std::thread(&PlaneTask::computeSurfaceDragOTF, this, surf, m, theta, std::ref(SpanResFF)));
 
+//        computeSurfaceDragOTF(surf, m, theta, sd, logs[jsurf]);
+        m += surf.NYPanels();
+    }
 
-        if(surf.hasTEFlap())
+    for(int isurf=0; isurf<pWing->nSurfaces(); isurf++)
+    {
+        threads[isurf].join();
+    }
+
+    SpanDistribs &sd = SpanResFF;
+    bool bCv = true;
+    for(int k=0; k<sd.nStations(); k++)
+    {
+        if(!sd.m_bConverged.at(k))
         {
-            double theta = TEFlapAngles.value(iCtrl);
-            foilA.setTEFlapAngle(theta);
-            foilA.setFlaps();
-            foilB.setTEFlapAngle(theta);
-            foilB.setFlaps();
-            iCtrl++;
+            QString strong = "                  ";
+            strong +=  QString::asprintf("span pos. %9.3f ", sd.m_StripPos.at(k)*Units::mtoUnit());
+            strong += Units::lengthUnitLabel();
+            strong += QString::asprintf(", Cl=%9.5f, Re=%7.0f", sd.m_Cl.at(k), sd.m_Re.at(k));
+
+            logg += strong + EOLch;
+            bCv = false;
         }
-        else
+    }
+
+    if(bCv)
+    {
+
+        m = 0;
+        for (int jsurf=0; jsurf<pWing->nSurfaces(); jsurf++)
         {
-            foilA.applyBase();
-            foilB.applyBase();
-        }
-
-
-        std::vector<double> ClList, ReList;
-
-        for(int k=0; k<surf.NYPanels(); k++)
-        {
-            ClList.push_back(sd.m_Cl.at(m+k));
-            ReList.push_back(sd.m_Re.at(m+k));
-        }
-
-        std::vector<double> CdAList, XTrTopAList, XTrBotAList;
-        std::vector<double> CdBList, XTrTopBList, XTrBotBList;
-        std::vector<bool> CvAList, CvBList;
-
-        XFoilTask *pTask = new XFoilTask(); // watch the stack
-//        pTask->setEventDestination(this);
-
-        // Process span stations incrementally and in sequence, assuming that convergence
-        // is optimized because 2d BL is similar from one station to the next
-
-        pTask->initialize(&foilA, &a2dPolar, false);
-        pTask->processClList(ClList, ReList, CdAList, XTrTopAList, XTrBotAList, CvAList);
-
-        int cnt = 0;
-        for(uint ic=0; ic<CvAList.size(); ic++) cnt += CvAList.at(ic);
-        strange = QString::asprintf("                  %d/%d converged left span stations\n", cnt, int(CvAList.size()));
-        traceLog(strange);
-
-        // fall back: re-try unconverged points with BL initialization
-        for(uint k=0; k<CvAList.size(); k++)
-        {
-            if(!CvAList.at(k))
+            Surface const &surf = pWing->surface(jsurf);
+            for(int k=0; k<surf.NYPanels(); k++)
             {
-                QString str = QString::asprintf("                    Fallback left side,  station %2d, Cl=%7.3f... ", k+1,  ClList.at(k));
-                traceLog(str);
+                //add the moment of the strip's viscous drag
+                Vector3d dragvector = winddirection * (sd.m_PCd.at(m) * sd.m_StripArea.at(m));          //N/q
+                Vector3d leverarmcog = sd.m_PtC4.at(m) - cog;   // m
+                sd.m_CmViscous[m] =  (leverarmcog * dragvector).dot(windside);   // N.m/q
+                sd.m_CmViscous[m] *= 1.0/sd.m_Chord.at(m)/sd.m_StripArea.at(m);
 
-                bool bResult(false);
-                pTask->processCl(ClList.at(k), ReList.at(k), CdAList[k], XTrTopAList[k], XTrBotAList[k], bResult);
-                CvAList[k] = bResult;
-
-                if(CvAList.at(k)) traceStdLog("converged\n");
-                else              traceStdLog("failed\n");
-
-            }
-
-            if(!CvAList.at(k))
-            {
-                strong = QString::fromStdString(surf.leftFoilName());
-                strong += QString::asprintf(", Span pos. %.3f ", sd.m_StripPos.at(m+k)*Units::mtoUnit());
-                strong += QUnits::lengthUnitLabel();
-                strong += QString::asprintf(",  Cl=%.3f, Re=%.0f", ClList.at(k), ReList.at(k));
-
-                strong += EOLch + "                   ...discarding the operating point" + EOLch;
-
-                logg += strong;
-
-                delete pTask;
-                return false; // XFoil OTF fail, operating point will be discarded
-            }
-
-            if(isCancelled())
-            {
-                delete pTask;
-                return false;
+                m++; // wing station counter
+                if(s_bCancel) break;
             }
         }
-
-        pTask->initialize(&foilB, &a2dPolar, false);
-        pTask->processClList(ClList, ReList, CdBList, XTrTopBList, XTrBotBList, CvBList);
-
-        cnt = 0;
-        for(uint ic=0; ic<CvBList.size(); ic++) cnt += CvBList.at(ic);
-        strange = QString::asprintf("                  %d/%d converged right span stations\n", cnt, int(CvBList.size()));
-        traceLog(strange);
-
-        // fall back: re-try unconverged points with BL initialization
-        for(uint k=0; k<CvBList.size(); k++)
-        {
-            if(!CvBList.at(k))
-            {
-                QString str = QString::asprintf("                    Fallback right side, station %2d, Cl=%7.3f... ", k+1,  ClList.at(k));
-                traceLog(str);
-
-                bool bResult(false);
-                pTask->processCl(ClList.at(k), ReList.at(k), CdBList[k], XTrTopBList[k], XTrBotBList[k], bResult);
-                CvBList[k] = bResult;
-
-                if(CvAList.at(k)) traceStdLog("converged\n");
-                else              traceStdLog("failed\n");
-            }
-
-            if(!CvBList.at(k))
-            {
-                strong = QString::fromStdString(surf.rightFoilName());
-                strong += QString::asprintf(", Span pos. %.3f ", sd.m_StripPos.at(m+k)*Units::mtoUnit());
-                strong += QUnits::lengthUnitLabel();
-                strong += QString::asprintf(",  Cl=%.3f, Re=%.0f", ClList.at(k), ReList.at(k));
-
-                strong += EOLch + "                   ...discarding the operating point" + EOLch;
-
-                logg += strong;
-
-                delete pTask;
-                return false; // XFoil OTF fail, operating point will be discarded
-            }
-
-            if(isCancelled())
-            {
-                delete pTask;
-                return false;
-            }
-        }
-
-        delete pTask;
-
-        for(int k=0; k<surf.NYPanels(); k++)
-        {
-            double tau = 0.0;
-            Vector3d PtC4;
-            surf.getC4(k, PtC4, tau);
-            if (tau<0.0) tau = 0.0; // redundant
-            if (tau>1.0) tau = 1.0; // redundant
-
-            sd.m_Alpha_0[m] = Objects2d::getZeroLiftAngle(surf.foilA(), surf.foilB(), sd.m_Re.at(m), tau); // what's the use + wrong if flap
-
-            // interpolate
-            assert(CvAList.at(k) && CvBList.at(k));
-
-            sd.m_PCd[m]    = CdAList.at(k)     * (1.0-tau) + CdBList.at(k)     * tau;
-            sd.m_XTrTop[m] = XTrTopAList.at(k) * (1.0-tau) + XTrTopBList.at(k) * tau;
-            sd.m_XTrBot[m] = XTrBotAList.at(k) * (1.0-tau) + XTrBotBList.at(k) * tau;
-
-            //add the moment of the strip's viscous drag
-            Vector3d dragvector = winddirection * (sd.m_PCd.at(m) * sd.m_StripArea.at(m));          //N/q
-            Vector3d leverarmcog = sd.m_PtC4.at(m) - cog;   // m
-            sd.m_CmViscous[m] =  (leverarmcog * dragvector).dot(windside);   // N.m/q
-            sd.m_CmViscous[m] *= 1.0/sd.m_Chord.at(m)/sd.m_StripArea.at(m);
-
-            m++; // wing station counter
-            if(s_bCancel) break;
-        }
-
-        if(s_bCancel) break;
     }
 
     if(!s_bCancel)
@@ -3000,7 +3098,7 @@ bool PlaneTask::computeViscousDragOTF(WingXfl *pWing, double alpha, double beta,
 
     logmsg = logg.toStdString();
 
-    return true;
+    return bCv;
 }
 
 
@@ -3160,7 +3258,7 @@ bool PlaneTask::setLinearSolution()
     }
     if (isCancelled()) return true;
 
-    if(!m_pWPolar->isVLM())
+    if(!m_pPlPolar->isVLM())
     {
         traceStdLog("   Adding the wake's contribution...");
         m_pPA->addWakeContribution();

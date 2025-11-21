@@ -32,11 +32,11 @@
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 
-#include <api/sailocc.h>
+#include <sailocc.h>
 
-#include <api/occ_globals.h>
-#include <api/units.h>
-#include <api/utils.h>
+#include <occ_globals.h>
+#include <units.h>
+#include <utils.h>
 
 SailOcc::SailOcc() : ExternalSail()
 {
@@ -204,8 +204,8 @@ void SailOcc::properties(std::string &properties, const std::string &prefx, bool
 {
     QString props;
     QString frontspacer = QString::fromStdString(prefx);
-    QString strlength = QUnits::lengthUnitLabel();
-    QString strarea = QUnits::areaUnitLabel();
+    QString strlength = Units::lengthUnitQLabel();
+    QString strarea = Units::areaUnitQLabel();
     QString strange;
     Vector3d foot = m_Clew-m_Tack;
     Vector3d gaff = m_Peak-m_Head;

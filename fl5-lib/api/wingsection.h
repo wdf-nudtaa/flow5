@@ -35,10 +35,10 @@
 
 #include <string>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
-#include <api/enums_objects.h>
-#include <api/mathelem.h>
+#include <enums_objects.h>
+#include <mathelem.h>
 
 
 /**
@@ -76,8 +76,8 @@ class FL5LIB_EXPORT WingSection
         void setNY(int ny) {m_NYPanels = std::max(1,ny);}
         void setChord(double ch) {m_Chord=ch;}
         void setLength(double l) {m_Length=l;}
-        void setyPosition(double y) {m_YPosition=y;}
-        void setOffset(double off) {m_Offset=off;}
+        void setYPosition(double y) {m_YPosition=y;}
+        void setXOffset(double off) {m_Offset=off;}
         void setDihedral(double dih) {m_Dihedral=dih;}
         void setzPos(double z) {m_ZPos=z;}
         void setTwist(double tw) {m_Twist=tw;}

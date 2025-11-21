@@ -23,10 +23,10 @@
 *****************************************************************************/
 
 #pragma once
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 
-#include <api/xflxmlreader.h>
+#include <xflxmlreader.h>
 
 class BSpline;
 class BoatPolar;

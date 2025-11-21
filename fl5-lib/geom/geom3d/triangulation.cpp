@@ -25,8 +25,8 @@
 
 #include <QDataStream>
 
-#include <api/triangulation.h>
-#include <api/constants.h>
+#include <triangulation.h>
+#include <constants.h>
 
 
 Triangulation::Triangulation()

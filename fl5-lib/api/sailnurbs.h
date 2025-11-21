@@ -27,9 +27,9 @@
 
 #include <TopoDS_Shape.hxx>
 
-#include <api/sail.h>
-#include <api/nurbssurface.h>
-#include <api/triangle3d.h>
+#include <sail.h>
+#include <nurbssurface.h>
+#include <triangle3d.h>
 
 class Geom_BSplineSurface;
 

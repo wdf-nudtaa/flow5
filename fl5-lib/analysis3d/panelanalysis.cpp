@@ -29,14 +29,14 @@
 #include <QString>
 
 
-#include <api/panelanalysis.h>
+#include <panelanalysis.h>
 
-#include <api/gaussquadrature.h>
-#include <api/objects_global.h>
-#include <api/panel.h>
-#include <api/panel3.h>
-#include <api/polar3d.h>
-#include <api/stabderivatives.h>
+#include <gaussquadrature.h>
+#include <objects_global.h>
+#include <panel.h>
+#include <panel3.h>
+#include <polar3d.h>
+#include <stabderivatives.h>
 
 
 
@@ -615,8 +615,8 @@ void PanelAnalysis::computeTranslationDerivatives(double alphaeq, double u0, Vec
     double deltaspeed    = 0.001;         //  m/s   for forward difference estimation
 
     // Define the stability axes
-    double cosa = cos(alphaeq*PI/180);
-    double sina = sin(alphaeq*PI/180);
+    double cosa = cos(alphaeq*PI/180.0);
+    double sina = sin(alphaeq*PI/180.0);
     WindDirection = objects::windDirection(alphaeq, 0.0);
     WindNormal = objects::windNormal(alphaeq, 0.0);
 

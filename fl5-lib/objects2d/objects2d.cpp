@@ -23,13 +23,13 @@
 *****************************************************************************/
 
 
-#include <api/objects2d.h>
+#include <objects2d.h>
 
-#include <api/constants.h>
-#include <api/foil.h>
-#include <api/polar.h>
-#include <api/oppoint.h>
-#include <api/geom_params.h>
+#include <constants.h>
+#include <foil.h>
+#include <polar.h>
+#include <oppoint.h>
+#include <geom_params.h>
 
 std::vector<Foil*> Objects2d::s_oaFoil;
 
@@ -102,6 +102,13 @@ Foil const* Objects2d::foilAt(int index)
 void Objects2d::insertThisFoil(Foil *pFoil)
 {
     if(!pFoil) return;
+
+
+    for(Foil *pOldFoil : s_oaFoil)
+    {
+        if(pOldFoil==pFoil) return; // nothing to do, already stored;
+    }
+
 
     std::string oldFoilName = pFoil->name();
 

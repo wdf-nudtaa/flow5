@@ -33,8 +33,8 @@
 
 #include <vector>
 
-#include <api/bspline.h>
-#include <api/vector2d.h>
+#include <bspline.h>
+#include <vector2d.h>
 
 
 class Foil;

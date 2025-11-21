@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 namespace Units
 {
@@ -128,23 +128,19 @@ namespace Units
     FL5LIB_EXPORT inline int fluidUnitType() {return g_FluidUnitType;}
     FL5LIB_EXPORT inline void setFluidUnitType(int type) {g_FluidUnitType=type;}
 
-}
 
-
-namespace QUnits
-{
     // convenience conversion to QString
-    inline QString lengthUnitLabel(int idx=-1)    {return QString::fromStdString(Units::lengthUnitLabel(idx));}
-    inline QString speedUnitLabel(int idx=-1)     {return QString::fromStdString(Units::speedUnitLabel(idx));}
-    inline QString massUnitLabel(int idx=-1)      {return QString::fromStdString(Units::massUnitLabel(idx));}
-    inline QString areaUnitLabel(int idx=-1)      {return QString::fromStdString(Units::areaUnitLabel(idx));}
-    inline QString forceUnitLabel(int idx=-1)     {return QString::fromStdString(Units::forceUnitLabel(idx));}
-    inline QString momentUnitLabel(int idx=-1)    {return QString::fromStdString(Units::momentUnitLabel(idx));}
-    inline QString pressureUnitLabel(int idx=-1)  {return QString::fromStdString(Units::pressureUnitLabel(idx));}
-    inline QString inertiaUnitLabel(int idx=-1)   {return QString::fromStdString(Units::inertiaUnitLabel(idx));}
+    inline QString lengthUnitQLabel(int idx=-1)    {return QString::fromStdString(Units::lengthUnitLabel(idx));}
+    inline QString speedUnitQLabel(int idx=-1)     {return QString::fromStdString(Units::speedUnitLabel(idx));}
+    inline QString massUnitQLabel(int idx=-1)      {return QString::fromStdString(Units::massUnitLabel(idx));}
+    inline QString areaUnitQLabel(int idx=-1)      {return QString::fromStdString(Units::areaUnitLabel(idx));}
+    inline QString forceUnitQLabel(int idx=-1)     {return QString::fromStdString(Units::forceUnitLabel(idx));}
+    inline QString momentUnitQLabel(int idx=-1)    {return QString::fromStdString(Units::momentUnitLabel(idx));}
+    inline QString pressureUnitQLabel(int idx=-1)  {return QString::fromStdString(Units::pressureUnitLabel(idx));}
+    inline QString inertiaUnitQLabel(int idx=-1)   {return QString::fromStdString(Units::inertiaUnitLabel(idx));}
 
-    inline QString densityUnitLabel()    {return QString::fromStdString(Units::densityUnitLabel());}
-    inline QString viscosityUnitLabel()  {return QString::fromStdString(Units::viscosityUnitLabel());}
+    inline QString densityUnitQLabel()    {return QString::fromStdString(Units::densityUnitLabel());}
+    inline QString viscosityUnitQLabel()  {return QString::fromStdString(Units::viscosityUnitLabel());}
 
 }
 

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <api/spline.h>
+#include <spline.h>
 
 
 class FL5LIB_EXPORT PointSpline : public Spline

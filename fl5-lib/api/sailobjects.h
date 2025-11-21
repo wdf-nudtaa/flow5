@@ -25,9 +25,9 @@
 #pragma once
 
 #include <vector>
-#include <api/linestyle.h>
+#include <linestyle.h>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 
 class Boat;

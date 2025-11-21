@@ -25,11 +25,11 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/xmlfusewriter.h>
+#include <xmlfusewriter.h>
 
-#include <api/frame.h>
-#include <api/fusexfl.h>
-#include <api/units.h>
+#include <frame.h>
+#include <fusexfl.h>
+#include <units.h>
 
 
 XmlFuseWriter::XmlFuseWriter(QFile &XFile) : XflXmlWriter(XFile)

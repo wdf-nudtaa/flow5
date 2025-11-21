@@ -23,10 +23,10 @@
 *****************************************************************************/
 
 
-#include <api/bspline3d.h>
-#include <api/geom_global.h>
-#include <api/mathelem.h>
-#include <api/matrix.h>
+#include <bspline3d.h>
+#include <geom_global.h>
+#include <mathelem.h>
+#include <matrix.h>
 
 BSpline3d::BSpline3d()
 {

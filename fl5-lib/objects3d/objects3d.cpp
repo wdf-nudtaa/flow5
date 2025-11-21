@@ -30,24 +30,24 @@
 
 
 
-#include <api/fusexfl.h>
-#include <api/objects2d.h>
-#include <api/objects3d.h>
-#include <api/part.h>
-#include <api/plane.h>
-#include <api/planeopp.h>
-#include <api/planestl.h>
-#include <api/planexfl.h>
-#include <api/surface.h>
-#include <api/utils.h>
-#include <api/planepolar.h>
-#include <api/wpolarext.h>
+#include <fusexfl.h>
+#include <objects2d.h>
+#include <objects3d.h>
+#include <part.h>
+#include <plane.h>
+#include <planeopp.h>
+#include <planestl.h>
+#include <planexfl.h>
+#include <surface.h>
+#include <utils.h>
+#include <planepolar.h>
+#include <wpolarext.h>
 
 
 int Objects3d::s_Index=0;
 std::vector<Plane*>    Objects3d::s_oaPlane;
-std::vector<PlanePolar*>   Objects3d::s_oaWPolar;
-std::vector<PlaneOpp*> Objects3d::s_oaPOpp;
+std::vector<PlanePolar*>   Objects3d::s_oaPlanePolar;
+std::vector<PlaneOpp*> Objects3d::s_oaPlaneOpp;
 
 
 int Objects3d::newUniquePartIndex()
@@ -112,14 +112,14 @@ Plane *Objects3d::addPlane(Plane *pPlane)
 }
 
 
-void Objects3d::insertPOpp(PlaneOpp *pPOpp)
+void Objects3d::insertPlaneOpp(PlaneOpp *pPOpp)
 {
     PlaneOpp *pOldPOpp = nullptr;
     bool bIsInserted = false;
 
     for (int i=0; i<nPOpps(); i++)
     {
-        pOldPOpp = s_oaPOpp.at(i);
+        pOldPOpp = s_oaPlaneOpp.at(i);
         if (pPOpp->planeName().compare(pOldPOpp->planeName())==0)
         {
             if (pPOpp->polarName().compare(pOldPOpp->polarName())==0)
@@ -135,15 +135,15 @@ void Objects3d::insertPOpp(PlaneOpp *pPOpp)
                             //replace the existing point
                             pPOpp->setTheStyle(pOldPOpp->theStyle());
 
-                            s_oaPOpp.erase(s_oaPOpp.begin()+i);
+                            s_oaPlaneOpp.erase(s_oaPlaneOpp.begin()+i);
                             delete pOldPOpp;
-                            s_oaPOpp.insert(s_oaPOpp.begin()+i, pPOpp);
+                            s_oaPlaneOpp.insert(s_oaPlaneOpp.begin()+i, pPOpp);
                             return;
                         }
                         else if (pPOpp->alpha() < pOldPOpp->alpha())
                         {
                             //insert point
-                            s_oaPOpp.insert(s_oaPOpp.begin()+i, pPOpp);
+                            s_oaPlaneOpp.insert(s_oaPlaneOpp.begin()+i, pPOpp);
                             return;
                         }
                         break;
@@ -155,15 +155,15 @@ void Objects3d::insertPOpp(PlaneOpp *pPOpp)
                             //replace the existing point
                             pPOpp->setTheStyle(pOldPOpp->theStyle());
 
-                            s_oaPOpp.erase(s_oaPOpp.begin()+i);
+                            s_oaPlaneOpp.erase(s_oaPlaneOpp.begin()+i);
                             delete pOldPOpp;
-                            s_oaPOpp.insert(s_oaPOpp.begin()+i, pPOpp);
+                            s_oaPlaneOpp.insert(s_oaPlaneOpp.begin()+i, pPOpp);
                             return;
                         }
                         else if (pPOpp->beta() < pOldPOpp->beta())
                         {
                             //insert point
-                            s_oaPOpp.insert(s_oaPOpp.begin()+i, pPOpp);
+                            s_oaPlaneOpp.insert(s_oaPlaneOpp.begin()+i, pPOpp);
                             return;
                         }
                         break;
@@ -176,15 +176,15 @@ void Objects3d::insertPOpp(PlaneOpp *pPOpp)
                             //replace the existing point
                             pPOpp->setTheStyle(pOldPOpp->theStyle());
 
-                            s_oaPOpp.erase(s_oaPOpp.begin()+i);
+                            s_oaPlaneOpp.erase(s_oaPlaneOpp.begin()+i);
                             delete pOldPOpp;
-                            s_oaPOpp.insert(s_oaPOpp.begin()+i, pPOpp);
+                            s_oaPlaneOpp.insert(s_oaPlaneOpp.begin()+i, pPOpp);
                             return;
                         }
                         else if (pPOpp->ctrl() < pOldPOpp->ctrl())
                         {
                             //insert point
-                            s_oaPOpp.insert(s_oaPOpp.begin()+i, pPOpp);
+                            s_oaPlaneOpp.insert(s_oaPlaneOpp.begin()+i, pPOpp);
                             return;
                         }
                         break;
@@ -201,29 +201,29 @@ void Objects3d::insertPOpp(PlaneOpp *pPOpp)
                                     //replace the existing point
                                     pPOpp->setTheStyle(pOldPOpp->theStyle());
 
-                                    s_oaPOpp.erase(s_oaPOpp.begin()+i);
+                                    s_oaPlaneOpp.erase(s_oaPlaneOpp.begin()+i);
                                     delete pOldPOpp;
-                                    s_oaPOpp.insert(s_oaPOpp.begin()+i, pPOpp);
+                                    s_oaPlaneOpp.insert(s_oaPlaneOpp.begin()+i, pPOpp);
                                     return;
                                 }
                                 else if (pPOpp->QInf() < pOldPOpp->QInf())
                                 {
                                     //insert point
-                                    s_oaPOpp.insert(s_oaPOpp.begin()+i, pPOpp);
+                                    s_oaPlaneOpp.insert(s_oaPlaneOpp.begin()+i, pPOpp);
                                     return;
                                 }
                             }
                             else if (pPOpp->beta() < pOldPOpp->beta())
                             {
                                 //insert point
-                                s_oaPOpp.insert(s_oaPOpp.begin()+i, pPOpp);
+                                s_oaPlaneOpp.insert(s_oaPlaneOpp.begin()+i, pPOpp);
                                 return;
                             }
                         }
                         else if (pPOpp->alpha() < pOldPOpp->alpha())
                         {
                             //insert point
-                            s_oaPOpp.insert(s_oaPOpp.begin()+i, pPOpp);
+                            s_oaPlaneOpp.insert(s_oaPlaneOpp.begin()+i, pPOpp);
                             return;
                         }
                         break;
@@ -235,11 +235,11 @@ void Objects3d::insertPOpp(PlaneOpp *pPOpp)
         }
     }
 
-    if (!bIsInserted)     s_oaPOpp.push_back(pPOpp);
+    if (!bIsInserted)     s_oaPlaneOpp.push_back(pPOpp);
 }
 
 
-void Objects3d::addWPolar(PlanePolar *pWPolar)
+void Objects3d::addPPolar(PlanePolar *pWPolar)
 {
     if(!pWPolar) return;
     Plane const *pPlane = planeAt(pWPolar->planeName());
@@ -247,12 +247,12 @@ void Objects3d::addWPolar(PlanePolar *pWPolar)
 
     for (int ip=0; ip<nPolars(); ip++)
     {
-        PlanePolar *pOldWPlr = s_oaWPolar.at(ip);
+        PlanePolar *pOldWPlr = s_oaPlanePolar.at(ip);
         if (pOldWPlr->name()==pWPolar->name() && pOldWPlr->planeName()==pWPolar->planeName())
         {
-            s_oaWPolar.erase(s_oaWPolar.begin()+ip);
+            s_oaPlanePolar.erase(s_oaPlanePolar.begin()+ip);
             delete pOldWPlr;
-            s_oaWPolar.insert(s_oaWPolar.begin()+ip, pWPolar);
+            s_oaPlanePolar.insert(s_oaPlanePolar.begin()+ip, pWPolar);
             return;
         }
     }
@@ -260,11 +260,11 @@ void Objects3d::addWPolar(PlanePolar *pWPolar)
     //if it doesn't exist, find its place in alphabetical order and insert it
     for (int j=0; j<nPolars(); j++)
     {
-        PlanePolar *pOldWPlr = s_oaWPolar.at(j);
+        PlanePolar *pOldWPlr = s_oaPlanePolar.at(j);
         //first key is the Plane name
         if(pWPolar->planeName().compare(pOldWPlr->planeName())<0)
         {
-            s_oaWPolar.insert(s_oaWPolar.begin()+j, pWPolar);
+            s_oaPlanePolar.insert(s_oaPlanePolar.begin()+j, pWPolar);
             return;
         }
         else if (pWPolar->planeName() == pOldWPlr->planeName())
@@ -272,23 +272,23 @@ void Objects3d::addWPolar(PlanePolar *pWPolar)
             // sort by polar name
             if(pWPolar->name().compare(pOldWPlr->name())<0)
             {
-                s_oaWPolar.insert(s_oaWPolar.begin()+j, pWPolar);
+                s_oaPlanePolar.insert(s_oaPlanePolar.begin()+j, pWPolar);
                 return;
             }
         }
     }
 
-    s_oaWPolar.push_back(pWPolar);
+    s_oaPlanePolar.push_back(pWPolar);
 }
 
 
-void Objects3d::appendWPolar(PlanePolar *pWPolar)
+void Objects3d::appendPPolar(PlanePolar *pWPolar)
 {
     if(!pWPolar) return;
     Plane const *pPlane = planeAt(pWPolar->planeName());
     pWPolar->setPlane(pPlane);
 
-    s_oaWPolar.push_back(pWPolar);
+    s_oaPlanePolar.push_back(pWPolar);
 }
 
 
@@ -327,20 +327,20 @@ void Objects3d::deleteWPolar(PlanePolar *pWPolar)
 
     for (int l=nPOpps()-1;l>=0; l--)
     {
-        PlaneOpp *pPOpp = s_oaPOpp.at(l);
+        PlaneOpp *pPOpp = s_oaPlaneOpp.at(l);
         if (pPOpp->planeName()==pWPolar->planeName() && pPOpp->polarName()==pWPolar->name())
         {
-            s_oaPOpp.erase(s_oaPOpp.begin()+l);
+            s_oaPlaneOpp.erase(s_oaPlaneOpp.begin()+l);
             delete pPOpp;
         }
     }
 
     for(int ipb=0; ipb<nPolars(); ipb++)
     {
-        PlanePolar *pOldWPolar = s_oaWPolar.at(ipb);
+        PlanePolar *pOldWPolar = s_oaPlanePolar.at(ipb);
         if(pOldWPolar==pWPolar)
         {
-            s_oaWPolar.erase(s_oaWPolar.begin()+ipb);
+            s_oaPlanePolar.erase(s_oaPlanePolar.begin()+ipb);
             delete pWPolar;
             break;
         }
@@ -359,10 +359,10 @@ void Objects3d::deletePlaneOpp(PlaneOpp *pPOpp)
 
     for (int l=nPOpps()-1;l>=0; l--)
     {
-        PlaneOpp *pOldPOpp = s_oaPOpp.at(l);
+        PlaneOpp *pOldPOpp = s_oaPlaneOpp.at(l);
         if (pOldPOpp==pPOpp)
         {
-            s_oaPOpp.erase(s_oaPOpp.begin()+l);
+            s_oaPlaneOpp.erase(s_oaPlaneOpp.begin()+l);
             delete pOldPOpp;
         }
     }
@@ -380,10 +380,10 @@ void Objects3d::deletePlaneResults(const Plane *pPlane, bool bDeletePolars)
     //first remove all POpps associated to the plane
     for (int i=nPOpps()-1; i>=0; i--)
     {
-        PlaneOpp *pPOpp = s_oaPOpp.at(i);
+        PlaneOpp *pPOpp = s_oaPlaneOpp.at(i);
         if(pPOpp->planeName() == pPlane->name())
         {
-            s_oaPOpp.erase(s_oaPOpp.begin()+i);
+            s_oaPlaneOpp.erase(s_oaPlaneOpp.begin()+i);
             delete pPOpp;
         }
     }
@@ -391,12 +391,12 @@ void Objects3d::deletePlaneResults(const Plane *pPlane, bool bDeletePolars)
     //next delete all WPolars associated to the plane
     for (int i=nPolars()-1; i>=0; i--)
     {
-        PlanePolar* pWPolar = s_oaWPolar.at(i);
+        PlanePolar* pWPolar = s_oaPlanePolar.at(i);
         if (pWPolar->planeName() == pPlane->name())
         {
             if(bDeletePolars)
             {
-                s_oaWPolar.erase(s_oaWPolar.begin()+i);
+                s_oaPlanePolar.erase(s_oaPlanePolar.begin()+i);
                 delete pWPolar;
             }
             else
@@ -416,10 +416,10 @@ void Objects3d::deleteExternalPolars(Plane const*pPlane)
     //next delete all WPolars associated to the plane
     for (int i=nPolars()-1; i>=0; i--)
     {
-        PlanePolar* pWPolar = s_oaWPolar.at(i);
+        PlanePolar* pWPolar = s_oaPlanePolar.at(i);
         if (pWPolar->planeName() == pPlane->name() && pWPolar->isExternalPolar())
         {
-            s_oaWPolar.erase(s_oaWPolar.begin()+i);
+            s_oaPlanePolar.erase(s_oaPlanePolar.begin()+i);
             delete pWPolar;
         }
     }
@@ -446,7 +446,7 @@ PlaneOpp *Objects3d::planeOpp(Plane const *pPlane, PlanePolar const*pWPolar, std
     if(!pPlane || !pWPolar) return nullptr;
     for (int i=0; i<nPOpps(); i++)
     {
-        PlaneOpp* pPOpp = s_oaPOpp.at(i);
+        PlaneOpp* pPOpp = s_oaPlaneOpp.at(i);
         if (pPOpp->planeName()==pPlane->name() &&pPOpp->polarName()==pWPolar->name() && pPOpp->name()==oppname)
         {
             return pPOpp;
@@ -462,7 +462,7 @@ PlanePolar* Objects3d::wPolar(const Plane *pPlane, std::string const &WPolarName
 
     for (int i=0; i<nPolars(); i++)
     {
-        PlanePolar *pWPolar = s_oaWPolar.at(i);
+        PlanePolar *pWPolar = s_oaPlanePolar.at(i);
         if (pWPolar->planeName()==pPlane->name() && pWPolar->name()== WPolarName)
             return pWPolar;
     }
@@ -504,15 +504,15 @@ void Objects3d::deleteObjects()
 
     for (int i=nPolars()-1; i>=0; i--)
     {
-        PlanePolar *pWPolar = s_oaWPolar.at(i);
-        s_oaWPolar.erase(s_oaWPolar.begin()+i);
+        PlanePolar *pWPolar = s_oaPlanePolar.at(i);
+        s_oaPlanePolar.erase(s_oaPlanePolar.begin()+i);
         if(pWPolar) delete pWPolar;
     }
 
     for (int i=nPOpps()-1; i>=0; i--)
     {
-        PlaneOpp *pPOpp = s_oaPOpp.at(i);
-        s_oaPOpp.erase(s_oaPOpp.begin()+i);
+        PlaneOpp *pPOpp = s_oaPlaneOpp.at(i);
+        s_oaPlaneOpp.erase(s_oaPlaneOpp.begin()+i);
         if(pPOpp) delete pPOpp;
     }
 }
@@ -524,7 +524,7 @@ void Objects3d::setWPolarColor(Plane const *pPlane, PlanePolar *pWPolar, int dar
     fl5Color clr = pPlane->lineColor();
     for(int ip=0; ip<nPolars(); ip++)
     {
-        if(s_oaWPolar.at(ip)->planeName().compare(pPlane->name())==0)
+        if(s_oaPlanePolar.at(ip)->planeName().compare(pPlane->name())==0)
         {
             clr = clr.darker(darkfactor);
         }
@@ -541,7 +541,7 @@ void Objects3d::setPlaneStyle(Plane *pPlane, LineStyle const &ls, bool bStipple,
 
     for(int iwp=0; iwp<nPolars(); iwp++)
     {
-        PlanePolar *pWPolar = s_oaWPolar.at(iwp);
+        PlanePolar *pWPolar = s_oaPlanePolar.at(iwp);
         if(pWPolar->planeName().compare(pPlane->name())==0)
         {
             if(bStipple) pWPolar->setLineStipple(ls.m_Stipple);
@@ -567,7 +567,7 @@ void Objects3d::setPlaneVisible(const Plane *pPlane, bool bVisible, bool bStabil
 
     for(int iwp=0; iwp<nPolars(); iwp++)
     {
-        PlanePolar *pWPolar = s_oaWPolar.at(iwp);
+        PlanePolar *pWPolar = s_oaPlanePolar.at(iwp);
         if(pWPolar->planeName().compare(pPlane->name())==0)
         {
             /*            if(bStabilityPolarsOnly)
@@ -580,7 +580,7 @@ void Objects3d::setPlaneVisible(const Plane *pPlane, bool bVisible, bool bStabil
     }
     for(int ipp=0; ipp<nPOpps(); ipp++)
     {
-        PlaneOpp *pPOpp = s_oaPOpp.at(ipp);
+        PlaneOpp *pPOpp = s_oaPlaneOpp.at(ipp);
         if(pPOpp->planeName().compare(pPlane->name())==0)
         {
             if(bStabilityPolarsOnly)
@@ -603,7 +603,7 @@ void Objects3d::setWPolarVisible(PlanePolar *pWPolar, bool bVisible)
 
     for(int ipp=0; ipp<nPOpps(); ipp++)
     {
-        PlaneOpp *pPOpp = s_oaPOpp.at(ipp);
+        PlaneOpp *pPOpp = s_oaPlaneOpp.at(ipp);
         if(pPOpp->planeName().compare(pPlane->name())==0)
         {
             if(pPOpp->polarName().compare(pWPolar->name())==0)
@@ -617,7 +617,7 @@ bool Objects3d::hasResults(const Plane *pPlane)
 {
     for(int j=0; j<nPolars(); j++)
     {
-        PlanePolar const *pWPolar = s_oaWPolar.at(j);
+        PlanePolar const *pWPolar = s_oaPlanePolar.at(j);
         if(pWPolar->planeName()==pPlane->name() && pWPolar->dataSize())
         {
             return true;
@@ -626,7 +626,7 @@ bool Objects3d::hasResults(const Plane *pPlane)
 
     for (int i=0; i<nPOpps(); i++)
     {
-        PlaneOpp const *pPOpp = s_oaPOpp.at(i);
+        PlaneOpp const *pPOpp = s_oaPlaneOpp.at(i);
         if(pPOpp->planeName() == pPlane->name())
         {
             return true;
@@ -641,7 +641,7 @@ bool Objects3d::hasPOpps(const Plane *pPlane)
 {
     for (int i=0; i<nPOpps(); i++)
     {
-        PlaneOpp const *pPOpp = s_oaPOpp.at(i);
+        PlaneOpp const *pPOpp = s_oaPlaneOpp.at(i);
         if(pPOpp->planeName() == pPlane->name())
         {
             return true;
@@ -656,7 +656,7 @@ bool Objects3d::hasPOpps(PlanePolar const *pWPolar)
 {
     for (int i=0; i<nPOpps(); i++)
     {
-        PlaneOpp const *pPOpp = s_oaPOpp.at(i);
+        PlaneOpp const *pPOpp = s_oaPlaneOpp.at(i);
         if(pPOpp->planeName() == pWPolar->planeName() && pPOpp->polarName()==pWPolar->name())
         {
             return true;
@@ -667,7 +667,7 @@ bool Objects3d::hasPOpps(PlanePolar const *pWPolar)
 }
 
 
-void Objects3d::insertWPolar(PlanePolar *pWPolar)
+void Objects3d::insertPPolar(PlanePolar *pWPolar)
 {
     if(!pWPolar) return;
 
@@ -678,7 +678,7 @@ void Objects3d::insertWPolar(PlanePolar *pWPolar)
         //first index is the parent plane's name
         if (pWPolar->planeName().compare(pOldWPolar->planeName())<0)
         {
-            s_oaWPolar.insert(s_oaWPolar.begin()+j, pWPolar);
+            s_oaPlanePolar.insert(s_oaPlanePolar.begin()+j, pWPolar);
             return;
         }
         else if(pOldWPolar->planeName().compare(pWPolar->planeName())==0)
@@ -686,20 +686,20 @@ void Objects3d::insertWPolar(PlanePolar *pWPolar)
             // second index is the polar name
             if(pWPolar->name().compare(pOldWPolar->name())<0)
             {
-                s_oaWPolar.insert(s_oaWPolar.begin()+j, pWPolar);
+                s_oaPlanePolar.insert(s_oaPlanePolar.begin()+j, pWPolar);
                 return;
             }
             else if(pWPolar->name().compare(pOldWPolar->name())==0)
             {
                 delete pOldWPolar; // delete the old polar
-                s_oaWPolar[j] = pWPolar; // and replace it
+                s_oaPlanePolar[j] = pWPolar; // and replace it
                 return;
             }
         }
     }
 
     //something went wrong, no parent plane for this WPolar
-    Objects3d::appendWPolar(pWPolar);
+    Objects3d::appendPPolar(pWPolar);
 }
 
 
@@ -718,7 +718,7 @@ void Objects3d::setWPolarPOppStyle(PlanePolar const* pWPolar, bool bStipple, boo
     PlaneOpp *pLastPOpp = nullptr;
     for(int ipp=0; ipp<nPOpps(); ipp++)
     {
-        PlaneOpp *pPOpp = s_oaPOpp.at(ipp);
+        PlaneOpp *pPOpp = s_oaPlaneOpp.at(ipp);
         if(pWPolar->hasPOpp(pPOpp)) pLastPOpp = pPOpp;
     }
 
@@ -731,7 +731,7 @@ void Objects3d::setWPolarPOppStyle(PlanePolar const* pWPolar, bool bStipple, boo
 
     for(int ipp=nPOpps()-1; ipp>=0; ipp--)
     {
-        PlaneOpp *pPOpp = s_oaPOpp.at(ipp);
+        PlaneOpp *pPOpp = s_oaPlaneOpp.at(ipp);
         if(pWPolar->hasPOpp(pPOpp))
         {
             if(bStipple) pPOpp->setLineStipple(pWPolar->lineStipple());
@@ -799,7 +799,7 @@ void Objects3d::cleanObjects(std::string &log)
     log.clear();
     for (int i=nPOpps()-1; i>=0; i--)
     {
-        PlaneOpp* pPOpp = s_oaPOpp.at(i);
+        PlaneOpp* pPOpp = s_oaPlaneOpp.at(i);
         Plane const*pPlane = plane(pPOpp->planeName());
         PlanePolar const *pWPolar = wPolar(pPlane, pPOpp->polarName());
         if(!pPlane || !pWPolar)
@@ -810,13 +810,13 @@ void Objects3d::cleanObjects(std::string &log)
                     pPOpp->polarName() + " / " +
                     pPOpp->name()      + "\n";
             delete pPOpp;
-            s_oaPOpp.erase(s_oaPOpp.begin()+i);
+            s_oaPlaneOpp.erase(s_oaPlaneOpp.begin()+i);
         }
     }
 
     for(int i=nPolars()-1; i>=0; i--)
     {
-        PlanePolar  *pOldWPolar = s_oaWPolar[i];
+        PlanePolar  *pOldWPolar = s_oaPlanePolar[i];
         Plane const*pPlane = plane(pOldWPolar->planeName());
         if(!pPlane)
         {
@@ -832,7 +832,7 @@ void Objects3d::updateWPolarstoV750()
 {
     for(int i=nPolars()-1; i>=0; i--)
     {
-        PlanePolar  *pOldWPolar = s_oaWPolar[i];
+        PlanePolar  *pOldWPolar = s_oaPlanePolar[i];
         Plane const*pPlane = plane(pOldWPolar->planeName());
         if(!pPlane)
         {
@@ -898,10 +898,55 @@ void Objects3d::renameWPolar(PlanePolar *pWPolar, const std::string &newname)
 
 bool Objects3d::containsPOpp(PlaneOpp *pPOpp)
 {
-    if(std::find(s_oaPOpp.begin(), s_oaPOpp.end(), pPOpp) != s_oaPOpp.end())
+    if(std::find(s_oaPlaneOpp.begin(), s_oaPlaneOpp.end(), pPOpp) != s_oaPlaneOpp.end())
     {
         return true;
     }
 
     return false;
 }
+
+
+PlaneOpp *Objects3d::storePlaneOpps(std::vector<PlaneOpp*> const &POppList)
+{
+    QList<PlaneOpp*> QPOppList;
+    for(PlaneOpp *pPOpp : POppList)
+    {
+        QPOppList.append(pPOpp);
+    }
+    return storePlaneOpps(QPOppList);
+}
+
+
+PlaneOpp *Objects3d::storePlaneOpps(QList<PlaneOpp*> const &POppList)
+{
+    PlaneOpp * pSelectedPOpp = nullptr;
+    for(int iPOpp=0; iPOpp<POppList.size(); iPOpp++)
+    {
+        PlaneOpp *pPOpp = POppList.at(iPOpp);
+        if(!pPOpp->isOut())
+        {
+            pSelectedPOpp = pPOpp; // return a valid PlaneOpp
+            Objects3d::insertPlaneOpp(pPOpp);
+        }
+        else
+        {
+            delete pPOpp;
+            pPOpp = nullptr;
+        }
+    }
+    return pSelectedPOpp;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

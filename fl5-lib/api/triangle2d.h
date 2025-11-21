@@ -27,9 +27,9 @@
 
 
 
-#include <api/vector2d.h>
-#include <api/segment2d.h>
-#include <api/cartesianframe2d.h>
+#include <vector2d.h>
+#include <segment2d.h>
+#include <cartesianframe2d.h>
 
 
 namespace TRIANGLE {

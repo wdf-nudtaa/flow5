@@ -31,16 +31,16 @@
 
 
 
-#include <api/triangulation.h>
-#include <api/vector3d.h>
-#include <api/mathelem.h>
-#include <api/aeroforces.h>
-#include <api/spandistribs.h>
-#include <api/part.h>
-#include <api/enums_objects.h>
-#include <api/quadmesh.h>
-#include <api/trimesh.h>
-#include <api/edgesplit.h>
+#include <triangulation.h>
+#include <vector3d.h>
+#include <mathelem.h>
+#include <aeroforces.h>
+#include <spandistribs.h>
+#include <part.h>
+#include <enums_objects.h>
+#include <quadmesh.h>
+#include <trimesh.h>
+#include <edgesplit.h>
 
 
 

@@ -28,7 +28,7 @@
 #include <string>
 #include <queue>
 
-#include "fl5lib_global.h"
+#include <fl5lib_global.h>
 
 class Foil;
 class Polar;

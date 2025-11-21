@@ -27,8 +27,8 @@
 #include <string>
 #include <vector>
 
-#include <api/geom_enums.h>
-#include <api/vector3d.h>
+#include <geom_enums.h>
+#include <vector3d.h>
 
 /**
  * A Node is a vector3d, with a normal and a list of triangles of which this node is a vertex

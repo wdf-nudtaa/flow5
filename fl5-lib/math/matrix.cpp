@@ -42,10 +42,10 @@
 #endif
 
 
-#include <api/matrix.h>
+#include <matrix.h>
 
 
-#include <api/constants.h>
+#include <constants.h>
 
 
 /** Inverts in place a 2x2 matrix */

@@ -31,11 +31,11 @@
 #include <Geom_BSplineCurve.hxx>
 
 
-#include <api/vector3d.h>
-#include <api/enums_objects.h>
-#include <api/mathelem.h>
-#include <api/panel3.h>
-#include <api/panel4.h>
+#include <vector3d.h>
+#include <enums_objects.h>
+#include <mathelem.h>
+#include <panel3.h>
+#include <panel4.h>
 
 
 

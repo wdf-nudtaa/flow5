@@ -26,19 +26,19 @@
 #include <QString>
 
 
-#include <api/planepolar.h>
+#include <planepolar.h>
 
-#include <api/constants.h>
-#include <api/geom_global.h>
-#include <api/objects_global.h>
-#include <api/plane.h>
-#include <api/planeopp.h>
-#include <api/planestl.h>
-#include <api/planexfl.h>
-#include <api/surface.h>
-#include <api/units.h>
-#include <api/utils.h>
-#include <api/wingopp.h>
+#include <constants.h>
+#include <geom_global.h>
+#include <objects_global.h>
+#include <plane.h>
+#include <planeopp.h>
+#include <planestl.h>
+#include <planexfl.h>
+#include <surface.h>
+#include <units.h>
+#include <utils.h>
+#include <wingopp.h>
 
 std::vector<std::string> PlanePolar::s_VariableNames;
 
@@ -941,7 +941,7 @@ void PlanePolar::resizeFlapCtrls(const PlaneXfl *pPlaneXfl)
         resizeFlapCtrls(iw, pWing->nFlaps());
     }
 
-    if(isType12358() || isType7())
+    if(isType123458() || isType7())
     {
         // T7 polar
         for(int ie=0; ie<nAVLCtrls(); ie++)
@@ -1761,10 +1761,10 @@ void PlanePolar::getProperties(std::string &props, Plane const *pPlane) const
     double massunit  = Units::kgtoUnit();
     double speedunit = Units::mstoUnit();
     double areaunit  = Units::m2toUnit();
-    QString lenlab   = QUnits::lengthUnitLabel();
-    QString masslab  = QUnits::massUnitLabel();
-    QString speedlab = QUnits::speedUnitLabel();
-    QString arealab  = QUnits::areaUnitLabel();
+    QString lenlab   = Units::lengthUnitQLabel();
+    QString masslab  = Units::massUnitQLabel();
+    QString speedlab = Units::speedUnitQLabel();
+    QString arealab  = Units::areaUnitQLabel();
 
     QString inertiaunit = masslab+"."+lenlab+ SQUAREch;
 
@@ -1791,12 +1791,12 @@ void PlanePolar::getProperties(std::string &props, Plane const *pPlane) const
 
     if(isFixedSpeedPolar())
     {
-        strong  = "V" + INFch + " =" + QString::asprintf(" %9.2g", velocity()*speedunit);
+        strong  = "V" + INFch + " =" + QString::asprintf(" %.2g", velocity()*speedunit);
         PolarProps += strong + speedlab+ EOLch;
     }
     else if(isFixedaoaPolar())
     {
-        strong  = ALPHAch + " =" + QString::asprintf(" %7.2f", alphaSpec());
+        strong  = ALPHAch + " =" + QString::asprintf(" %.2f", alphaSpec());
         PolarProps += strong +DEGch+ EOLch;
     }
     else if(isBetaPolar())
@@ -1814,14 +1814,14 @@ void PlanePolar::getProperties(std::string &props, Plane const *pPlane) const
 
     }
 
-    if(isType12358() && fabs(m_BankAngle)>ANGLEPRECISION)
+    if(isType123458() && fabs(m_BankAngle)>ANGLEPRECISION)
     {
         if(fabs(m_BankAngle)>AOAPRECISION)
             PolarProps += PHIch + "  = " + QString::asprintf(" %7.2f", m_BankAngle) + DEGch + EOLch;
     }
 
 
-    if((isType12358() || isType7()) && hasActiveFlap() && pPlaneXfl)
+    if((isType123458() || isType7()) && hasActiveFlap() && pPlaneXfl)
     {
         PolarProps += "Flap settings: " + QString::fromStdString(flapCtrlsSetName()) + EOLch;
         for(int iw=0; iw<pPlaneXfl->nWings(); iw++)
@@ -1924,6 +1924,8 @@ void PlanePolar::getProperties(std::string &props, Plane const *pPlane) const
             PolarProps += QString::asprintf("   NCrit  = %g\n", m_NCrit);
             PolarProps += QString::asprintf("   XTrTop = %g%% chord\n", m_XTrTop*100.0);
             PolarProps += QString::asprintf("   XTrBot = %g%% chord\n", m_XTrBot*100.0);
+            if(m_bTransAtHinge)
+                PolarProps += "   Forcing transitions at hinge position\n";
         }
         else
         {
@@ -1956,11 +1958,11 @@ void PlanePolar::getProperties(std::string &props, Plane const *pPlane) const
     PolarProps += "Fluid properties:\n";
 
     strong  = frontspacer + RHOch + " = "+QString::asprintf("%9.5g ", density()*Units::densitytoUnit());
-    strong += QString::fromStdString(Units::densityUnitLabel()) + EOLch;
+    strong += Units::densityUnitQLabel() + EOLch;
     PolarProps += strong;
 
     strong  = frontspacer + NUch  + " = "+QString::asprintf("%9.5g ", viscosity()*Units::viscositytoUnit());
-    strong += QString::fromStdString(Units::viscosityUnitLabel()) + EOLch;
+    strong += Units::viscosityUnitQLabel() + EOLch;
     PolarProps += strong;
 
 
@@ -2014,7 +2016,7 @@ void PlanePolar::getProperties(std::string &props, Plane const *pPlane) const
 
 
 
-    if((isType12358() || isType7()) && pPlaneXfl)
+    if((isType123458() || isType7()) && pPlaneXfl)
     {
         if(nAVLCtrls())
         {
@@ -2142,7 +2144,7 @@ void PlanePolar::getWPolarData(std::string &data, std::string const &separator) 
     strong = QString::fromStdString(m_Name) + EOLch;
     polardata += strong;
 
-    str = QUnits::speedUnitLabel() + EOLch + EOLch;
+    str = Units::speedUnitQLabel() + EOLch + EOLch;
 
     if(isFixedSpeedPolar())
     {

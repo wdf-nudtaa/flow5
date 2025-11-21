@@ -29,7 +29,7 @@
 #include <complex>
 #include <vector>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 /** Data structure for multithreaded matrix multiplication */
 struct MatMultData

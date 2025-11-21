@@ -27,7 +27,7 @@
 #include <QString>
 #include <QDataStream>
 
-#include <api/stabderivatives.h>
+#include <stabderivatives.h>
 
 
 StabDerivatives::StabDerivatives()

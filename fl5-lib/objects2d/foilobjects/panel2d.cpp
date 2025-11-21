@@ -24,10 +24,10 @@
 
 #include <cassert>
 
-#include <api/panel2d.h>
+#include <panel2d.h>
 
-#include <api/constants.h>
-#include <api/geom_params.h>
+#include <constants.h>
+#include <geom_params.h>
 
 Panel2d::Panel2d()
 {

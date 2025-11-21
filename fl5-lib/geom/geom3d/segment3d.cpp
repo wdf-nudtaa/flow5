@@ -25,11 +25,11 @@ flow5 application
 #include <QString>
 
 
-#include <api/segment3d.h>
+#include <segment3d.h>
 
-#include <api/constants.h>
-#include <api/segment2d.h>
-#include <api/vector2d.h>
+#include <constants.h>
+#include <segment2d.h>
+#include <vector2d.h>
 
 Segment3d::Segment3d()
 {

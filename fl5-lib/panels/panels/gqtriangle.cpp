@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-#include <api/gqtriangle.h>
+#include <gqtriangle.h>
 
 GQTriangle::GQTriangle(int order)
 {

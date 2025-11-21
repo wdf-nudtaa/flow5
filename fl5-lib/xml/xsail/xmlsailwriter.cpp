@@ -25,12 +25,12 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/xmlsailwriter.h>
+#include <xmlsailwriter.h>
 
-#include <api/sail.h>
-#include <api/sailnurbs.h>
-#include <api/sailspline.h>
-#include <api/sailwing.h>
+#include <sail.h>
+#include <sailnurbs.h>
+#include <sailspline.h>
+#include <sailwing.h>
 
 XmlSailWriter::XmlSailWriter(QFile &XFile) : XmlXSailWriter(XFile)
 {

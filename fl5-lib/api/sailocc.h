@@ -29,9 +29,9 @@
 #include <TopoDS_ListOfShape.hxx>
 
 
-#include <api/externalsail.h>
-#include <api/occmeshparams.h>
-#include <api/triangle3d.h>
+#include <externalsail.h>
+#include <occmeshparams.h>
+#include <triangle3d.h>
 
 class FL5LIB_EXPORT SailOcc : public ExternalSail
 {    

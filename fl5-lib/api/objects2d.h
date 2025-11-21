@@ -32,10 +32,10 @@
 #include <string>
 
 
-#include <api/bldata.h>
-#include <api/enums_objects.h>
-#include <api/linestyle.h>
-#include <api/polar.h>
+#include <bldata.h>
+#include <enums_objects.h>
+#include <linestyle.h>
+#include <polar.h>
 
 class Foil;
 class OpPoint;

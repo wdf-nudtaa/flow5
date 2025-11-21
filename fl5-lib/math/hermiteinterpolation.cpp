@@ -23,7 +23,7 @@
 *****************************************************************************/
 
 
-#include <api/hermiteinterpolation.h>
+#include <hermiteinterpolation.h>
 
 
 float Hermite(float A, float B, float C, float D, float t)

@@ -27,12 +27,12 @@
 
 
 
-#include <api/xmlfusereader.h>
+#include <xmlfusereader.h>
 
-#include <api/frame.h>
-#include <api/fusenurbs.h>
-#include <api/fusexfl.h>
-#include <api/planexfl.h>
+#include <frame.h>
+#include <fusenurbs.h>
+#include <fusexfl.h>
+#include <planexfl.h>
 
 XmlFuseReader::XmlFuseReader(QFile &file) : XflXmlReader(file)
 {

@@ -29,10 +29,10 @@
 #include <thread>
 
 
-#include <api/trimesh.h>
+#include <trimesh.h>
 
-#include <api/units.h>
-#include <api/utils.h>
+#include <units.h>
+#include <utils.h>
 
 bool TriMesh::s_bCancel = false;
 
@@ -221,12 +221,12 @@ void TriMesh::getMeshInfo(std::string &logmsg) const
         maxquality = std::max(maxquality, p3.qualityFactor(r,e));
     }
     strong = QString::asprintf("    min. panel area = %9.3g ", minarea*Units::m2toUnit());
-    strong += QUnits::areaUnitLabel();
+    strong += Units::areaUnitQLabel();
     log += strong;
     strong = QString::asprintf(" for panel %d\n", minareaindex);
     log += strong;
     strong = QString::asprintf("    max. panel area = %9.3g ", maxarea*Units::m2toUnit());
-    strong += QUnits::areaUnitLabel();
+    strong += Units::areaUnitQLabel();
     log += strong;
     strong = QString::asprintf(" for panel %d\n", maxareaindex);
     log += strong;
@@ -266,9 +266,9 @@ void TriMesh::checkPanels(std::string &logmsg,
                 strong = QString::asprintf("   Panel %4d is skinny:  qual.=%5.2f", p3.index(), q);
                 log += strong;
                 strong = QString::asprintf(", CC radius=%5.2f", r*Units::mtoUnit());
-                log += strong + QUnits::lengthUnitLabel();
+                log += strong + Units::lengthUnitQLabel();
                 strong = QString::asprintf(", min. edge=%5.2f", e*Units::mtoUnit());
-                log += strong + QUnits::lengthUnitLabel() + "\n";
+                log += strong + Units::lengthUnitQLabel() + "\n";
             }
         }
         if(!skinnylist.size())
@@ -327,7 +327,7 @@ void TriMesh::checkPanels(std::string &logmsg,
                 minarealist.push_back(p3.index());
                 count++;
                 strong = QString::asprintf("   Panel %4d has area %9g ", p3.index(), p3.area()*Units::m2toUnit());
-                log += strong + QUnits::areaUnitLabel() +"\n";
+                log += strong + Units::areaUnitQLabel() +"\n";
             }
             //                else m_PanelHightlight.insert(i3, false);
         }
@@ -340,7 +340,7 @@ void TriMesh::checkPanels(std::string &logmsg,
         else
         {
             strong = QString::asprintf("   Found %d panels with area less than %.3g ", count, minarea*Units::m2toUnit());
-            log += strong + QUnits::areaUnitLabel() + "\n\n";
+            log += strong + Units::areaUnitQLabel() + "\n\n";
         }
     }
 
@@ -365,7 +365,7 @@ void TriMesh::checkPanels(std::string &logmsg,
                 minsizelist.push_back(p3.index());
                 count++;
                 strong = QString::asprintf("   Panel %4d has edge length %9g ", p3.index(), length*Units::mtoUnit());
-                log += strong + QUnits::lengthUnitLabel() +"\n";
+                log += strong + Units::lengthUnitQLabel() +"\n";
             }
         }
 
@@ -377,7 +377,7 @@ void TriMesh::checkPanels(std::string &logmsg,
         else
         {
             strong = QString::asprintf("   Found %d panels with edge length less than %.g ", count, minsize*Units::mtoUnit());
-            log += strong + QUnits::lengthUnitLabel() + "\n\n";
+            log += strong + Units::lengthUnitQLabel() + "\n\n";
         }
     }
 

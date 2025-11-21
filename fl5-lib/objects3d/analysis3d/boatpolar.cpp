@@ -26,14 +26,14 @@
 #include <QString>
 
 
-#include <api/boatpolar.h>
-#include <api/boatopp.h>
-#include <api/boat.h>
-#include <api/sail.h>
-#include <api/sailobjects.h>
-#include <api/utils.h>
-#include <api/units.h>
-#include <api/constants.h>
+#include <boatpolar.h>
+#include <boatopp.h>
+#include <boat.h>
+#include <sail.h>
+#include <sailobjects.h>
+#include <utils.h>
+#include <units.h>
+#include <constants.h>
 
 std::vector<std::string> BoatPolar::s_BtPolarVariableNames={"Ctrl",
                                                "TWS", "TWA ("+DEGstr+")", "AWS", "AWA ("+DEGstr+")",
@@ -448,10 +448,10 @@ void BoatPolar::getProperties(std::string &props, xfl::enumTextFileType filetype
     QString strong, lenlab, masslab, speedlab, arealab;
     QString frontspacer("  ");
 
-    lenlab   = " "+ QUnits::lengthUnitLabel();
-    masslab  = " "+ QUnits::massUnitLabel();
-    speedlab = " "+ QUnits::speedUnitLabel();
-    arealab  = " "+ QUnits::areaUnitLabel();
+    lenlab   = " "+ Units::lengthUnitQLabel();
+    masslab  = " "+ Units::massUnitQLabel();
+    speedlab = " "+ Units::speedUnitQLabel();
+    arealab  = " "+ Units::areaUnitQLabel();
 
 //    if     (isPanel4Method() && bThickSurfaces()) PolarProps += "Quad Panels/thick surfaces";
 //    if     (isPanel4Method() && bThinSurfaces())  PolarProps += "Quad Panels/thin surfaces";
@@ -516,11 +516,11 @@ void BoatPolar::getProperties(std::string &props, xfl::enumTextFileType filetype
     PolarProps += "Fluid properties:\n";
 
     strong  = frontspacer + RHOch + " = " + QString::asprintf("%9.5g", density()*Units::densitytoUnit());
-    strong += QUnits::densityUnitLabel() + "\n";
+    strong += Units::densityUnitQLabel() + "\n";
     PolarProps += strong;
 
     strong  = frontspacer + NUch  + " = " + QString::asprintf("%9.5g", viscosity()*Units::viscositytoUnit());
-    strong += QUnits::viscosityUnitLabel() + "\n";
+    strong += Units::viscosityUnitQLabel() + "\n";
     PolarProps += strong;
 
     if(extraDragCount())

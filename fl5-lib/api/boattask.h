@@ -28,10 +28,10 @@
 
 #include <vector>
 
-#include <api/spandistribs.h>
-#include <api/aeroforces.h>
-#include <api/panel3.h>
-#include <api/task3d.h>
+#include <spandistribs.h>
+#include <aeroforces.h>
+#include <panel3.h>
+#include <task3d.h>
 
 
 class Boat;

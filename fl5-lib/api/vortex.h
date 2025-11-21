@@ -26,7 +26,7 @@
 #pragma once
 #include <QDataStream>
 
-#include <api/segment3d.h>
+#include <segment3d.h>
 
 
 class FL5LIB_EXPORT Vortex : public Segment3d

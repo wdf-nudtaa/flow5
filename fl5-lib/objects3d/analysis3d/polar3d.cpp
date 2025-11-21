@@ -27,9 +27,9 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/polar3d.h>
-#include <api/constants.h>
-#include <api/inertia.h>
+#include <polar3d.h>
+#include <constants.h>
+#include <inertia.h>
 
 Polar3d::Polar3d()
 {
@@ -50,6 +50,7 @@ Polar3d::Polar3d()
     m_NCrit = 9.0;
     m_XTrTop = 1.0;
     m_XTrBot = 1.0;
+    m_bTransAtHinge = false;
 
     m_BC = xfl::DIRICHLET;
 
@@ -123,6 +124,7 @@ void Polar3d::duplicateSpec(const Polar3d *pPolar3d)
     m_NCrit                 = pPolar3d->m_NCrit;
     m_XTrTop                = pPolar3d->m_XTrTop;
     m_XTrBot                = pPolar3d->m_XTrBot;
+    m_bTransAtHinge         = pPolar3d->m_bTransAtHinge;
 
     m_Mass = pPolar3d->m_Mass;
     m_CoG  = pPolar3d->m_CoG;
@@ -420,8 +422,11 @@ bool Polar3d::serializeFl5v750(QDataStream &ar, bool bIsStoring)
         ar << m_VPWMaxLength;
         ar << m_VPWIterations;
 
+        // converted v7.54
+        ar << m_bTransAtHinge;
+
         // provisions for future variable saves
-        for(int i=0; i<10; i++) ar <<boolean;
+        for(int i=1; i<10; i++) ar <<boolean;
         for(int i=0; i<20; i++) ar <<integer;
         for(int i=0; i<20; i++) ar <<dble;
 
@@ -508,8 +513,12 @@ bool Polar3d::serializeFl5v750(QDataStream &ar, bool bIsStoring)
         ar >> m_VPWMaxLength;
         ar >> m_VPWIterations;
 
+
+        // converted v7.54
+        ar >> m_bTransAtHinge;
+
         // provisions for future variable saves
-        for(int i=0; i<10; i++) ar >> boolean;
+        for(int i=1; i<10; i++) ar >> boolean;
         for(int i=0; i<20; i++) ar >> integer;
         for(int i=0; i<20; i++) ar >> dble;
 

@@ -42,15 +42,15 @@
  * Angular data is stored in degrees
 */
 
-#include <api/enums_objects.h>
-#include <api/fuse.h>
-#include <api/inertia.h>
-#include <api/linestyle.h>
-#include <api/optstructures.h>
-#include <api/plane.h>
-#include <api/quadmesh.h>
-#include <api/trimesh.h>
-#include <api/wingxfl.h>
+#include <enums_objects.h>
+#include <fuse.h>
+#include <inertia.h>
+#include <linestyle.h>
+#include <optstructures.h>
+#include <plane.h>
+#include <quadmesh.h>
+#include <trimesh.h>
+#include <wingxfl.h>
 
 
 class AngleControl;
@@ -160,8 +160,8 @@ class FL5LIB_EXPORT PlaneXfl : public Plane
         double span()           const override {if(mainWing()) return mainWing()->planformSpan();  else return 0.0;}
         double rootChord()      const override {if(mainWing()) return mainWing()->rootChord();     else return 0.0;}
         double tipChord()       const override {if(mainWing()) return mainWing()->tipChord();      else return 0.0;}
-        double projectedArea(bool bOtherWings)  const override;
-        double planformArea(bool bOtherWings)   const override;
+        double projectedArea(bool bOtherWings=false)  const override;
+        double planformArea(bool bOtherWings=false)   const override;
         double projectedSpan()  const override {if(mainWing()) return mainWing()->projectedSpan(); else return 0.0;}
         double planformSpan()   const override {if(mainWing()) return mainWing()->planformSpan();  else return 0.0;}
         double aspectRatio()    const override {if(mainWing()) return mainWing()->aspectRatio();   else return 0.0;}

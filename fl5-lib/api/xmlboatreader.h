@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <api/xmlxsailreader.h>
+#include <xmlxsailreader.h>
 
 class Boat;
 

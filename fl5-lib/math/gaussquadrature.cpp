@@ -26,8 +26,8 @@
 #include <QString>
 
 
-#include <api/gaussquadrature.h>
-#include <api/mathelem.h>
+#include <gaussquadrature.h>
+#include <mathelem.h>
 
 using namespace std;
 

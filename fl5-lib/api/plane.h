@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <api/fl5object.h>
-#include <api/inertia.h>
+#include <fl5object.h>
+#include <inertia.h>
 
 class Surface;
 class PlaneOpp;
@@ -75,8 +75,8 @@ class FL5LIB_EXPORT Plane : public fl5Object
         virtual double span()            const = 0;
         virtual double rootChord()       const = 0;
         virtual double tipChord()        const = 0;
-        virtual double projectedArea(bool bOtherWings) const = 0;
-        virtual double planformArea(bool bOtherWings)  const = 0;
+        virtual double projectedArea(bool bOtherWings=false) const = 0;
+        virtual double planformArea(bool bOtherWings=false)  const = 0;
         virtual double projectedSpan()   const = 0;
         virtual double planformSpan()    const = 0;
         virtual double aspectRatio()     const = 0;

@@ -26,10 +26,10 @@
 #pragma once
 
 
-#include <api/node2d.h>
-#include <api/vector2d.h>
-#include <api/mathelem.h>
-#include <api/linestyle.h>
+#include <node2d.h>
+#include <vector2d.h>
+#include <mathelem.h>
+#include <linestyle.h>
 
 
 /**

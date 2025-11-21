@@ -25,17 +25,17 @@
 #include <QString>
 
 
-#include <api/panel3.h>
+#include <panel3.h>
 
-#include <api/constants.h>
-#include <api/geom_global.h>
-#include <api/matrix.h>
-#include <api/mctriangle.h>
-#include <api/node.h>
-#include <api/triangle3d.h>
-#include <api/units.h>
-#include <api/utils.h>
-#include <api/vortex.h>
+#include <constants.h>
+#include <geom_global.h>
+#include <matrix.h>
+#include <mctriangle.h>
+#include <node.h>
+#include <triangle3d.h>
+#include <units.h>
+#include <utils.h>
+#include <vortex.h>
 
 GQTriangle Panel3::s_gq;
 int Panel3::s_iQuadratureOrder = 5;
@@ -444,7 +444,7 @@ std::string Panel3::properties(bool bLong) const
                                     round(m_S[in].x*Units::mtoUnit()*1000.0)/1000.0,
                                     round(m_S[in].y*Units::mtoUnit()*1000.0)/1000.0,
                                     round(m_S[in].z*Units::mtoUnit()*1000.0)/1000.0);
-        strange += QUnits::lengthUnitLabel() + "\n";
+        strange += Units::lengthUnitQLabel() + "\n";
         props += strange;
     }
 
@@ -455,11 +455,11 @@ std::string Panel3::properties(bool bLong) const
                                 round(m_CoG_g.x*Units::mtoUnit()*1000.0)/1000.0,
                                 round(m_CoG_g.y*Units::mtoUnit()*1000.0)/1000.0,
                                 round(m_CoG_g.z*Units::mtoUnit()*1000.0)/1000.0);
-    strange += QUnits::lengthUnitLabel() + "\n";
+    strange += Units::lengthUnitQLabel() + "\n";
     props += strange;
 
     strange = QString::asprintf("  Area    = %.5g ", m_SignedArea*Units::m2toUnit());
-    props += strange + QUnits::areaUnitLabel() + "\n";
+    props += strange + Units::areaUnitQLabel() + "\n";
 
     strange = QString::asprintf("  Angles  = (%5.1f, %5.1f, %5.1f) ", m_Angle[0], m_Angle[1], m_Angle[2]);
     props += strange + DEGch + "\n";
@@ -468,7 +468,7 @@ std::string Panel3::properties(bool bLong) const
                                 round(edge(0).length()*Units::mtoUnit()*1000.0)/1000.0,
                                 round(edge(1).length()*Units::mtoUnit()*1000.0)/1000.0,
                                 round(edge(2).length()*Units::mtoUnit()*1000.0)/1000.0);
-    strange += QUnits::lengthUnitLabel();
+    strange += Units::lengthUnitQLabel();
     props += strange;
 
     if(isSkinny())
@@ -480,7 +480,7 @@ std::string Panel3::properties(bool bLong) const
         strange = QString::asprintf("    quality factor = %7g > %7g\n", q, s_Quality);
         props += strange;
         strange = QString::asprintf("    circumradius   = %7g ", r*Units::mtoUnit());
-        strange += QUnits::lengthUnitLabel();
+        strange += Units::lengthUnitQLabel();
         props += strange;
     }
 

@@ -28,12 +28,12 @@
 
 #include <QDataStream>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 
-#include <api/cartesianframe.h>
-#include <api/vector3d.h>
-#include <api/panelprecision.h>
+#include <cartesianframe.h>
+#include <vector3d.h>
+#include <panelprecision.h>
 
 
 /**

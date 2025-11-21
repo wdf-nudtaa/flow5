@@ -26,8 +26,8 @@
 #include <QDataStream>
 
 
-#include <api/bezierspline.h>
-#include <api/constants.h>
+#include <bezierspline.h>
+#include <constants.h>
 
 
 

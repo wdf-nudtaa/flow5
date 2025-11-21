@@ -25,12 +25,12 @@
 
 
 
-#include <api/mctriangle.h>
+#include <mctriangle.h>
 
-#include <api/constants.h>
-#include <api/matrix.h>
-#include <api/panel.h>
-#include <api/panelprecision.h>
+#include <constants.h>
+#include <matrix.h>
+#include <panel.h>
+#include <panelprecision.h>
 
 long MCTriangle::s_NullCount=0;
 

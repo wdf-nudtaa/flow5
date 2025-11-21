@@ -27,7 +27,7 @@
 #include <vector>
 
 
-#include <api/opp3d.h>
+#include <opp3d.h>
 
 class Boat;
 class BoatPolar;

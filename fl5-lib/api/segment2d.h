@@ -28,8 +28,8 @@
 #include <vector>
 #include <string>
 
-#include <api/geom_params.h>
-#include <api/node2d.h>
+#include <geom_params.h>
+#include <node2d.h>
 
 class Triangle2d;
 

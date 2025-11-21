@@ -29,19 +29,19 @@
 
 #include "api.h"
 
-#include <api/fileio.h>
-#include <api/foil.h>
-#include <api/objects2d.h>
-#include <api/objects2d.h>
-#include <api/objects2d_globals.h>
-#include <api/objects3d.h>
-#include <api/planeopp.h>
-#include <api/planexfl.h>
-#include <api/polar.h>
-#include <api/sailobjects.h>
-#include <api/planepolar.h>
-#include <api/xmlpolarreader.h>
-#include <api/xfoiltask.h>
+#include <fileio.h>
+#include <foil.h>
+#include <objects2d.h>
+#include <objects2d.h>
+#include <objects2d_globals.h>
+#include <objects3d.h>
+#include <planeopp.h>
+#include <planexfl.h>
+#include <polar.h>
+#include <sailobjects.h>
+#include <planepolar.h>
+#include <xmlpolarreader.h>
+#include <xfoiltask.h>
 
 
 std::queue<std::string> globals::g_log;
@@ -78,7 +78,6 @@ bool globals::saveFl5Project(std::string const &pathname)
 
         return false;
     }
-    fp.close();
 
     FileIO saver;
     QDataStream ar(&fp);
@@ -89,6 +88,9 @@ bool globals::saveFl5Project(std::string const &pathname)
         globals::pushToLog(msg);
         return false;
     }
+
+    fp.close(); // or let the destructor do it
+
     return true;
 }
 
@@ -105,9 +107,11 @@ Foil * foil::loadFoil(std::string const &pathname)
 {
     Foil *pFoil = new Foil();
 
+    std::stringstream ss;
     std::string log;
 
-    if(objects::readFoilFile(pathname, pFoil))
+    int iLineError(0);
+    if(objects::readFoilFile(pathname, pFoil, iLineError))
     {
         if(pFoil)
         {
@@ -117,7 +121,8 @@ Foil * foil::loadFoil(std::string const &pathname)
         }
         else
         {
-            log += "Error reading the file\n";
+            ss << "Error reading the file at line" << iLineError << EOLstr;
+            log = ss.str();
             globals::pushToLog(log);
             delete pFoil;
             pFoil = nullptr;
@@ -141,7 +146,9 @@ Foil *foil::makeNacaFoil(int digits, std::string const &name)
         delete pFoil;
         return nullptr;
     }
+
     pFoil->setName(name);
+
     Objects2d::insertThisFoil(pFoil);
 
     return pFoil;

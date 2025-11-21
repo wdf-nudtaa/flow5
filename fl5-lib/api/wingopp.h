@@ -39,10 +39,10 @@
 
 #include <complex>
 
-#include <api/vector3d.h>
-#include <api/aeroforces.h>
-#include <api/spandistribs.h>
-#include <api/wingxfl.h>
+#include <vector3d.h>
+#include <aeroforces.h>
+#include <spandistribs.h>
+#include <wingxfl.h>
 
 
 class WingXfl;

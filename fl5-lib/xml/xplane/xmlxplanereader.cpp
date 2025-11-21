@@ -28,13 +28,13 @@
 #include <QDir>
 
 
-#include <api/objects2d.h>
-#include <api/planexfl.h>
-#include <api/fusexfl.h>
-#include <api/pointmass.h>
-#include <api/frame.h>
+#include <objects2d.h>
+#include <planexfl.h>
+#include <fusexfl.h>
+#include <pointmass.h>
+#include <frame.h>
 
-#include <api/xmlxplanereader.h>
+#include <xmlxplanereader.h>
 
 XmlXPlaneReader::XmlXPlaneReader(QFile &XFile) : XflXmlReader (XFile)
 {

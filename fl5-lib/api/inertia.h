@@ -28,8 +28,8 @@
 
 #include <QDataStream>
 
-#include <api/vector3d.h>
-#include <api/pointmass.h>
+#include <vector3d.h>
+#include <pointmass.h>
 
 
 class FL5LIB_EXPORT Inertia

@@ -28,8 +28,8 @@
 
 #include <QDataStream>
 
-#include <api/spandistribs.h>
-#include <api/wingxfl.h>
+#include <spandistribs.h>
+#include <wingxfl.h>
 
 SpanDistribs::SpanDistribs()
 {
@@ -94,7 +94,7 @@ void SpanDistribs::resizeResults(int NStation)
     m_BendingMoment.resize(NStation);    std::fill(m_BendingMoment.begin(), m_BendingMoment.end(), 0);
     m_VTwist.resize(NStation);           std::fill(m_VTwist.begin(),     m_VTwist.end(), 0);
     m_Gamma.resize(NStation);            std::fill(m_Gamma.begin(),      m_Gamma.end(), 0);
-    m_bOut.resize(NStation);             std::fill(m_bOut.begin(),       m_bOut.end(), false);
+    m_bConverged.resize(NStation);       std::fill(m_bConverged.begin(), m_bConverged.end(), false);
     m_F.resize(NStation);                std::fill(m_F.begin(),          m_F.end(), Vector3d());
     m_Vd.resize(NStation);               std::fill(m_Vd.begin(),         m_Vd.end(), Vector3d());
 }
@@ -126,7 +126,7 @@ void SpanDistribs::initializeToZero()
     std::fill(m_BendingMoment.begin(), m_BendingMoment.end(), 0);
     std::fill(m_VTwist.begin(),     m_VTwist.end(),     0);
     std::fill(m_Gamma.begin(),      m_Gamma.end(),      0);
-    std::fill(m_bOut.begin(),       m_bOut.end(),       false);
+    std::fill(m_bConverged.begin(), m_bConverged.end(), false);
     std::fill(m_F.begin(),          m_F.end(),          Vector3d());
     std::fill(m_Vd.begin(),         m_Vd.end(),         Vector3d());
 }

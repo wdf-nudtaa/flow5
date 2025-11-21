@@ -31,9 +31,9 @@
 #include <vector>
 
 
-#include <api/utils.h>
-#include <api/vector3d.h>
-#include <api/frame.h>
+#include <utils.h>
+#include <vector3d.h>
+#include <frame.h>
 
 
 class Triangle3d;

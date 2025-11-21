@@ -26,10 +26,10 @@
 #pragma once
 
 
-#include <api/sail.h>
-#include <api/triangle3d.h>
-#include <api/surface.h>
-#include <api/wingsailsection.h>
+#include <sail.h>
+#include <triangle3d.h>
+#include <surface.h>
+#include <wingsailsection.h>
 
 
 class FL5LIB_EXPORT SailWing : public Sail

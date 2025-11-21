@@ -26,23 +26,23 @@
 #include <QString>
 
 
-#include <api/planexfl.h>
-#include <api/fusenurbs.h>
-#include <api/fuseflatfaces.h>
-#include <api/fusesections.h>
-#include <api/fuseocc.h>
-#include <api/fusestl.h>
-#include <api/surface.h>
-#include <api/pointmass.h>
-#include <api/wingxfl.h>
-#include <api/planepolar.h>
-#include <api/planeopp.h>
-#include <api/geom_global.h>
-#include <api/panel3.h>
-#include <api/panel4.h>
-#include <api/units.h>
-#include <api/utils.h>
-#include <api/constants.h>
+#include <planexfl.h>
+#include <fusenurbs.h>
+#include <fuseflatfaces.h>
+#include <fusesections.h>
+#include <fuseocc.h>
+#include <fusestl.h>
+#include <surface.h>
+#include <pointmass.h>
+#include <wingxfl.h>
+#include <planepolar.h>
+#include <planeopp.h>
+#include <geom_global.h>
+#include <panel3.h>
+#include <panel4.h>
+#include <units.h>
+#include <utils.h>
+#include <constants.h>
 
 
 
@@ -1291,7 +1291,8 @@ void PlaneXfl::makePlane(bool bThickSurfaces, bool bIgnoreFusePanels, bool bMake
     // start with the fuse, needed to construct surfaces
     for(int ifuse=0; ifuse<nFuse(); ifuse++)
     {
-        if(fuse(ifuse)->bAutoInertia()) fuse(ifuse)->computeStructuralInertia(Vector3d());
+        Fuse *pFuse = fuse(ifuse);
+        if(pFuse->bAutoInertia()) pFuse->computeStructuralInertia(Vector3d());
     }
 
     createSurfaces();
@@ -1596,9 +1597,9 @@ std::string PlaneXfl::planeData(bool bOtherWings) const
     QString str1;
     QString strange;
     QString lengthlab, arealab, masslab;
-    lengthlab = QUnits::lengthUnitLabel();
-    arealab = QUnits::areaUnitLabel();
-    masslab = QUnits::massUnitLabel();
+    lengthlab = Units::lengthUnitQLabel();
+    arealab = Units::areaUnitQLabel();
+    masslab = Units::massUnitQLabel();
 
     WingXfl const *pMainWing = mainWing();
 
@@ -2284,7 +2285,7 @@ double PlaneXfl::flapPosition(AngleControl const &avlc, int iWing, int iFlap) co
 void PlaneXfl::setFlaps(PlanePolar const *pWPolar, std::string &outstr)
 {
 //    auto t0 = std::chrono::high_resolution_clock::now();
-    assert(pWPolar->isType12358() || pWPolar->isType7());
+    assert(pWPolar->isType123458() || pWPolar->isType7());
 
     QString outstring;
     QString strange;

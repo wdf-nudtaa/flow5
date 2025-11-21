@@ -28,14 +28,14 @@
 
 
 
-#include <api/aeroforces.h>
-#include <api/panel4.h>
-#include <api/panelanalysis.h>
-#include <api/quadmesh.h>
-#include <api/quadmesh.h>
-#include <api/spandistribs.h>
-#include <api/trimesh.h>
-#include <api/vector3d.h>
+#include <aeroforces.h>
+#include <panel4.h>
+#include <panelanalysis.h>
+#include <quadmesh.h>
+#include <quadmesh.h>
+#include <spandistribs.h>
+#include <trimesh.h>
+#include <vector3d.h>
 
 
 

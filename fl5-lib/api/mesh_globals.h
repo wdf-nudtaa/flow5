@@ -25,7 +25,7 @@
 #pragma once
 
 
-#include <api/trimesh.h>
+#include <trimesh.h>
 
 class Panel4;
 

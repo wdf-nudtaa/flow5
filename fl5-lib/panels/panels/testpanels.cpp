@@ -26,16 +26,16 @@
 
 
 
-#include <api/panel3.h>
-#include <api/panel4.h>
+#include <panel3.h>
+#include <panel4.h>
 
-#include <api/mctriangle.h>
-#include <api/triangle2d.h>
-#include <api/triangle3d.h>
+#include <mctriangle.h>
+#include <triangle2d.h>
+#include <triangle3d.h>
 
 
 
-#include <api/testpanels.h>
+#include <testpanels.h>
 
 
 

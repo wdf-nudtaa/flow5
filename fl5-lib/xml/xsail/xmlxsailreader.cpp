@@ -25,16 +25,16 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/xmlxsailreader.h>
+#include <xmlxsailreader.h>
 
-#include <api/sail.h>
-#include <api/sailnurbs.h>
-#include <api/sailspline.h>
-#include <api/sailwing.h>
-#include <api/bspline.h>
-#include <api/bezierspline.h>
-#include <api/cubicspline.h>
-#include <api/pointspline.h>
+#include <sail.h>
+#include <sailnurbs.h>
+#include <sailspline.h>
+#include <sailwing.h>
+#include <bspline.h>
+#include <bezierspline.h>
+#include <cubicspline.h>
+#include <pointspline.h>
 
 
 XmlXSailReader::XmlXSailReader(QFile &file) : XflXmlReader(file)

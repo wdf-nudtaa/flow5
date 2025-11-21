@@ -25,22 +25,22 @@
 #include <chrono>
 #include <thread>
 
-#include <api/objects2d.h>
-#include <api/surface.h>
-#include <api/foil.h>
-#include <api/planexfl.h>
-#include <api/planepolar.h>
-#include <api/occ_globals.h>
-#include <api/fusexfl.h>
-#include <api/wingsection.h>
-#include <api/panel3.h>
-#include <api/panel4.h>
+#include <objects2d.h>
+#include <surface.h>
+#include <foil.h>
+#include <planexfl.h>
+#include <planepolar.h>
+#include <occ_globals.h>
+#include <fusexfl.h>
+#include <wingsection.h>
+#include <panel3.h>
+#include <panel4.h>
 
-#include <api/geom_global.h>
-#include <api/quaternion.h>
-#include <api/vector3d.h>
+#include <geom_global.h>
+#include <quaternion.h>
+#include <vector3d.h>
 
-#include <api/bspline3d.h>
+#include <bspline3d.h>
 
 
 std::vector<Vector3d> Surface::s_DebugPts;

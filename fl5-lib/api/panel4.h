@@ -32,10 +32,10 @@
 
 #pragma once
 
-#include <api/quaternion.h>
-#include <api/vector3d.h>
-#include <api/segment3d.h>
-#include <api/panel.h>
+#include <quaternion.h>
+#include <vector3d.h>
+#include <segment3d.h>
+#include <panel.h>
 
 
 

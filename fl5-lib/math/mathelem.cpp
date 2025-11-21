@@ -26,10 +26,10 @@
 #include <iostream>
 
 
-#include <api/mathelem.h>
-#include <api/constants.h>
-#include <api/matrix.h>
-#include <api/utils.h>
+#include <mathelem.h>
+#include <constants.h>
+#include <matrix.h>
+#include <utils.h>
 
 /**
 * Bubble sort algorithm for complex numbers

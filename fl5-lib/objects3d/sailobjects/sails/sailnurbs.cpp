@@ -33,10 +33,10 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/sailnurbs.h>
+#include <sailnurbs.h>
 
-#include <api/constants.h>
-#include <api/units.h>
+#include <constants.h>
+#include <units.h>
 
 SailNurbs::SailNurbs() : Sail()
 {

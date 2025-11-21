@@ -26,8 +26,8 @@
 
 #include <vector>
 
-#include <api/panel3.h>
-#include <api/node.h>
+#include <panel3.h>
+#include <node.h>
 
 
 class Node;

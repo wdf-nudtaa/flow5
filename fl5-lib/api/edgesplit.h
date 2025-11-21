@@ -28,10 +28,10 @@
 
 #include <TopoDS_Edge.hxx>
 
-#include <api/mathelem.h>
-#include <api/node.h>
+#include <mathelem.h>
+#include <node.h>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 
 class FL5LIB_EXPORT EdgeSplit

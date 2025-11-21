@@ -26,10 +26,10 @@
 
 
 
-#include <api/panel3.h>
-#include <api/panelanalysis.h>
-#include <api/trimesh.h>
-#include <api/vector3d.h>
+#include <panel3.h>
+#include <panelanalysis.h>
+#include <trimesh.h>
+#include <vector3d.h>
 
 
 class StabDerivatives;

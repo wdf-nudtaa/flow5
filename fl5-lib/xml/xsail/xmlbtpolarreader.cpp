@@ -26,13 +26,13 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/xmlbtpolarreader.h>
+#include <xmlbtpolarreader.h>
 
-#include <api/aeroforces.h>
-#include <api/boatpolar.h>
-#include <api/objects_global.h>
-#include <api/units.h>
-#include <api/xml_globals.h>
+#include <aeroforces.h>
+#include <boatpolar.h>
+#include <objects_global.h>
+#include <units.h>
+#include <xml_globals.h>
 
 
 XmlBtPolarReader::XmlBtPolarReader(QFile &file) : XflXmlReader(file)

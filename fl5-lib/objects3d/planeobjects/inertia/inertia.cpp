@@ -30,8 +30,8 @@
 #include <QDataStream>
 #include <QString>
 
-#include <api/inertia.h>
-#include <api/units.h>
+#include <inertia.h>
+#include <units.h>
 
 
 bool Inertia::serializeFl5(QDataStream &ar, bool bIsStoring)

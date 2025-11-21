@@ -28,8 +28,8 @@
 
 #include <vector>
 
-#include <api/vector2d.h>
-#include <api/vector3d.h>
+#include <vector2d.h>
+#include <vector3d.h>
 
 
 class Segment2d;

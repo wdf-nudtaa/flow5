@@ -31,9 +31,9 @@
 
 
 
-#include <api/sgsmooth.h>
-#include <api/constants.h>
-#include <api/matrix.h>
+#include <sgsmooth.h>
+#include <constants.h>
+#include <matrix.h>
 
 
 

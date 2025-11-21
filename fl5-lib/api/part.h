@@ -26,13 +26,13 @@
 #pragma once
 
 
-#include <api/gmshparams.h>
-#include <api/inertia.h>
-#include <api/linestyle.h>
-#include <api/mathelem.h>
-#include <api/pointmass.h>
-#include <api/triangulation.h>
-#include <api/trimesh.h>
+#include <gmshparams.h>
+#include <inertia.h>
+#include <linestyle.h>
+#include <mathelem.h>
+#include <pointmass.h>
+#include <triangulation.h>
+#include <trimesh.h>
 
 
 namespace PART
@@ -229,6 +229,7 @@ class FL5LIB_EXPORT Part
         std::string m_Description;
 
 
+        /** @todo these fields belong to the plane or boat */
         Vector3d m_LE;                 /**< the part's position relative to the parent object i.e. plane or boat */
         double m_rx;                  /**< the rotation in degrees of the part about the x-axis */
         double m_ry;                  /**< the rotation in degrees of the part about the y-axis */
@@ -247,7 +248,7 @@ class FL5LIB_EXPORT Part
         Triangulation m_Triangulation;
 
         GmshParams m_GmshTessParams; /** used for tessellation */
-        GmshParams m_GmshParams;     /** used to create the panels - CAD fuse and Occ, spline and Nurbs sails*/
+        GmshParams m_GmshParams;     /** used to create the panels - CAD fuse + and Occ, spline and Nurbs sails*/
 
         bool m_bLocked;  /** true if the object instance is used by a running analysis */
         static bool s_bOccTessellator;  /** true if parts are to be tesselated with OCC's IncrementalMesher, false if using Gmsh */

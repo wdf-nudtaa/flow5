@@ -7,9 +7,7 @@ TEMPLATE = lib
 DEFINES += FL5LIB_LIBRARY
 
 
-# You can make your code fail to compile if it uses deprecated APIs.
-# In order to do so, uncomment the following line.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 
 
@@ -19,6 +17,8 @@ CONFIG += c++17
 # The path to the libraries' header files required by the code at compile time
 INCLUDEPATH += ../XFoil-lib/
 
+
+INCLUDEPATH += ./api
 
 
 OBJECTS_DIR = ./objects
@@ -45,7 +45,7 @@ linux-g++ {
     INSTALLS += target inc
 
     #comment out to use OpenBLAS
-    CONFIG += INTEL_MKL
+#    CONFIG += INTEL_MKL
 
     INTEL_MKL {
         #------------ MKL --------------------
@@ -99,10 +99,7 @@ win32-msvc {
     CONFIG += console
     CONFIG -= debug_and_release debug_and_release_target
 
-    CONFIG += no_batch
 
-#   Prevent duplicate math DEFINES in OCC libs
-#    DEFINES -= _MATH_DEFINES_DEFINED
 
 #----------------------- MKL  ---------------------
     DEFINES += INTEL_MKL

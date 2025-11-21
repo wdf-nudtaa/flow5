@@ -24,9 +24,9 @@
 
 
 
-#include <api/splinefoil.h>
-#include <api/geom_global.h>
-#include <api/foil.h>
+#include <splinefoil.h>
+#include <geom_global.h>
+#include <foil.h>
 
 
 SplineFoil::SplineFoil()

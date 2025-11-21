@@ -23,8 +23,8 @@
 *****************************************************************************/
 
 
-#include <api/panel.h>
-#include <api/constants.h>
+#include <panel.h>
+#include <constants.h>
 
 
 double Panel::s_RFF = 10.0;

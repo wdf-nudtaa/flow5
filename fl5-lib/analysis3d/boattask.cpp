@@ -27,19 +27,19 @@
 
 
 
-#include <api/boattask.h>
+#include <boattask.h>
 
-#include <api/boat.h>
-#include <api/boatopp.h>
-#include <api/boatpolar.h>
-#include <api/fuse.h>
-#include <api/p3linanalysis.h>
-#include <api/p3unianalysis.h>
-#include <api/p4analysis.h>
-#include <api/panelanalysis.h>
-#include <api/polar3d.h>
-#include <api/sail.h>
-#include <api/vector3d.h>
+#include <boat.h>
+#include <boatopp.h>
+#include <boatpolar.h>
+#include <fuse.h>
+#include <p3linanalysis.h>
+#include <p3unianalysis.h>
+#include <p4analysis.h>
+#include <panelanalysis.h>
+#include <polar3d.h>
+#include <sail.h>
+#include <vector3d.h>
 
 
 BoatTask::BoatTask() : Task3d()

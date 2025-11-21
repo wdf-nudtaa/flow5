@@ -24,10 +24,10 @@
 
 //Spline based on the two BSpline3d Arcs
 
-#include <api/arcspline.h>
+#include <arcspline.h>
 
 
-#include <api/constants.h>
+#include <constants.h>
 
 
 ArcSpline::ArcSpline() : s7Spline()

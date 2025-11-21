@@ -25,10 +25,10 @@
 #include <QString>
 
 
-#include <api/quadmesh.h>
-#include <api/geom_global.h>
-#include <api/units.h>
-#include <api/utils.h>
+#include <quadmesh.h>
+#include <geom_global.h>
+#include <units.h>
+#include <utils.h>
 
 
 QuadMesh::QuadMesh() : XflMesh()
@@ -90,12 +90,12 @@ void QuadMesh::getMeshInfo(std::string &logmsg) const
     }
 
     strong = QString::asprintf("    min. panel area = %9.3g ", minarea*Units::m2toUnit());
-    strong += QUnits::areaUnitLabel();
+    strong += Units::areaUnitQLabel();
     log += strong;
     strong = QString::asprintf(" for panel %d\n", minareaindex);
     log += strong;
     strong = QString::asprintf("    max. panel area = %9.3g ", maxarea*Units::m2toUnit());
-    strong += QUnits::areaUnitLabel();
+    strong += Units::areaUnitQLabel();
     log += strong;
     strong = QString::asprintf(" for panel %d\n", maxareaindex);
     log += strong;
@@ -155,7 +155,7 @@ void QuadMesh::checkPanels(std::string &logmsg, bool bMinAngle, bool bMinArea, b
                 minarealist.push_back(i4);
                 count++;
                 strong = QString::asprintf("   Panel %4d has area %9.3g ", i4, panel(i4).area()*Units::m2toUnit());
-                log += strong + QUnits::areaUnitLabel() +"\n";
+                log += strong + Units::areaUnitQLabel() +"\n";
             }
     //                else m_PanelHightlight.insert(i4, false);
         }
@@ -167,7 +167,7 @@ void QuadMesh::checkPanels(std::string &logmsg, bool bMinAngle, bool bMinArea, b
         else
         {
             strong = QString::asprintf("Found %d panels with area less than %.3g", count, minarea*Units::m2toUnit());
-            log += strong + QUnits::areaUnitLabel() + "\n";
+            log += strong + Units::areaUnitQLabel() + "\n";
         }
     }
 

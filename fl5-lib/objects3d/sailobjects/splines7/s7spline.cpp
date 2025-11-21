@@ -24,7 +24,7 @@
 
 
 
-#include <api/s7spline.h>
+#include <s7spline.h>
 
 
 s7Spline::s7Spline() : Spline()

@@ -26,11 +26,11 @@
 
 #include <vector>
 
-#include <api/xflmesh.h>
+#include <xflmesh.h>
 
-#include <api/panel3.h>
-#include <api/node.h>
-#include <api/triangulation.h>
+#include <panel3.h>
+#include <node.h>
+#include <triangulation.h>
 
 class Node;
 

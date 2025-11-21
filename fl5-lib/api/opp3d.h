@@ -32,13 +32,13 @@
 #include <QDataStream>
 #include <vector>
 
-#include <api/utils.h>
-#include <api/enums_objects.h>
-#include <api/aeroforces.h>
-#include <api/polar3d.h>
-#include <api/vector3d.h>
-#include <api/vorton.h>
-#include <api/vortex.h>
+#include <utils.h>
+#include <enums_objects.h>
+#include <aeroforces.h>
+#include <polar3d.h>
+#include <vector3d.h>
+#include <vorton.h>
+#include <vortex.h>
 
 
 class FL5LIB_EXPORT Opp3d : public XflObject
@@ -135,8 +135,6 @@ class FL5LIB_EXPORT Opp3d : public XflObject
         virtual std::string const &polarName() const =0;
         virtual void setPolarName(std::string const &name) = 0;
 
-        static bool bStoreOpps3d()   {return s_bStoreOpps3d;}
-        static void setStoreOpps3d(bool bStore) {s_bStoreOpps3d=bStore;}
 
     protected:
         bool m_bThinSurface;        /**< true if the WingOpp is the results of a calculation on the middle surface */
@@ -171,7 +169,6 @@ class FL5LIB_EXPORT Opp3d : public XflObject
         bool m_bFreeSurface;
         double m_GroundHeight;
 
-        static bool s_bStoreOpps3d;
 
 };
 

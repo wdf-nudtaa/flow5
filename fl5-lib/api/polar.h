@@ -34,9 +34,9 @@
 
 #include <vector>
 
-#include <api/xflobject.h>
-#include <api/enums_objects.h>
-#include <api/bldata.h>
+#include <xflobject.h>
+#include <enums_objects.h>
+#include <bldata.h>
 
 
 class Foil;

@@ -27,11 +27,11 @@
 #include <QString>
 
 
-#include <api/cubicinterpolation.h>
+#include <cubicinterpolation.h>
 
 
-#include <api/constants.h>
-#include <api/matrix.h>
+#include <constants.h>
+#include <matrix.h>
 
 /**
 // Given an array of n+1 pairs (x[i], y[i]), with i ranging from 0 to n,

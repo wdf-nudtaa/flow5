@@ -23,19 +23,19 @@
 *****************************************************************************/
 
 
-#include <api/plane.h>
-#include <api/fusexfl.h>
-#include <api/fuseocc.h>
-#include <api/fusestl.h>
-#include <api/surface.h>
-#include <api/pointmass.h>
-#include <api/wingxfl.h>
-#include <api/planepolar.h>
-#include <api/planeopp.h>
-#include <api/geom_global.h>
-#include <api/panel3.h>
-#include <api/panel4.h>
-#include <api/constants.h>
+#include <plane.h>
+#include <fusexfl.h>
+#include <fuseocc.h>
+#include <fusestl.h>
+#include <surface.h>
+#include <pointmass.h>
+#include <wingxfl.h>
+#include <planepolar.h>
+#include <planeopp.h>
+#include <geom_global.h>
+#include <panel3.h>
+#include <panel4.h>
+#include <constants.h>
 
 Plane::Plane()
 {

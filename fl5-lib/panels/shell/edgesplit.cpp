@@ -25,9 +25,9 @@
 #include <BRepAdaptor_Curve.hxx>
 #include <GCPnts_UniformAbscissa.hxx>
 
-#include <api/edgesplit.h>
+#include <edgesplit.h>
 
-#include <api/occ_globals.h>
+#include <occ_globals.h>
 
 EdgeSplit::EdgeSplit()
 {

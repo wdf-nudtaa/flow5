@@ -28,9 +28,11 @@
 
 #include <QDataStream>
 
-#include <api/fusestl.h>
-#include <api/units.h>
-#include <api/geom_global.h>
+#include <fusestl.h>
+#include <units.h>
+#include <geom_global.h>
+#include <objects_global.h>
+
 
 FuseStl::FuseStl() : Fuse()
 {
@@ -86,19 +88,19 @@ void FuseStl::computeSurfaceProperties(std::string &msg, const std::string &pref
     QString prefix = QString::fromStdString(prefx);
 
     strong = QString::asprintf("Length          = %9.5g ", length()*Units::mtoUnit());
-    strong += QUnits::lengthUnitLabel() + "\n";
+    strong += Units::lengthUnitQLabel() + "\n";
     logmsg += prefix + strong;
 
     strong = QString::asprintf("Max. width      = %9.5g ", m_MaxWidth*Units::mtoUnit());
-    strong += QUnits::lengthUnitLabel() + "\n";
+    strong += Units::lengthUnitQLabel() + "\n";
     logmsg += prefix + strong;
 
     strong = QString::asprintf("Max. height     = %9.5g ", m_MaxHeight*Units::mtoUnit());
-    strong += QUnits::lengthUnitLabel() + "\n";
+    strong += Units::lengthUnitQLabel() + "\n";
     logmsg += prefix + strong;
 
     strong = QString::asprintf("Wetted area     = %9.5g ", m_WettedArea*Units::m2toUnit());
-    strong += QUnits::areaUnitLabel();
+    strong += Units::areaUnitQLabel();
     logmsg += prefix + strong;
 
     msg = logmsg.toStdString();
@@ -214,6 +216,14 @@ int FuseStl::makeDefaultTriMesh(std::string &logmsg, std::string const &prefix)
     for(int in=0; in<m_TriMesh.nNodes(); in++) m_TriMesh.node(in).setSurfacePosition(xfl::FUSESURFACE);
 
     return m_TriMesh.panelCount();
+}
+
+
+
+void FuseStl::computeStructuralInertia(Vector3d const &PartPosition)
+{
+    if(!m_bAutoInertia) return;
+    objects::computeSurfaceInertia(m_Inertia, m_BaseTriangulation.triangles(), PartPosition);
 }
 
 

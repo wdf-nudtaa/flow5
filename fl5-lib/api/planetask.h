@@ -26,12 +26,12 @@
 
 #include <vector>
 
-#include <api/task3d.h>
-#include <api/t8opp.h>
-#include <api/aeroforces.h>
-#include <api/spandistribs.h>
-#include <api/stabderivatives.h>
-#include <api/vorton.h>
+#include <task3d.h>
+#include <t8opp.h>
+#include <aeroforces.h>
+#include <spandistribs.h>
+#include <stabderivatives.h>
+#include <vorton.h>
 
 class Plane;
 class PlaneXfl;
@@ -43,6 +43,7 @@ class Surface;
 class Panel3;
 class Panel4;
 class AngleControl;
+class Polar;
 
 class FL5LIB_EXPORT PlaneTask : public Task3d
 {
@@ -62,12 +63,13 @@ class FL5LIB_EXPORT PlaneTask : public Task3d
         std::vector<PlaneOpp*> const & planeOppList() const {return m_PlaneOppList;}
 
         Plane *plane()  const {return m_pPlane;}
-        PlanePolar*wPolar() const {return m_pWPolar;}
+        PlanePolar*wPolar() const {return m_pPlPolar;}
         void loop() override;
         bool initializeTask();
-        void clearPOppList();
 
         void getVelocityVector(Vector3d const &C, double coreradius, bool bMultiThread, Vector3d &velocity) const;
+
+        void setComputeDerivatives(bool b) {m_bDerivatives=b;}
 
         void run() override;
 
@@ -99,6 +101,8 @@ class FL5LIB_EXPORT PlaneTask : public Task3d
         void computeInducedDrag(double alpha, double beta, double QInf);
         bool computeViscousDrag(WingXfl *pWing, double alpha, double beta, double QInf, const PlanePolar *pWPolar, Vector3d const &cog, int iStation0, SpanDistribs &SpanResFF, std::string &logmsg) const;
         bool computeViscousDragOTF(WingXfl *pWing, double alpha, double beta, double QInf, const PlanePolar *pWPolar, Vector3d const &cog, const AngleControl &TEFlapAngles, SpanDistribs &SpanResFF, std::string &logmsg);
+        bool computeSurfaceDragOTF(Surface const &surf, int iStartStation, double theta, SpanDistribs &spandist);
+
         PlaneOpp *createPlaneOpp(double ctrl, double alpha, double beta, double phi, double QInf, double mass, const Vector3d &CoG, const double *Cp, const double *Gamma, const double *Sigma, bool bCpOnly=false) const;
         void addTwistedVelField(double Qinf, double alpha, std::vector<Vector3d> &VField) const;
 
@@ -119,8 +123,10 @@ class FL5LIB_EXPORT PlaneTask : public Task3d
     private:
 
         Plane *m_pPlane;
-        PlanePolar *m_pWPolar;
+        PlanePolar *m_pPlPolar;
         std::vector<PlaneOpp*> m_PlaneOppList;
+
+        bool m_bDerivatives;       /**< if true, computes the eigenthings when running a T12358 polar */
 
         double m_Ctrl;             /**< the oppoint currently calculated */
         double m_Alpha;            /**< the aoa currently calculated */
@@ -148,5 +154,9 @@ class FL5LIB_EXPORT PlaneTask : public Task3d
         static double s_ViscRelax;
         static double s_ViscAlphaPrecision;
         static int s_ViscMaxIter;
+
 };
+
+
+
 

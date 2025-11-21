@@ -27,10 +27,10 @@
 
 #include <vector>
 
-#include <api/foil.h>
-#include <api/panel2d.h>
-#include <api/vector2d.h>
-#include <api/constants.h>
+#include <foil.h>
+#include <panel2d.h>
+#include <vector2d.h>
+#include <constants.h>
 
 
 /**

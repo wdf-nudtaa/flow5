@@ -24,8 +24,8 @@
 
 
 
-#include <api/fuseflatfaces.h>
-#include <api/geom_global.h>
+#include <fuseflatfaces.h>
+#include <geom_global.h>
 
 FuseFlatFaces::FuseFlatFaces() : FuseXfl()
 {

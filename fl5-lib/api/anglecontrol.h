@@ -30,8 +30,8 @@
 #include <QString>
 #include <QDataStream>
 
-#include <api/fl5lib_global.h>
-#include <api/geom_params.h>
+#include <fl5lib_global.h>
+#include <geom_params.h>
 
 class FL5LIB_EXPORT AngleControl
 {

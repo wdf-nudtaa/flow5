@@ -24,9 +24,9 @@
 
 #pragma once
 
-#include <api/vector2d.h>
-#include <api/cartesianframe2d.h>
-#include <api/node2d.h>
+#include <vector2d.h>
+#include <cartesianframe2d.h>
+#include <node2d.h>
 
 
 class FL5LIB_EXPORT Panel2d

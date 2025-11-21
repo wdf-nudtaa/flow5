@@ -36,10 +36,10 @@
 #include <QDataStream>
 
 
-#include <api/xflobject.h>
+#include <xflobject.h>
 
-#include <api/bldata.h>
-#include <api/blxfoil.h>
+#include <bldata.h>
+#include <blxfoil.h>
 
 
 class Foil;

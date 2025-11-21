@@ -24,12 +24,12 @@
 
 
 
-#include <api/quad3d.h>
-#include <api/constants.h>
-#include <api/matrix.h>
+#include <quad3d.h>
+#include <constants.h>
+#include <matrix.h>
 
-#include <api/segment2d.h>
-#include <api/geom_global.h>
+#include <segment2d.h>
+#include <geom_global.h>
 
 
 Quad3d::Quad3d()

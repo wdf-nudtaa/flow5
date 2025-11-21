@@ -25,7 +25,7 @@
 
 
 
-#include <api/externalsail.h>
+#include <externalsail.h>
 
 ExternalSail::ExternalSail() : Sail()
 {

@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <api/s7spline.h>
-#include <api/bspline.h>
+#include <s7spline.h>
+#include <bspline.h>
 
 
 

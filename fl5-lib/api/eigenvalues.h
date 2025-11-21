@@ -29,7 +29,7 @@
 #include <QDataStream>
 #include <complex>
 
-#include <api/objects_global.h>
+#include <objects_global.h>
 
 struct EigenValues
 {

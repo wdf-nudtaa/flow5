@@ -26,21 +26,21 @@
 #include <QTextStream>
 
 
-#include <api/wingxfl.h>
+#include <wingxfl.h>
 
-#include <api/foil.h>
-#include <api/geom_global.h>
-#include <api/objects2d.h>
-#include <api/objects_global.h>
-#include <api/panel3.h>
-#include <api/panel4.h>
-#include <api/planeopp.h>
-#include <api/polar.h>
-#include <api/surface.h>
-#include <api/triangle3d.h>
-#include <api/units.h>
-#include <api/utils.h>
-#include <api/planepolar.h>
+#include <foil.h>
+#include <geom_global.h>
+#include <objects2d.h>
+#include <objects_global.h>
+#include <panel3.h>
+#include <panel4.h>
+#include <planeopp.h>
+#include <polar.h>
+#include <surface.h>
+#include <triangle3d.h>
+#include <units.h>
+#include <utils.h>
+#include <planepolar.h>
 
 double WingXfl::s_MinSurfaceLength = 0.0001;
 
@@ -2503,8 +2503,8 @@ int WingXfl::uniformizeXPanelNumber()
 void WingXfl::exportAVLWing(std::string &avlstring, int index, double y, double Thetay, double lengthunit) const
 {
     QString strong, str;
-
-    QTextStream out;
+    QString strange;
+    QTextStream out(&strange);
 
     out << ("#========TODO: REMOVE OR MODIFY MANUALLY DUPLICATE SECTIONS IN SURFACE DEFINITION=========\n");
     out << ("SURFACE                      | (keyword)\n");
@@ -2659,7 +2659,7 @@ void WingXfl::exportAVLWing(std::string &avlstring, int index, double y, double 
 
     out << ("\n\n");
 
-    avlstring = out.readAll().toStdString();
+    avlstring = strange.toStdString();
 }
 
 
@@ -2670,22 +2670,22 @@ void WingXfl::getProperties(std::string &properties, std::string const &prefx) c
     QString prefix = QString::fromStdString(prefx);
 
     strange = QString::asprintf("%9.3f", m_PlanformArea*Units::m2toUnit()) + " ";
-    props += prefix + "Wing area         ="+strange+QUnits::areaUnitLabel() + "\n";
+    props += prefix + "Wing area         ="+strange+Units::areaUnitQLabel() + "\n";
 
     strange = QString::asprintf("%9.3f", m_PlanformSpan*Units::mtoUnit()) + " ";
-    props += prefix + "Wing span         ="+strange+QUnits::lengthUnitLabel() + "\n";
+    props += prefix + "Wing span         ="+strange+Units::lengthUnitQLabel() + "\n";
 
     strange = QString::asprintf("%9.3f", m_ProjectedArea*Units::m2toUnit()) + " ";
-    props += prefix + "Projected area    ="+strange+QUnits::areaUnitLabel() + "\n";
+    props += prefix + "Projected area    ="+strange+Units::areaUnitQLabel() + "\n";
 
     strange = QString::asprintf("%9.3f", m_ProjectedSpan*Units::mtoUnit()) + " ";
-    props += prefix + "Projected span    ="+strange+QUnits::lengthUnitLabel() + "\n";
+    props += prefix + "Projected span    ="+strange+Units::lengthUnitQLabel() + "\n";
 
     strange = QString::asprintf("%9.3f", GChord()*Units::mtoUnit()) + " ";
-    props += prefix + "Mean geom. chord  ="+strange+QUnits::lengthUnitLabel() + "\n";
+    props += prefix + "Mean geom. chord  ="+strange+Units::lengthUnitQLabel() + "\n";
 
     strange = QString::asprintf("%9.3f", m_MAChord*Units::mtoUnit()) + " ";
-    props += prefix + "Mean aero. chord  ="+strange+QUnits::lengthUnitLabel() + "\n";
+    props += prefix + "Mean aero. chord  ="+strange+Units::lengthUnitQLabel() + "\n";
 
     strange = QString::asprintf("%9.3f", aspectRatio());
     props += prefix + "Aspect ratio      ="+strange+ "\n";

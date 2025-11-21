@@ -27,7 +27,7 @@
 
 #include <QObject>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 class Foil;
 class Plane;

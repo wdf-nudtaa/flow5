@@ -26,8 +26,8 @@
 
 
 
-#include <api/xflmesh.h>
-#include <api/objects_global.h>
+#include <xflmesh.h>
+#include <objects_global.h>
 
 double XflMesh::s_NodeMergeDistance=1.e-4; // 0.1mm
 std::vector<Vector3d> XflMesh::s_DebugPts;

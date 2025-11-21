@@ -27,10 +27,10 @@
 #include <QString>
 
 
-#include <api/cubicinterpolation.h>
-#include <api/geom_global.h>
-#include <api/mathelem.h>
-#include <api/polar3d.h>
+#include <cubicinterpolation.h>
+#include <geom_global.h>
+#include <mathelem.h>
+#include <polar3d.h>
 
 
 
@@ -45,7 +45,7 @@
 #endif
 
 
-#include <api/p3unianalysis.h>
+#include <p3unianalysis.h>
 
 
 P3UniAnalysis::P3UniAnalysis() : P3Analysis()

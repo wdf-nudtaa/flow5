@@ -25,15 +25,15 @@
 #pragma once
 
 
-#include <api/gqtriangle.h>
-#include <api/node.h>
-#include <api/panel.h>
-#include <api/panelprecision.h>
-#include <api/quaternion.h>
-#include <api/segment3d.h>
-#include <api/triangle3d.h>
-#include <api/vector3d.h>
-#include <api/vortex.h>
+#include <gqtriangle.h>
+#include <node.h>
+#include <panel.h>
+#include <panelprecision.h>
+#include <quaternion.h>
+#include <segment3d.h>
+#include <triangle3d.h>
+#include <vector3d.h>
+#include <vortex.h>
 
 
 class FL5LIB_EXPORT Panel3 : public Panel

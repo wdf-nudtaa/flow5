@@ -27,11 +27,11 @@
 #pragma once
 
 
-#include <api/vorton.h>
-#include <api/vortex.h>
-#include <api/aeroforces.h>
-#include <api/spandistribs.h>
-#include <api/utils.h>
+#include <vorton.h>
+#include <vortex.h>
+#include <aeroforces.h>
+#include <spandistribs.h>
+#include <utils.h>
 
 class Polar3d;
 class Panel;

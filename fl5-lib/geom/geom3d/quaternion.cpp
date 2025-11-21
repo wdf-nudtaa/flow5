@@ -25,8 +25,8 @@
 #include <QString>
 
 
-#include <api/quaternion.h>
-#include <api/utils.h>
+#include <quaternion.h>
+#include <utils.h>
 
 Quaternion::Quaternion(double Angle, Vector3d const &R):
     t2{0}, t3{0}, t4{0}, t5{0}, t6{0}, t7{0}, t8{0}, t9{0}, t10{0}

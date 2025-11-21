@@ -27,16 +27,16 @@
 
 
 
-#include <api/xmlboatwriter.h>
+#include <xmlboatwriter.h>
 
-#include <api/boat.h>
-#include <api/fuse.h>
-#include <api/fusexfl.h>
-#include <api/sail.h>
-#include <api/sailnurbs.h>
-#include <api/sailspline.h>
-#include <api/sailwing.h>
-#include <api/units.h>
+#include <boat.h>
+#include <fuse.h>
+#include <fusexfl.h>
+#include <sail.h>
+#include <sailnurbs.h>
+#include <sailspline.h>
+#include <sailwing.h>
+#include <units.h>
 
 
 XmlBoatWriter::XmlBoatWriter(QFile &XFile) : XmlXSailWriter (XFile)

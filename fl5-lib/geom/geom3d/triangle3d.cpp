@@ -26,13 +26,13 @@ flow5 application
 #include <QString>
 
 
-#include <api/triangle3d.h>
+#include <triangle3d.h>
 
-#include <api/constants.h>
-#include <api/geom_global.h>
-#include <api/matrix.h>
-#include <api/pslg2d.h>
-#include <api/segment3d.h>
+#include <constants.h>
+#include <geom_global.h>
+#include <matrix.h>
+#include <pslg2d.h>
+#include <segment3d.h>
 
 
 Triangle3d::Triangle3d()

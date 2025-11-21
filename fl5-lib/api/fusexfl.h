@@ -28,12 +28,12 @@
 #include <vector>
 
 
-#include <api/nurbssurface.h>
-#include <api/enums_objects.h>
-#include <api/fuse.h>
-#include <api/quadmesh.h>
-#include <api/trimesh.h>
-#include <api/quad3d.h>
+#include <nurbssurface.h>
+#include <enums_objects.h>
+#include <fuse.h>
+#include <quadmesh.h>
+#include <trimesh.h>
+#include <quad3d.h>
 
 #include <TopoDS_Face.hxx>
 

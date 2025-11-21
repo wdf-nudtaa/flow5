@@ -22,20 +22,19 @@
 
 *****************************************************************************/
 
+
 #include <QString>
-
-
 #include <QDataStream>
 
 
-#include <api/foil.h>
+#include <foil.h>
 
-#include <api/bspline.h>
-#include <api/constants.h>
-#include <api/geom_global.h>
-#include <api/mathelem.h>
-#include <api/node2d.h>
-#include <api/utils.h>
+#include <bspline.h>
+#include <constants.h>
+#include <geom_global.h>
+#include <mathelem.h>
+#include <node2d.h>
+#include <utils.h>
 
 
 #define MIDPOINTCOUNT 103
@@ -1699,6 +1698,7 @@ void Foil::makeCubicSpline(int nCtrlPts)
 
 void Foil::makeCubicSpline(CubicSpline &cs, int nCtrlPts) const
 {
+
     cs.approximate(nCtrlPts, m_BaseNode);
 }
 
@@ -2056,6 +2056,21 @@ bool Foil::initGeometry()
     return true;
 }
 
+
+bool Foil::rePanel(int nPanels, double amplitude)
+{
+    if(nPanels<=2) return false;
+
+    m_CubicSpline.setBunchAmplitude(amplitude);
+    m_CubicSpline.rePanel(nPanels);
+
+    setBunchParameters(m_CubicSpline.bunchType(), m_CubicSpline.bunchAmplitude()); // save the bunch parameters
+
+    setBaseNodes(m_CubicSpline.outputPts());
+    applyBase();
+
+    return true;
+}
 
 
 

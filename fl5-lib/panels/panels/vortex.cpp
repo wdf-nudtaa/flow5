@@ -24,8 +24,8 @@
 
 #include <QDataStream>
 
-#include <api/vortex.h>
-#include <api/panelprecision.h>
+#include <vortex.h>
+#include <panelprecision.h>
 
 Vortex::enumVortex Vortex::s_VortexModel = Vortex::LAMB_OSEEN;
 double Vortex::s_CoreRadius = 1.e-6;

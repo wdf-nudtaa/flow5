@@ -22,10 +22,10 @@
 
 *****************************************************************************/
 
-#include <api/frame.h>
+#include <frame.h>
 
 
-#include <api/constants.h>
+#include <constants.h>
 
 
 int Frame::s_iHighlight = -1;

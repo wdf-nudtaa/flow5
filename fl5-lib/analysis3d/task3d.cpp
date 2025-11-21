@@ -23,20 +23,21 @@
 *****************************************************************************/
 
 
-
 #define _MATH_DEFINES_DEFINED
 
 #include <thread>
 
-#include <api/task3d.h>
+#include <task3d.h>
 
-#include <api/polar3d.h>
-#include <api/panelanalysis.h>
-#include <api/p4analysis.h>
-#include <api/p3unianalysis.h>
-#include <api/p3linanalysis.h>
+#include <polar3d.h>
+#include <panelanalysis.h>
+#include <p4analysis.h>
+#include <p3unianalysis.h>
+#include <p3linanalysis.h>
 
 
+bool Task3d::s_bStdOut= false;
+bool Task3d::s_bKeepOpps = false;
 bool Task3d::s_bCancel = false;
 
 int Task3d::s_MaxNRHS = 100;
@@ -79,12 +80,19 @@ void Task3d::traceLog(const QString &str)
 
 void Task3d::traceStdLog(std::string const &str)
 {
+    // notify the parent thread
     VPWReport report;
     report.setMsg(str);
     // Access the Q under the lock:
     std::unique_lock<std::mutex> lck(m_mtx);
     m_theMsgQueue.push(report);
     m_cv.notify_all();
+
+    // output to the terminal
+    if(s_bStdOut)
+    {
+        printf(str.c_str());
+    }
 }
 
 

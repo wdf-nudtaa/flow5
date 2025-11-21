@@ -32,12 +32,12 @@
 
 
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 
 #include <xfoil.h>
-#include <api/analysisrange.h>
-#include <api/utils.h>
+#include <analysisrange.h>
+#include <utils.h>
 
 class Foil;
 class Polar;
@@ -92,6 +92,9 @@ class FL5LIB_EXPORT XFoilTask
 
         XFoil const &XFoilInstance() const {return m_XFoilInstance;}
 
+        void clearLog();
+        std::string const &log() const {return m_Log;}
+
         void setAlphaRange(double vMin, double vMax, double vDelta);
         void setClRange(double vMin, double vMax, double vDelta);
 
@@ -137,6 +140,8 @@ class FL5LIB_EXPORT XFoilTask
         bool m_bAlpha;             /**< true if performing an analysis based on aoa, false if based on Cl */
 
         bool m_bKeepOpps;
+
+        std::string m_Log;
 
         xfl::enumAnalysisStatus m_AnalysisStatus;
 

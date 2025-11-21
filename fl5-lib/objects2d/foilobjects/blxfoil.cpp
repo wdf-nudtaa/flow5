@@ -25,7 +25,7 @@
 
 #include <cstring>
 
-#include <api/blxfoil.h>
+#include <blxfoil.h>
 
 BLXFoil::BLXFoil()
 {

@@ -26,8 +26,8 @@
 #include <cmath>
 
 
-#include <api/rungekutta.h>
-#include <api/constants.h>
+#include <rungekutta.h>
+#include <constants.h>
 
 
 /**

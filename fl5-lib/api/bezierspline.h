@@ -26,7 +26,7 @@
 #pragma once
 
 
-#include <api/spline.h>
+#include <spline.h>
 
 
 class FL5LIB_EXPORT BezierSpline : public Spline

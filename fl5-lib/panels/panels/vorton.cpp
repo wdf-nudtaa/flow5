@@ -29,8 +29,8 @@
 
 #include <QDataStream>
 
-#include <api/vorton.h>
-#include <api/constants.h>
+#include <vorton.h>
+#include <constants.h>
 
 
 bool Vorton::s_bMollify=true; /** @todo debug only, remove */

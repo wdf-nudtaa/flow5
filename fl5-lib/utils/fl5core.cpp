@@ -29,7 +29,7 @@
 #include <QString>
 
 
-#include <api/fl5core.h>
+#include <fl5core.h>
 
 
 

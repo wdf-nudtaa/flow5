@@ -24,11 +24,11 @@
 
 #define _MATH_DEFINES_DEFINED
 
-#include <api/wingsailsection.h>
+#include <wingsailsection.h>
 
-#include <api/foil.h>
-#include <api/mathelem.h>
-#include <api/objects2d.h>
+#include <foil.h>
+#include <mathelem.h>
+#include <objects2d.h>
 
 
 void WingSailSection::setNXPanels(int nx)

@@ -30,11 +30,11 @@
 #include <TopoDS_ListOfShape.hxx>
 
 
-#include <api/enums_objects.h>
-#include <api/occmeshparams.h>
-#include <api/part.h>
+#include <enums_objects.h>
+#include <occmeshparams.h>
+#include <part.h>
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 
 class Panel3;

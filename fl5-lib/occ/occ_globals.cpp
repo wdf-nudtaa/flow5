@@ -75,14 +75,14 @@
 #include <gp_Lin.hxx>
 #include <gp_Trsf.hxx>
 
-#include <api/occ_globals.h>
-#include <api/constants.h>
-#include <api/wingxfl.h>
-#include <api/fuse.h>
-#include <api/occmeshparams.h>
-#include <api/geom_global.h>
-#include <api/nurbssurface.h>
-#include <api/bspline3d.h>
+#include <occ_globals.h>
+#include <constants.h>
+#include <wingxfl.h>
+#include <fuse.h>
+#include <occmeshparams.h>
+#include <geom_global.h>
+#include <nurbssurface.h>
+#include <bspline3d.h>
 
 std::string occ::shapeType(TopoDS_Shape const &aShape)
 {

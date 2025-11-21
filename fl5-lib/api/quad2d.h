@@ -26,7 +26,7 @@
 #pragma once
 
 
-#include <api/vector2d.h>
+#include <vector2d.h>
 
 class Segment2d;
 class Triangle2d;

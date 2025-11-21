@@ -28,10 +28,10 @@
 #include <vector>
 
 
-#include <api/sail.h>
-#include <api/spline.h>
-#include <api/triangle3d.h>
-#include <api/bspline3d.h>
+#include <sail.h>
+#include <spline.h>
+#include <triangle3d.h>
+#include <bspline3d.h>
 
 
 class FL5LIB_EXPORT SailSpline : public Sail

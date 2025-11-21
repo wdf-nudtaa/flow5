@@ -27,15 +27,15 @@
 #include <algorithm>
 #include <thread>
 
-#include <api/stream2d.h>
+#include <stream2d.h>
 
-#include <api/constants.h>
-#include <api/foil.h>
-#include <api/matrix.h>
-#include <api/panel2d.h>
-#include <api/sgsmooth.h>
-#include <api/vector2d.h>
-#include <api/utils.h>
+#include <constants.h>
+#include <foil.h>
+#include <matrix.h>
+#include <panel2d.h>
+#include <sgsmooth.h>
+#include <vector2d.h>
+#include <utils.h>
 
 
 double Stream2d::s_WakeLength = 1.5;

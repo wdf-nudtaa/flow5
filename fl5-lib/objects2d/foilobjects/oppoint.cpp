@@ -25,11 +25,11 @@
 #include <QString>
 
 
-#include <api/oppoint.h>
+#include <oppoint.h>
 
-#include <api/foil.h>
-#include <api/polar.h>
-#include <api/utils.h>
+#include <foil.h>
+#include <polar.h>
+#include <utils.h>
 
 
 OpPoint::OpPoint() : XflObject()

@@ -46,7 +46,7 @@ const QEvent::Type TASK3D_END_EVENT        = static_cast<QEvent::Type>(QEvent::U
 
 
 
-#include <api/fl5lib_global.h>
+#include <fl5lib_global.h>
 
 class Foil;
 class Polar;

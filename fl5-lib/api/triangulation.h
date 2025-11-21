@@ -28,8 +28,8 @@
 
 #include <QDataStream>
 
-#include <api/triangle3d.h>
-#include <api/node.h>
+#include <triangle3d.h>
+#include <node.h>
 
 
 

@@ -69,8 +69,8 @@
 #define EOLch        QString("\n")
 
 
-#include <api/fl5lib_global.h>
-#include <api/fl5color.h>
+#include <fl5lib_global.h>
+#include <fl5color.h>
 
 
 
@@ -117,7 +117,6 @@ namespace xfl
     FL5LIB_EXPORT  bool stringToFile(std::string const &string, std::string const &path);
     FL5LIB_EXPORT  bool stringFromFile(std::string &string, std::string const &path);
 
-    FL5LIB_EXPORT  std::string timeToString();
 
     FL5LIB_EXPORT  bool stringToBool(QString const &str);
     FL5LIB_EXPORT  QString boolToString(bool b);

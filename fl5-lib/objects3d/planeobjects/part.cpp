@@ -23,9 +23,9 @@
 *****************************************************************************/
 
 
-#include <api/part.h>
-#include <api/objects3d.h>
-#include <api/utils.h>
+#include <part.h>
+#include <objects3d.h>
+#include <utils.h>
 
 bool Part::s_bOccTessellator = false;
 

@@ -27,11 +27,11 @@
 #include <vector>
 
 
-#include <api/enums_objects.h>
-#include <api/geom_enums.h>
-#include <api/vector2d.h>
-#include <api/vector3d.h>
-#include <api/mathelem.h>
+#include <enums_objects.h>
+#include <geom_enums.h>
+#include <vector2d.h>
+#include <vector3d.h>
+#include <mathelem.h>
 
 
 class Inertia;

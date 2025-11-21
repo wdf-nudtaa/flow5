@@ -26,16 +26,16 @@
 #include <string>
 
 
-#include <api/objects2d_globals.h>
+#include <objects2d_globals.h>
 
-#include <api/constants.h>
-#include <api/foil.h>
-#include <api/polar.h>
-#include <api/utils.h>
+#include <constants.h>
+#include <foil.h>
+#include <polar.h>
+#include <utils.h>
 
 
 
-bool objects::readFoilFile(const std::string &filename, Foil *pFoil)
+bool objects::readFoilFile(const std::string &filename, Foil *pFoil, int &iLineError)
 {
     std::string line;
     std::string FoilName;
@@ -44,18 +44,23 @@ bool objects::readFoilFile(const std::string &filename, Foil *pFoil)
 
     std::ifstream file(filename);
 
+
+    int iLine(0);
+
     if(!file.is_open())
     {
+        iLineError = 0;
         return false;
     }
 
-//    FoilName = fi.baseName();
+    FoilName = filename;
 
     float val[] {0,0,0};
 
     // identify and read the first non-empty line
     while (std::getline(file, line))
     {
+        iLine++;
         xfl::trim(line);
 
         if (line.length()==0) continue;
@@ -75,6 +80,7 @@ bool objects::readFoilFile(const std::string &filename, Foil *pFoil)
     // read coordinates
     while (std::getline(file, line))
     {
+        iLine++;
         xfl::trim(line);
         if(line.length()==0) continue;
 
@@ -85,7 +91,8 @@ bool objects::readFoilFile(const std::string &filename, Foil *pFoil)
         else
         {
             // non-empty but unreadable line, abort
-            break;
+            iLineError = iLine;
+            return false;
         }
     }
 

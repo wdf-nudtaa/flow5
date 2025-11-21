@@ -27,7 +27,7 @@
 
 #include <QFile>
 
-#include <api/xflxmlwriter.h>
+#include <xflxmlwriter.h>
 
 
 class FL5LIB_EXPORT XmlWingWriter : public XflXmlWriter

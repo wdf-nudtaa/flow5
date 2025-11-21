@@ -24,10 +24,10 @@
 
 #include <cassert>
 
-#include <api/pslg2d.h>
-#include <api/geom_global.h>
-#include <api/triangle2d.h>
-#include <api/constants.h>
+#include <pslg2d.h>
+#include <geom_global.h>
+#include <triangle2d.h>
+#include <constants.h>
 
 PSLG2d::PSLG2d() : std::vector<Segment2d>()
 {

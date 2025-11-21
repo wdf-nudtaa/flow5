@@ -22,11 +22,11 @@
 
 *****************************************************************************/
 
-#include <api/xmlpolarwriter.h>
+#include <xmlpolarwriter.h>
 
-#include <api/polar.h>
-#include <api/objects_global.h>
-#include <api/xml_globals.h>
+#include <polar.h>
+#include <objects_global.h>
+#include <xml_globals.h>
 
 
 XmlPolarWriter::XmlPolarWriter(QFile &XFile) : XflXmlWriter(XFile)

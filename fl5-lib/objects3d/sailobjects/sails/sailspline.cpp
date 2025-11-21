@@ -31,15 +31,15 @@
 #include <BRepBuilderAPI_MakePolygon.hxx>
 
 
-#include <api/units.h>
-#include <api/bezierspline.h>
-#include <api/bspline.h>
-#include <api/cubicspline.h>
-#include <api/pointspline.h>
-#include <api/bspline3d.h>
-#include <api/constants.h>
-#include <api/occ_globals.h>
-#include <api/sailspline.h>
+#include <units.h>
+#include <bezierspline.h>
+#include <bspline.h>
+#include <cubicspline.h>
+#include <pointspline.h>
+#include <bspline3d.h>
+#include <constants.h>
+#include <occ_globals.h>
+#include <sailspline.h>
 
 
 

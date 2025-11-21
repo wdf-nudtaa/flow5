@@ -25,12 +25,12 @@
 #define _MATH_DEFINES_DEFINED
 
 
-#include <api/xmlsailreader.h>
+#include <xmlsailreader.h>
 
-#include <api/sail.h>
-#include <api/sailnurbs.h>
-#include <api/sailspline.h>
-#include <api/sailwing.h>
+#include <sail.h>
+#include <sailnurbs.h>
+#include <sailspline.h>
+#include <sailwing.h>
 
 
 XmlSailReader::XmlSailReader(QFile &file) : XmlXSailReader(file)

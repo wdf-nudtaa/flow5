@@ -25,7 +25,7 @@
 #pragma once
 
 #include "spline.h"
-#include <api/node2d.h>
+#include <node2d.h>
 
 class FL5LIB_EXPORT BSpline : public Spline
 {

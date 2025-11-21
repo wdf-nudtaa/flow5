@@ -28,15 +28,15 @@
 
 
 
-#include <api/boatopp.h>
+#include <boatopp.h>
 
 
-#include <api/boat.h>
-#include <api/boatpolar.h>
-#include <api/sail.h>
-#include <api/sailglobals.h>
-#include <api/units.h>
-#include <api/utils.h>
+#include <boat.h>
+#include <boatpolar.h>
+#include <sail.h>
+#include <sailglobals.h>
+#include <units.h>
+#include <utils.h>
 
 
 BoatOpp::BoatOpp()
@@ -449,11 +449,10 @@ void BoatOpp::exportMainDataToString(Boat const*, std::string &data, xfl::enumTe
     QString btoppdata;
     QString strange;
     QString title;
-    QString len = QUnits::lengthUnitLabel();
-    QString inertia = QString::fromStdString(Units::inertiaUnitLabel());
-    QString speedlab = QUnits::speedUnitLabel();
-    QString lengthlab = QUnits::lengthUnitLabel();
-    QString masslab = QUnits::massUnitLabel();
+    QString lengthlab  = Units::lengthUnitQLabel();
+    QString inertialab = Units::inertiaUnitQLabel();
+    QString speedlab   = Units::speedUnitQLabel();
+    QString masslab    = Units::massUnitQLabel();
 
     QString sep = "  ";
     if(filetype==xfl::CSV) sep = QString::fromStdString(textsep+ " ");
@@ -513,10 +512,10 @@ void BoatOpp::exportMainDataToString(Boat const*, std::string &data, xfl::enumTe
 
     btoppdata += "\n";
 
-    strange = "CP.x("+len+")";      for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
-    strange = "CP.y("+len+")";      for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
-    strange = "CP.z("+len+")";      for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
-    strange = "NP.x("+len+")";      for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "CP.x("+lengthlab+")";      for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "CP.y("+lengthlab+")";      for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "CP.z("+lengthlab+")";      for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "NP.x("+lengthlab+")";      for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
     btoppdata += "\n";
 
 
@@ -526,13 +525,13 @@ void BoatOpp::exportMainDataToString(Boat const*, std::string &data, xfl::enumTe
     btoppdata += strange + "\n\n";
 
     strange = "mass("+masslab+")";  for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
-    strange = "CoG.x("+len+")";                    for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
-    strange = "CoG.y("+len+")";                    for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
-    strange = "CoG.z("+len+")";                    for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
-    strange = "CoG_Ixx("+inertia+")";              for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
-    strange = "CoG_Iyy("+inertia+")";              for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
-    strange = "CoG_Izz("+inertia+")";              for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
-    strange = "CoG_Ixz("+inertia+")";              for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "CoG.x("+lengthlab+")";                    for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "CoG.y("+lengthlab+")";                    for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "CoG.z("+lengthlab+")";                    for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "CoG_Ixx("+inertialab+")";              for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "CoG_Iyy("+inertialab+")";              for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "CoG_Izz("+inertialab+")";              for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
+    strange = "CoG_Ixz("+inertialab+")";              for(int i=int(strange.length()); i<11; i++) strange+=" ";   btoppdata += strange+sep;
     btoppdata +="\n";
 
 

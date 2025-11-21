@@ -27,15 +27,15 @@
 
 #include <QDataStream>
 
-#include <api/sail.h>
-#include <api/boatpolar.h>
-#include <api/triangle3d.h>
-#include <api/units.h>
-#include <api/utils.h>
-#include <api/trimesh.h>
-#include <api/panel3.h>
-#include <api/panel4.h>
-#include <api/geom_global.h>
+#include <sail.h>
+#include <boatpolar.h>
+#include <triangle3d.h>
+#include <units.h>
+#include <utils.h>
+#include <trimesh.h>
+#include <panel3.h>
+#include <panel4.h>
+#include <geom_global.h>
 
 int Sail::s_iXRes = 37;
 int Sail::s_iZRes = 31;
@@ -107,8 +107,8 @@ void Sail::duplicate(Sail const*pSail)
 
 void Sail::properties(std::string &properties, const std::string &prefix, bool bFull) const
 {
-    QString strlength = QUnits::lengthUnitLabel();
-    QString strarea = QUnits::areaUnitLabel();
+    QString strlength = Units::lengthUnitQLabel();
+    QString strarea = Units::areaUnitQLabel();
     QString strange;
 
     QString props;

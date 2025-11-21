@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <api/vector3d.h>
-#include <api/triangle3d.h>
+#include <vector3d.h>
+#include <triangle3d.h>
 
 
 

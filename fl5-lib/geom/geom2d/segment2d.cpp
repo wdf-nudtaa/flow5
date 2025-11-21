@@ -26,10 +26,10 @@
 #include <QString>
 
 
-#include <api/segment2d.h>
-#include <api/triangle2d.h>
-#include <api/constants.h>
-#include <api/geom_global.h>
+#include <segment2d.h>
+#include <triangle2d.h>
+#include <constants.h>
+#include <geom_global.h>
 
 Segment2d::Segment2d()
 {

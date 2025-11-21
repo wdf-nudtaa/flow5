@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <api/spline.h>
+#include <spline.h>
 
 
 

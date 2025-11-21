@@ -27,12 +27,12 @@
 
 
 
-#include <api/xfoiltask.h>
-#include <api/foil.h>
-#include <api/oppoint.h>
-#include <api/polar.h>
-#include <api/geom_params.h>
-#include <api/constants.h>
+#include <xfoiltask.h>
+#include <foil.h>
+#include <oppoint.h>
+#include <polar.h>
+#include <geom_params.h>
+#include <constants.h>
 
 
 
@@ -90,6 +90,8 @@ void XFoilTask::traceStdLog(std::string const &str)
     std::unique_lock<std::mutex> lck(m_mtx);
     m_theMsgQueue.push(str);
     m_cv.notify_all();
+
+    m_Log.append(str);
 }
 
 
@@ -251,7 +253,6 @@ bool XFoilTask::processClList(std::vector<double> const& ClList, std::vector<dou
     std::fill(XTrTopList.begin(), XTrTopList.end(), 0);
     std::fill(XTrBotList.begin(), XTrBotList.end(), 0);
     std::fill(CvList.begin(),     CvList.end(),     true);
-
 
 
 //    if(s_bInitBL)

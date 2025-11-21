@@ -29,7 +29,7 @@
 
 #include <QDataStream>
 
-#include <api/vector3d.h>
+#include <vector3d.h>
 
 /**
 *@class FL5LIB_EXPORT Frame This class FL5LIB_EXPORT defines a frame in the yz plane, on which the body surface is built. 

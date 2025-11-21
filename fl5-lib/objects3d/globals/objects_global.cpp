@@ -26,22 +26,22 @@
 
 
 
-#include <api/utils.h>
-#include <api/segment2d.h>
-#include <api/quaternion.h>
-#include <api/constants.h>
-#include <api/planeopp.h>
-#include <api/planepolar.h>
-#include <api/foil.h>
-#include <api/oppoint.h>
-#include <api/polar.h>
-#include <api/splinefoil.h>
-#include <api/objects3d.h>
-#include <api/planexfl.h>
-#include <api/objects_global.h>
-#include <api/boat.h>
-#include <api/sail.h>
-#include <api/boatopp.h>
+#include <utils.h>
+#include <segment2d.h>
+#include <quaternion.h>
+#include <constants.h>
+#include <planeopp.h>
+#include <planepolar.h>
+#include <foil.h>
+#include <oppoint.h>
+#include <polar.h>
+#include <splinefoil.h>
+#include <objects3d.h>
+#include <planexfl.h>
+#include <objects_global.h>
+#include <boat.h>
+#include <sail.h>
+#include <boatopp.h>
 
 
 void objects::modeProperties(std::complex<double> lambda, double &omegaN, double &omega1, double &zeta)

@@ -35,9 +35,9 @@
 
 #include <string>
 
-#include <api/mathelem.h>
-#include <api/geom_enums.h>
-#include <api/vector3d.h>
+#include <mathelem.h>
+#include <geom_enums.h>
+#include <vector3d.h>
 
 /**
 *@class FL5LIB_EXPORT SailSection

@@ -25,23 +25,23 @@
 #include <QString>
 
 
-#include <api/plane.h>
-#include <api/planestl.h>
-#include <api/planexfl.h>
-#include <api/wingxfl.h>
-#include <api/surface.h>
+#include <plane.h>
+#include <planestl.h>
+#include <planexfl.h>
+#include <wingxfl.h>
+#include <surface.h>
 
-#include <api/surface.h>
-#include <api/objects_global.h>
+#include <surface.h>
+#include <objects_global.h>
 
-#include <api/planepolar.h>
-#include <api/planeopp.h>
-#include <api/wingopp.h>
+#include <planepolar.h>
+#include <planeopp.h>
+#include <wingopp.h>
 
-#include <api/constants.h>
-#include <api/mathelem.h>
-#include <api/utils.h>
-#include <api/units.h>
+#include <constants.h>
+#include <mathelem.h>
+#include <utils.h>
+#include <units.h>
 
 std::vector<std::string> PlaneOpp::s_POppVariables = { "Local lift coef.", "Local lift C.Cl/M.A.C.",
                                           "Airfoil viscous drag coef.","Induced drag coef.","Total drag coef.",
@@ -197,7 +197,7 @@ void PlaneOpp::getProperties(Plane const *pPlane, PlanePolar const *pWPolar, std
 {
     QString props;
     QString strong, strange;
-    QString lenlab = QUnits::lengthUnitLabel();
+    QString lenlab = Units::lengthUnitQLabel();
 
     Vector3d WindD = objects::windDirection(alpha(), beta());
 //    Vector3d WindN = windNormal(alpha(), beta());
@@ -225,7 +225,7 @@ void PlaneOpp::getProperties(Plane const *pPlane, PlanePolar const *pWPolar, std
     if(m_bOut) props += "Point is out of the flight envelope\n";
 
     strong = "Mass  = "+ QString::asprintf(" %9.3f ", m_Mass*Units::kgtoUnit());
-    props += strong + QUnits::massUnitLabel() + EOLch;
+    props += strong + Units::massUnitQLabel() + EOLch;
 
     strong = "CoG_x = "+ QString::asprintf(" %9.3f ", m_CoG.x*Units::mtoUnit());
     strong += lenlab + EOLch;
@@ -236,7 +236,7 @@ void PlaneOpp::getProperties(Plane const *pPlane, PlanePolar const *pWPolar, std
     props += strong + EOLch;
 
     strong = "V" + INFch + "    = "+ QString::asprintf(" %9.3f ", m_QInf*Units::mstoUnit());
-    props += strong + QUnits::speedUnitLabel()+"\n";
+    props += strong + Units::speedUnitQLabel()+"\n";
 
     strong = ALPHAch + "     = "+ QString::asprintf(" %9.3f", m_Alpha);
     props += strong +  DEGch +"\n";
@@ -411,7 +411,7 @@ void PlaneOpp::getProperties(Plane const *pPlane, PlanePolar const *pWPolar, std
             for(int i=0; i<WOpp(iwo).m_nFlaps; i++)
             {
                 strange = QString::asprintf("    Flap_%d = %8.4f ", i+1, WOpp(iwo).m_FlapMoment[i]*Units::NmtoUnit());
-                props += strange + QString::fromStdString(Units::momentUnitLabel()) + EOLch;
+                props += strange + Units::momentUnitQLabel() + EOLch;
             }
         }
     }
@@ -596,13 +596,14 @@ std::string PlaneOpp::name() const
 
     if(isType8())
     {
-        strange  = QString::asprintf("%2f", alpha()) + DEGch + " ";
-        strange += QString::asprintf("%2f", beta()) + DEGch + " ";
-        strange += QString::asprintf("%2f", QInf()*Units::mstoUnit()) + " " + QUnits::speedUnitLabel();
+        strange  = QString::asprintf("%.2f", alpha()) + DEGch + " ";
+        strange += QString::asprintf("%.2f", beta()) + DEGch + " ";
+        strange += QString::asprintf("%.2f", QInf()*Units::mstoUnit()) + " " + Units::speedUnitQLabel();
     }
     else if(isType7()) strange = QString::asprintf("%.3f", ctrl());
     else if(isType6()) strange = QString::asprintf("%.3f", ctrl());
     else if(isType5()) strange = QString::asprintf("%.3f", beta())  + DEGch;
+    else if(isType4()) strange = QString::asprintf("%.3f", QInf()*Units::mstoUnit()) + " " + Units::speedUnitQLabel();
     else               strange = QString::asprintf("%.3f", alpha()) + DEGch;
 
     return strange.toStdString();
@@ -630,7 +631,7 @@ std::string PlaneOpp::title(bool bLong) const
 
     strange += QString::asprintf("%5.2f", m_Alpha) + DEGch + "_";
     if(fabs(m_Beta)>ANGLEPRECISION)  strange += QString::asprintf("%5.2f", m_Beta) + DEGch + "_";
-    strange += QString::asprintf("%5.2f", QInf()*Units::mstoUnit()) + QUnits::speedUnitLabel();
+    strange += QString::asprintf("%5.2f", QInf()*Units::mstoUnit()) + Units::speedUnitQLabel();
 
     return strange.toStdString();
 }

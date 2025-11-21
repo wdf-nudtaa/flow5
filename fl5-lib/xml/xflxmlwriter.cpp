@@ -32,22 +32,22 @@
 
 
 
-#include <api/extradrag.h>
-#include <api/fuseocc.h>
-#include <api/fusestl.h>
-#include <api/fusexfl.h>
-#include <api/inertia.h>
-#include <api/mathelem.h>
-#include <api/nurbssurface.h>
-#include <api/objects2d.h>
-#include <api/pointmass.h>
-#include <api/polar3d.h>
-#include <api/units.h>
-#include <api/utils.h>
-#include <api/vector3d.h>
-#include <api/wingxfl.h>
-#include <api/xflxmlwriter.h>
-#include <api/xml_globals.h>
+#include <extradrag.h>
+#include <fuseocc.h>
+#include <fusestl.h>
+#include <fusexfl.h>
+#include <inertia.h>
+#include <mathelem.h>
+#include <nurbssurface.h>
+#include <objects2d.h>
+#include <pointmass.h>
+#include <polar3d.h>
+#include <units.h>
+#include <utils.h>
+#include <vector3d.h>
+#include <wingxfl.h>
+#include <xflxmlwriter.h>
+#include <xml_globals.h>
 
 
 
