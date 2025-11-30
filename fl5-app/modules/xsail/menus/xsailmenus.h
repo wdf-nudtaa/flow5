@@ -34,7 +34,7 @@ class XSailMenus
     friend class XSail;
     friend class MainFrame;
     friend class gl3dXSailView;
-    friend class BoatTreeView;
+    friend class BoatExplorer;
 
 public:
     XSailMenus(MainFrame *pMainFrame, XSail *pXSail);

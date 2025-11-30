@@ -898,13 +898,13 @@ bool SailSpline::makeOccShell(TopoDS_Shape &sailshape, std::string &logmsg) cons
             TopoDS_Shape TopSweptShape = Sweeper.Shape(); // calls Build according to OCC doc
             stitcher.Add(TopSweptShape);
         }
-        catch(Standard_DomainError &)
+        catch(Standard_DomainError &e)
         {
-            logg += "     Standard_DomainError sweeping wires\n";
+            logg += QString("     Standard_DomainError sweeping wires\n") + QString(e.GetMessageString()) + "\n";
         }
-        catch (StdFail_NotDone &)
+        catch (StdFail_NotDone &e)
         {
-            logg += "   StdFail_NotDone sweeping wires\n";
+            logg += QString("   StdFail_NotDone sweeping wires") + QString(e.GetMessageString()) + "\n";
             return false;
         }
         catch (...)

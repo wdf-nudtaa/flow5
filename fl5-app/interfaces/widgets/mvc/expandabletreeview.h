@@ -35,9 +35,9 @@ class ExpandableTreeView : public QTreeView
 {
     Q_OBJECT
 
-        friend class FoilTreeView;
-        friend class PlaneTreeView;
-        friend class BoatTreeView;
+        friend class FoilExplorer;
+        friend class PlaneExplorer;
+        friend class BoatExplorer;
 
     public:
         ExpandableTreeView(QWidget *pParent = nullptr);
@@ -62,7 +62,6 @@ class ExpandableTreeView : public QTreeView
         void onOpPointLevel();
         void onLevelMinus();
         void onLevelPlus();
-//        void onCollapseAll();
         void onHideShowAll(bool bChecked);
 
     signals:

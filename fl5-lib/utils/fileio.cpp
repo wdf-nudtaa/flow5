@@ -82,7 +82,7 @@ void FileIO::onLoadProject(const QString &filename)
         return;
     }
 
-    QFileInfo fi(pathname);
+//    QFileInfo fi(pathname);
 
     QString end = pathname.right(4).toLower();
 
@@ -120,7 +120,7 @@ void FileIO::onLoadProject(const QString &filename)
              bError = false;
         }
 
-                outputMessage(log);
+        outputMessage(log);
 
         emit fileLoaded(bError);
     }
@@ -775,7 +775,11 @@ bool FileIO::serialize2dObjectsFl5(QDataStream &ar, bool bIsStoring, int Archive
                 }
 
                 if(pOpp->foilName().length()!=0 && pOpp->polarName().length()!=0) // cleaning past errors.
+                {
+                    Polar const *pPolar = Objects2d::polar(pOpp->foilName(), pOpp->polarName());
+                    if(pPolar) pOpp->setPolarType(pPolar->type());
                     Objects2d::appendOpp(pOpp);
+                }
                 else
                     delete pOpp;
             }

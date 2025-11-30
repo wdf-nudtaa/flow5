@@ -1,8 +1,8 @@
 /****************************************************************************
 
     flow5 application
-    Copyright (C) 2025 André Deperrois 
-    
+    Copyright (C) 2025 André Deperrois
+
     This file is part of flow5.
 
     flow5 is free software: you can redistribute it and/or modify it
@@ -27,6 +27,7 @@
 
 #include <QString>
 #include <QDataStream>
+#include <QMetaType>
 
 #include <fl5color.h>
 
@@ -60,6 +61,11 @@ struct LineStyle
     }
 
 
+    LineStyle(LineStyle const &ls)
+    {
+        copy(ls);
+    }
+
     LineStyle(bool bVisible, Line::enumLineStipple style, int width, fl5Color const &color,
               Line::enumPointStyle pointstyle, std::string LineTag="", bool bEnabled=true)
     {
@@ -72,6 +78,29 @@ struct LineStyle
         m_Symbol = pointstyle;
         m_Tag = LineTag;
     }
+
+    ~LineStyle()
+    {
+    }
+
+    void copy(LineStyle const &ls)
+    {
+        m_bIsEnabled = ls.m_bIsEnabled;
+        m_bIsVisible = ls.m_bIsVisible;
+        m_bIsHighlighted = ls.m_bIsHighlighted;
+        m_Stipple = ls.m_Stipple;
+        m_Width = ls.m_Width;
+        m_Color = ls.m_Color;
+        m_Symbol = ls.m_Symbol;
+        m_Tag = ls.m_Tag;
+    }
+
+
+    void operator = (LineStyle const &ls)
+    {
+        copy(ls);
+    }
+
 
     void setStipple(int n) {m_Stipple = convertLineStyle(n);}
     void setPointStyle(int n) {m_Symbol = convertPointStyle_old(n);}
@@ -271,4 +300,7 @@ struct LineStyle
 
 };
 
+
+// allow use as QVariant
+Q_DECLARE_METATYPE(LineStyle)
 

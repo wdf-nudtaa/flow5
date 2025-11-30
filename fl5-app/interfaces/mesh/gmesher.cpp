@@ -49,27 +49,6 @@ void setGmshParams(double emin, double emax, int iAlgo, int iCurvature)
 }
 
 
-void GMesher::onMeshBox()
-{
-    double R = 1.4;
-
-    gmsh::model::occ::addBox(-R, -R, -R, 2 * R, 2 * R, 2 * R, 1);
-    gmsh::model::occ::synchronize();
-
-    bool bError = false;
-
-    try
-    {
-        gmsh::model::mesh::generate(2);
-    }
-    catch(...)
-    {
-        bError = true;
-    }
-    emit meshDone(bError);
-}
-
-
 void GMesher::onMeshCurrentModel()
 {
     bool bError = false;

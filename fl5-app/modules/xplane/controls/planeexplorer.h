@@ -43,15 +43,17 @@ class PlainTextOutput;
 class MainFrame;
 class XPlane;
 
-class PlaneTreeView : public QWidget
+class PlaneExplorer : public QWidget
 {
     Q_OBJECT
+    friend class BatchModeDlg;
 
     public:
-        enum enumSelectionType {NOOBJECT, PLANE, WPOLAR, PLANEOPP};
+    enum enumSelectionType {NOOBJECT, PLANE, WPOLAR, PLANEOPP, STABILITYMODE};
 
     public:
-        PlaneTreeView(QWidget *pParent = nullptr);
+        PlaneExplorer(QWidget *pParent = nullptr);
+        ~PlaneExplorer();
 
         void insertPlane(Plane *pPlane);
         void insertWPolar(const PlanePolar *pWPolar);
@@ -70,12 +72,14 @@ class PlaneTreeView : public QWidget
         void selectCurrentObject();
         void setObjectFromIndex(QModelIndex filteredindex);
 
-        void addPOpps(PlanePolar const *pWPolar=nullptr);
-        void updatePOpps();
+        void addPOpps(const PlanePolar *pWPolar=nullptr);
         void fillModelView();
         void fillWPolars(ObjectTreeItem *pPlaneItem, const Plane *pPlane);
+        void updatePOpps();
+
         void selectObjects();
         void setCurveParams();
+        void updateVisibilityBoxes();
 
         void updatePlane(Plane const *pPlane);
 
@@ -83,6 +87,7 @@ class PlaneTreeView : public QWidget
         void setSplitterSize(QByteArray size) {s_SplitterSizes = size;}
 
         void setObjectProperties();
+//        void updateObjectView();
         void setPropertiesFont(QFont const &fnt);
         void setTreeFontStruct(const FontStruct &fntstruct);
 
@@ -94,7 +99,7 @@ class PlaneTreeView : public QWidget
         void setOverallCheckStatus();
 
         Qt::CheckState planeState(const Plane *pPlane) const;
-        Qt::CheckState wPolarState(const PlanePolar *pWPolar) const;
+        Qt::CheckState polarState(const PlanePolar *pWPolar) const;
 
         static void setDefaultWidth(int width) {s_Width=width;}
         static void setMainFrame(MainFrame*pMainFrame) {s_pMainFrame = pMainFrame;}

@@ -55,11 +55,14 @@ ExpandableTreeView::ExpandableTreeView(QWidget *pParent) : QTreeView(pParent)
 
 void ExpandableTreeView::initETV()
 {
-    m_pLevelMinus   = new QAction(QIcon(":/icons/level-.png"),  "Collapse selected item", this);
-    m_pLevelPlus    = new QAction(QIcon(":/icons/level+.png"),  "Expand selected item",   this);
-    m_pLevel0Action = new QAction(QIcon(":/icons/level0.png"),  "Object level",           this);
-    m_pLevel1Action = new QAction(QIcon(":/icons/level1.png"),  "Polar level",            this);
-    m_pLevel2Action = new QAction(QIcon(":/icons/level2.png"),  "Operating point level",  this);
+    m_pLevelMinus   = new QAction(QIcon(":/icons/level-.png"),  "Collapse selected item",        this);
+    m_pLevelPlus    = new QAction(QIcon(":/icons/level+.png"),  "Expand selected item",          this);
+    m_pLevel0Action = new QAction(QIcon(":/icons/level0.png"),  "Object level\tAlt+0",           this);
+    m_pLevel0Action->setShortcut(QKeySequence(Qt::ALT | Qt::Key_0));
+    m_pLevel1Action = new QAction(QIcon(":/icons/level1.png"),  "Polar level\tAlt+1",            this);
+    m_pLevel1Action->setShortcut(QKeySequence(Qt::ALT | Qt::Key_1));
+    m_pLevel2Action = new QAction(QIcon(":/icons/level2.png"),  "Operating point level\tAlt+2",  this);
+    m_pLevel2Action->setShortcut(QKeySequence(Qt::ALT | Qt::Key_2));
 
     m_pfrControls = new QFrame;
     {
@@ -75,11 +78,9 @@ void ExpandableTreeView::initETV()
                                 "The filter is case-insensitive.</p");
         m_pchHideShowAll = new CrossCheckBox;
         m_pchHideShowAll->setWidthHint(3*av);
-//        qDebug("ExpandableTreeView  %d\n", DisplayOptions::treeFontStruct().averageCharWidth());
         m_pchHideShowAll->setToolTip("Hide or show all polars or operating point objects in the graphs.");
         QHBoxLayout *pHLayout = new QHBoxLayout;
         {
-
             QToolButton *pLevelPlus   = new QToolButton(this);
             QToolButton *pLevelMinus  = new QToolButton(this);
             QToolButton *pLevel0      = new QToolButton(this);
@@ -92,18 +93,15 @@ void ExpandableTreeView::initETV()
             pLevel1->setDefaultAction(m_pLevel1Action);
             pLevel2->setDefaultAction(m_pLevel2Action);
 
-//            pHLayout->addStretch();
             pHLayout->addSpacing(3*av);
             pHLayout->addWidget(pLevel0);
             pHLayout->addWidget(pLevel1);
             pHLayout->addWidget(pLevel2);
             pHLayout->addSpacing(3*av);
-//            pHLayout->addStretch();
 
             pHLayout->addWidget(pLevelMinus);
             pHLayout->addWidget(pLevelPlus);
             pHLayout->addSpacing(3*av);
-//            pHLayout->addStretch();
 
             pHLayout->addWidget(m_pleFilter);
             pHLayout->addSpacing(av);
@@ -118,30 +116,9 @@ void ExpandableTreeView::initETV()
     connect(m_pLevelMinus,    SIGNAL(triggered(bool)), SLOT(onLevelMinus()));
     connect(m_pLevelPlus,     SIGNAL(triggered(bool)), SLOT(onLevelPlus()));
 
-//    connect(m_pCollapseAll,   SIGNAL(triggered(bool)), SLOT(onCollapseAll()));
-//    connect(m_pExpandAll,     SIGNAL(triggered(bool)), SLOT(expandAll()));
     connect(m_pchHideShowAll, SIGNAL(clicked(bool)),   SLOT(onHideShowAll(bool)));
 }
 
-
-/*
-void ExpandableTreeView::onCollapseAll()
-{
-    collapseAll();
-
-    ObjectTreeModel *pModel = dynamic_cast<ObjectTreeModel*>(model());
-
-    ObjectTreeItem *pItem = pModel->rootItem();
-
-    QModelIndex newIndex;
-    if(pItem->rowCount())
-    {
-        newIndex = pModel->index(0,0, pItem);
-        setCurrentIndex(newIndex);
-        scrollTo(newIndex);
-    }
-}
-*/
 
 /**
  * Collapse all items up to plane/foil level
@@ -381,7 +358,7 @@ int ExpandableTreeView::sizeHintForColumn(int column) const
 {
     if      (column==0) return 1*DisplayOptions::treeFontStruct().averageCharWidth();//unused, this is the stretched column
     else if (column==1) return 9*DisplayOptions::treeFontStruct().averageCharWidth();
-    else if (column==2) return 1*DisplayOptions::treeFontStruct().averageCharWidth();
+    else if (column==2) return 2*DisplayOptions::treeFontStruct().averageCharWidth();
     return 5*DisplayOptions::treeFontStruct().averageCharWidth();
 }
 

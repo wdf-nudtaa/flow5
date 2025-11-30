@@ -674,18 +674,19 @@ void gl3dXPlaneView::glRenderView()
         }
     }
 
-    vmMat = m_matView*m_matModel;
-    pvmMat = m_matProj*vmMat;
 
     m_shadLine.bind();
     {
-        m_shadLine.setUniformValue(m_locLine.m_vmMatrix,  vmMat);
-        m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, pvmMat);
+        m_shadLine.setUniformValue(m_locLine.m_vmMatrix,  m_matView);
+        m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, m_matProj*m_matView);
     }
     m_shadLine.release();
     if(m_Segments.size())
         paintSegments(m_vboSegments, W3dPrefs::s_HighStyle, true);
 
+
+    vmMat = m_matView*m_matModel;
+    pvmMat = m_matProj*vmMat;
 
 #ifdef QT_DEBUG
     m_shadSurf.bind();
@@ -1710,18 +1711,21 @@ bool gl3dXPlaneView::pickTriUniPanel(QPoint const &point)
 
     m_PickedPanelIndex = -1;
 
-    Plane const *pPlane = s_pXPlane->m_pCurPlane;
+//    Plane const *pPlane = s_pXPlane->m_pCurPlane;
     PlanePolar const *pWPolar = s_pXPlane->m_pCurPlPolar;
     PlaneOpp const *pPOpp = s_pXPlane->m_pCurPOpp;
 
-    float zmax = +1.e10;
+    float zmax = LARGEVALUE;
     if(pPOpp && (m_pPOpp3dControls->m_b3dCp || m_pPOpp3dControls->m_bGamma || m_pPOpp3dControls->m_bPanelForce))
     {
         // pick element
-        for(int i3=0; i3<pPlane->nPanel3(); i3++)
+//        for(int i3=0; i3<pPlane->nPanel3(); i3++)
+//        {
+//            Panel3 const &p3 = pPlane->panel3At(i3);
+        for(uint i3=0; i3<m_Panel3Visible.size(); i3++)
         {
-            Panel3 const &p3 = pPlane->panel3At(i3);
-
+            Panel3 const &p3 = m_Panel3Visible.at(i3);
+            int idx=p3.index();
             if(p3.intersect(AA, U, I))
             {
                 worldToScreen(p3.CoG(), v4d);
@@ -1733,24 +1737,24 @@ bool gl3dXPlaneView::pickTriUniPanel(QPoint const &point)
                     if(m_pPOpp3dControls->m_bPanelForce)
                     {
                         double q = 0.5*pWPolar->density()*pPOpp->QInf()*pPOpp->QInf();
-                        m_PickedVal =  pPOpp->Cp(i3*3)* q*Units::PatoUnit();
+                        m_PickedVal =  pPOpp->Cp(idx*3)* q*Units::PatoUnit();
                     }
                     else if(m_pPOpp3dControls->m_bGamma)
                     {
-                        m_PickedVal = pPOpp->gamma(i3*3);
+                        m_PickedVal = pPOpp->gamma(idx*3);
                     }
                     else
                     {
-                        m_PickedVal = pPOpp->Cp(i3*3);
+                        m_PickedVal = pPOpp->Cp(idx*3);
                     }
-                    m_PickedPanelIndex = i3;
+                    m_PickedPanelIndex = p3.index();
                 }
             }
         }
     }
     else
     {
-        for(int i3=0; i3<pPlane->nPanel3(); i3++)
+/*        for(int i3=0; i3<pPlane->nPanel3(); i3++)
         {
             Panel3 const &p3 = pPlane->panel3At(i3);
             if(p3.intersect(AA, U, I))
@@ -1764,6 +1768,21 @@ bool gl3dXPlaneView::pickTriUniPanel(QPoint const &point)
                     m_PickedPanelIndex = i3;
                 }
             }
+        }*/
+        for(uint i3=0; i3<m_Panel3Visible.size(); i3++)
+        {
+            Panel3 const &p3 = m_Panel3Visible.at(i3);
+            if(p3.intersect(AA, U, I))
+            {
+                worldToScreen(p3.CoG(), v4d);
+                if(v4d.z()<zmax)
+                {
+                    zmax = v4d.z();
+//                    m_PickedPoint = p3.CoG();
+                    m_PickedPoint = I;
+                    m_PickedPanelIndex = p3.index();
+                }
+            }
         }
     }
 
@@ -1773,6 +1792,9 @@ bool gl3dXPlaneView::pickTriUniPanel(QPoint const &point)
 
 bool gl3dXPlaneView::pickQuadPanel(QPoint const &point)
 {
+    PlaneXfl * pPlaneXfl = dynamic_cast<PlaneXfl*>(s_pXPlane->curPlane());
+    if(!pPlaneXfl) return false;
+
     Vector3d I, AA, BB;
 
     screenToWorld(point, 0.0, AA);
@@ -1791,11 +1813,13 @@ bool gl3dXPlaneView::pickQuadPanel(QPoint const &point)
     {
         if(pPOpp->isQuadMethod() && s_pXPlane->curPlane()->isXflType())
         {
-            PlaneXfl * pPlaneXfl = dynamic_cast<PlaneXfl*>(s_pXPlane->curPlane());
 
-            for(int i4=0; i4<pPlaneXfl->quadMesh().nPanels(); i4++)
+//            for(int i4=0; i4<pPlaneXfl->quadMesh().nPanels(); i4++)
+//            {
+//                Panel4 const &p4 = pPlaneXfl->quadMesh().panel(i4);
+            for(uint i4=0; i4<m_Panel4Visible.size(); i4++)
             {
-                Panel4 const &p4 = pPlaneXfl->quadMesh().panel(i4);
+                Panel4 const &p4 = m_Panel4Visible.at(i4);
                 if(p4.intersect(AA, U, I))
                 {
                     worldToScreen(p4.CoG(), v4d);
@@ -3260,7 +3284,7 @@ void gl3dXPlaneView::paintOverlay()
     if(m_ColourLegend.isVisible())
     {
         int wc = m_ColourLegend.m_pix.width();
-        QPoint pos3(width()*qApp->devicePixelRatio()-5-wc, 50);
+//        QPoint pos3(width()*qApp->devicePixelRatio()-5-wc, 50);
         QPoint pos4(width()*devicePixelRatio()-5-wc, 50);
         painter.drawPixmap(pos4, m_ColourLegend.m_pix);
     }

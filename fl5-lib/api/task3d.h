@@ -66,7 +66,7 @@ class FL5LIB_EXPORT Task3d
         virtual bool hasWarning() const {return m_bWarning;}
 
         virtual void run();
-        virtual void onCancel();
+        virtual void cancelTask();
 
         void setAnalysisStatus(xfl::enumAnalysisStatus status);
 

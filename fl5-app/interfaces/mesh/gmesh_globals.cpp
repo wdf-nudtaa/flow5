@@ -88,6 +88,7 @@ std::string gmesh::getNumberOption(std::string name)
     name.resize(nchar, ' ');
     QString str = QString::fromStdString(name) + QString::asprintf(":  %g", number);
     return str.toStdString();
+
 }
 
 
@@ -1110,38 +1111,8 @@ void gmesh::makeSailOccTriangulation(SailOcc *pSailOcc)
 
     std::vector<Triangle3d> triangles;
 
-/*    if(Part::s_bOccTessellator)
-    {
-        for(TopTools_ListIteratorOfListOfShape shellitt(m_Shape); shellitt.More(); shellitt.Next())
-        {
-            TopExp_Explorer shapeExplorer;
-            for (shapeExplorer.Init(shellitt.Value(), TopAbs_SHELL); shapeExplorer.More(); shapeExplorer.Next())
-            {
-                try
-                {
-                    BRepTools::Clean(shellitt.Value());
-
-                    TopoDS_Shell shell = TopoDS::Shell(shapeExplorer.Current());
-                    if(!shell.IsNull())
-                    {
-                        occ::shellTriangulationWithOcc(shell, m_OccTessParams, triangles);
-                    }
-                }
-                catch(Standard_TypeMismatch &)
-                {
-                }
-                catch(...)
-                {
-                }
-            }
-        }
-    }
-    else*/
-    {
-        for(uint i=0; i<pSailOcc->bReps().size(); i++)
-            gmesh::tessellateBRep(pSailOcc->bReps().at(i), pSailOcc->gmshTessParams(), triangles, logmsg);
-    }
-
+    for(uint i=0; i<pSailOcc->bReps().size(); i++)
+        gmesh::tessellateBRep(pSailOcc->bReps().at(i), pSailOcc->gmshTessParams(), triangles, logmsg);
 
     pSailOcc->setTriangles(triangles);
 

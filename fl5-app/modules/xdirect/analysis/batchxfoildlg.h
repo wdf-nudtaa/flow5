@@ -93,6 +93,7 @@ class BatchXFoilDlg : public BatchDlg
         QRadioButton *m_prbT1, *m_prbT2, *m_prbT3;
 
         FloatEdit *m_pfeXTopTr, *m_pfeXBotTr;
+        QCheckBox *m_pchTransAtHinge;
 
         QLabel *m_plabMaType, *m_plabReType;
 
@@ -102,8 +103,6 @@ class BatchXFoilDlg : public BatchDlg
         XflDelegate *m_pFloatDelegate;
 
         QAction *m_pInsertBeforeAct, *m_pInsertAfterAct, *m_pDeleteAct;
-
-
 
 
     private:
@@ -117,6 +116,6 @@ class BatchXFoilDlg : public BatchDlg
         static double s_XBot;            /**< the point of forced transition on the lower surface */
 
         static xfl::enumPolarType s_PolarType;  /**< the type of analysis to perform */
-
+        static bool s_bTransAtHinge;
 };
 

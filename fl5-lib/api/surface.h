@@ -298,7 +298,12 @@ class FL5LIB_EXPORT Surface
         Vector3d m_TEBisectorA;
         Vector3d m_TEBisectorB;
 
+        void setIndex(int idx) {m_Index=idx;}
+        int index() const {return m_Index;}
+
     private :
+
+        int m_Index;               /**< the index of the surface in the wing's array of surfaces; debug use only */
 
         bool m_bIsInSymPlane;      /**< true if the Surface is positioned in the symetry xz plane defined by y=0. Case of a single fin. */
         bool m_bTEFlap;            /**< true if the Surface has a flap on the trailing edge */

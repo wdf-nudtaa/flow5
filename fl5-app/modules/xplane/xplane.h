@@ -49,7 +49,7 @@ class PlaneAnalysisDlg;
 class POpp3dCtrls;
 class POppGraphCtrls;
 class PlaneOpp;
-class PlaneTreeView;
+class PlaneExplorer;
 class PlaneXfl;
 class Stab3dCtrls;
 class StabTimeCtrls;
@@ -82,7 +82,7 @@ class XPlane : public QObject
     friend class MainFrame;
     friend class POppGraphCtrls;
     friend class POpp3dCtrls;
-    friend class PlaneTreeView;
+    friend class PlaneExplorer;
     friend class Stab3dCtrls;
     friend class StabTimeCtrls;
     friend class StabTimeTiles;
@@ -101,7 +101,7 @@ class XPlane : public QObject
 
     public:
 
-        enum enumViews {WOPPVIEW, WPOLARVIEW, CPVIEW, W3DVIEW, STABTIMEVIEW, STABPOLARVIEW, OTHERVIEW};
+        enum enumViews {POPPVIEW, POLARVIEW, CPVIEW, W3DVIEW, STABTIMEVIEW, STABPOLARVIEW, OTHERVIEW};
 
     public:
 
@@ -164,8 +164,10 @@ class XPlane : public QObject
 
         bool curPOppOnly() const {return m_bCurPOppOnly;}
 
-        bool isPOppView()      const {return m_eView==XPlane::WOPPVIEW;}
-        bool isPolarView()     const {return m_eView==XPlane::WPOLARVIEW;}
+        enumViews view() const {return m_eView;}
+
+        bool isPOppView()      const {return m_eView==XPlane::POPPVIEW;}
+        bool isPolarView()     const {return m_eView==XPlane::POLARVIEW;}
         bool isCpView()        const {return m_eView==XPlane::CPVIEW;}
         bool is3dView()        const {return m_eView==XPlane::W3DVIEW;}
         bool isStabPolarView() const {return m_eView==XPlane::STABPOLARVIEW;}
@@ -181,7 +183,7 @@ class XPlane : public QObject
 
         void updateStabilityDirection(bool bLongitudinal);
 
-        void updateVisiblePanels(Plane const *pPlane=nullptr, PlanePolar const*pWPolar=nullptr);
+        void updateVisiblePanels(Plane *pPlane=nullptr, PlanePolar const*pWPolar=nullptr);
 
         void setLiveVortons(double alpha, const std::vector<std::vector<Vorton>> &vortons);
 
@@ -306,8 +308,8 @@ class XPlane : public QObject
         void onTranslateWing();
         void onUpdateMeshDisplay();
         void onVarSetChanged(int);
-        void onWPolarProperties();
-        void onWPolarView();
+        void onPolarProperties();
+        void onPolarView();
         void onWingCurveSelection();
         void onWingInertia();
         void onWingProps();
@@ -324,7 +326,7 @@ class XPlane : public QObject
 
         PlaneAnalysisDlg *m_pPanelAnalysisDlg;        /**< the dialog class which manages the 3d VLM and Panel calculations */
         LLTAnalysisDlg *m_pLLTAnalysisDlg;
-        PlaneTreeView *m_pPlaneTreeView;
+        PlaneExplorer *m_pPlaneExplorer;
 
         QPointer<XPlaneWt> m_pXPlaneWt;
 

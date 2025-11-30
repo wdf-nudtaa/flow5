@@ -34,7 +34,7 @@
 #include <QLineEdit>
 #include <QHeaderView>
 
-#include "boattreeview.h"
+#include "boatexplorer.h"
 
 #include <globals/mainframe.h>
 #include <modules/xsail/xsail.h>
@@ -54,16 +54,16 @@
 #include <interfaces/widgets/mvc/objecttreeitem.h>
 #include <interfaces/widgets/mvc/objecttreemodel.h>
 
-QByteArray BoatTreeView::s_SplitterSizes;
-XSail *BoatTreeView::s_pXSail = nullptr;
-int BoatTreeView::s_Width=351;
+QByteArray BoatExplorer::s_SplitterSizes;
+XSail *BoatExplorer::s_pXSail = nullptr;
+int BoatExplorer::s_Width=351;
 
-BoatTreeView::BoatTreeView(QWidget *pParent) : QWidget(pParent)
+BoatExplorer::BoatExplorer(QWidget *pParent) : QWidget(pParent)
 {
     m_pStruct = nullptr;
     m_pModel  = nullptr;
 
-    m_Selection = BoatTreeView::NOBOAT;
+    m_Selection = BoatExplorer::NOBOAT;
 
     setupLayout();
 
@@ -100,19 +100,19 @@ BoatTreeView::BoatTreeView(QWidget *pParent) : QWidget(pParent)
 }
 
 
-BoatTreeView::~BoatTreeView()
+BoatExplorer::~BoatExplorer()
 {
 }
 
 
-void BoatTreeView::showEvent(QShowEvent *pEvent)
+void BoatExplorer::showEvent(QShowEvent *pEvent)
 {
     m_pMainSplitter->restoreState(s_SplitterSizes);
     pEvent->accept();
 }
 
 
-void BoatTreeView::hideEvent(QHideEvent *)
+void BoatExplorer::hideEvent(QHideEvent *)
 {
     s_Width = width();
 
@@ -120,7 +120,7 @@ void BoatTreeView::hideEvent(QHideEvent *)
 }
 
 
-void BoatTreeView::resizeEvent(QResizeEvent *pEvent)
+void BoatExplorer::resizeEvent(QResizeEvent *pEvent)
 {
     s_Width = width();
     updateGeometry(); // Notifies the layout system that the sizeHint()  has changed
@@ -128,19 +128,19 @@ void BoatTreeView::resizeEvent(QResizeEvent *pEvent)
 }
 
 
-void BoatTreeView::updateObjectView()
+void BoatExplorer::updateObjectView()
 {
     fillModelView();
     selectObjects();
 }
 
 
-void BoatTreeView::setObjectProperties()
+void BoatExplorer::setObjectProperties()
 {
     std::string props;
     switch(m_Selection)
     {
-        case BoatTreeView::BOAT:
+        case BoatExplorer::BOAT:
         {
             if(s_pXSail->m_pCurBoat)
             {
@@ -149,7 +149,7 @@ void BoatTreeView::setObjectProperties()
             }
             break;
         }
-        case BoatTreeView::BTPOLAR:
+        case BoatExplorer::BTPOLAR:
         {
             if(s_pXSail->m_pCurBtPolar && s_pXSail->m_pCurBoat)
             {
@@ -158,7 +158,7 @@ void BoatTreeView::setObjectProperties()
             }
             break;
         }
-        case BoatTreeView::BOATOPP:
+        case BoatExplorer::BOATOPP:
         {
             if(s_pXSail->m_pCurBtPolar && s_pXSail->m_pCurBtOpp)
             {
@@ -178,19 +178,19 @@ void BoatTreeView::setObjectProperties()
 }
 
 
-void BoatTreeView::setPropertiesFont(QFont const &fnt)
+void BoatExplorer::setPropertiesFont(QFont const &fnt)
 {
     m_ppto->setFont(fnt);
 }
 
 
-void BoatTreeView::setTreeFontStruct(const FontStruct &fntstruct)
+void BoatExplorer::setTreeFontStruct(const FontStruct &fntstruct)
 {
     m_pStruct->setFont(fntstruct.font());
 }
 
 
-void BoatTreeView::setupLayout()
+void BoatExplorer::setupLayout()
 {
     m_pStruct = new ExpandableTreeView;
     m_pStruct->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -217,7 +217,7 @@ void BoatTreeView::setupLayout()
 }
 
 
-void BoatTreeView::fillModelView()
+void BoatExplorer::fillModelView()
 {
     m_pModel->removeRows(0, m_pModel->rowCount());
 
@@ -240,7 +240,7 @@ void BoatTreeView::fillModelView()
 }
 
 
-void BoatTreeView::fillBtPolars(ObjectTreeItem *pBoatItem, Boat const*pBoat)
+void BoatExplorer::fillBtPolars(ObjectTreeItem *pBoatItem, Boat const*pBoat)
 {
     if(!pBoat || !pBoatItem) return;
 
@@ -260,7 +260,7 @@ void BoatTreeView::fillBtPolars(ObjectTreeItem *pBoatItem, Boat const*pBoat)
 }
 
 
-void BoatTreeView::addBtOpps(BoatPolar* pBtPolar)
+void BoatExplorer::addBtOpps(BoatPolar* pBtPolar)
 {
     if(!pBtPolar) pBtPolar = s_pXSail->m_pCurBtPolar;
     if(!pBtPolar) return;
@@ -281,7 +281,7 @@ void BoatTreeView::addBtOpps(BoatPolar* pBtPolar)
                 ObjectTreeItem *pBtPolarItem = pPlaneItem->child(jr);
                 if(pBtPolarItem->name().toStdString().compare(pBtPolar->name())==0)
                 {
-                    m_Selection = BoatTreeView::BTPOLAR; /** @todo remove */
+                    m_Selection = BoatExplorer::BTPOLAR; /** @todo remove */
 
                     QModelIndex polarindex = m_pModel->index(jr, 0, pPlaneItem);
                     m_pModel->removeRows(0, pBtPolarItem->rowCount(), polarindex);
@@ -313,7 +313,7 @@ void BoatTreeView::addBtOpps(BoatPolar* pBtPolar)
 }
 
 
-void BoatTreeView::loadSettings(QSettings &settings)
+void BoatExplorer::loadSettings(QSettings &settings)
 {
     settings.beginGroup("PartInertiaDlg");
     {
@@ -323,7 +323,7 @@ void BoatTreeView::loadSettings(QSettings &settings)
 }
 
 
-void BoatTreeView::saveSettings(QSettings &settings)
+void BoatExplorer::saveSettings(QSettings &settings)
 {
     settings.beginGroup("PartInertiaDlg");
     {
@@ -333,14 +333,14 @@ void BoatTreeView::saveSettings(QSettings &settings)
 }
 
 
-void BoatTreeView::onCurrentRowChanged(QModelIndex curidx, QModelIndex )
+void BoatExplorer::onCurrentRowChanged(QModelIndex curidx, QModelIndex )
 {
     setObjectFromIndex(curidx);
     s_pXSail->updateView();
 }
 
 
-void BoatTreeView::onItemClicked(const QModelIndex &index)
+void BoatExplorer::onItemClicked(const QModelIndex &index)
 {
     Boat *m_pBoat         = s_pXSail->m_pCurBoat;
     BoatPolar *m_pBtPolar = s_pXSail->m_pCurBtPolar;
@@ -458,17 +458,17 @@ void BoatTreeView::onItemClicked(const QModelIndex &index)
 }
 
 
-void BoatTreeView::onItemDoubleClicked(const QModelIndex &filteredindex)
+void BoatExplorer::onItemDoubleClicked(const QModelIndex &filteredindex)
 {
     setObjectFromIndex(filteredindex);
 
 //    s_pXSail->m_pAnalysisControls->setAnalysisParams();
     s_pXSail->updateView();
-    if(m_Selection==BoatTreeView::BOAT)
+    if(m_Selection==BoatExplorer::BOAT)
     {
         s_pXSail->onEditCurBoat();
     }
-    else if(m_Selection==BoatTreeView::BTPOLAR)
+    else if(m_Selection==BoatExplorer::BTPOLAR)
     {
         s_pXSail->onEditCurBtPolar();
     }
@@ -479,7 +479,7 @@ void BoatTreeView::onItemDoubleClicked(const QModelIndex &filteredindex)
  * Sets the new current object, a Boat, a WPolar, a BoatOpp or or a Mode
  * from the new index
  */
-void BoatTreeView::setObjectFromIndex(QModelIndex index)
+void BoatExplorer::setObjectFromIndex(QModelIndex index)
 {
     ObjectTreeItem *pSelectedItem = nullptr;
 
@@ -502,7 +502,7 @@ void BoatTreeView::setObjectFromIndex(QModelIndex index)
         s_pXSail->setBoat(m_pBoat);
         s_pXSail->m_pCurBtPolar = nullptr;
         s_pXSail->m_pCurBtOpp = nullptr;
-        m_Selection = BoatTreeView::BOAT;
+        m_Selection = BoatExplorer::BOAT;
     }
     else if(pSelectedItem->level()==2)
     {
@@ -513,7 +513,7 @@ void BoatTreeView::setObjectFromIndex(QModelIndex index)
         s_pXSail->setBtPolar(m_pBtPolar);
         s_pXSail->m_pCurBtOpp = nullptr;
 
-        m_Selection = BoatTreeView::BTPOLAR;
+        m_Selection = BoatExplorer::BTPOLAR;
     }
     else if(pSelectedItem->level()==3)
     {
@@ -522,7 +522,7 @@ void BoatTreeView::setObjectFromIndex(QModelIndex index)
         Boat      *m_pBoat    = SailObjects::boat(pPlaneItem->name().toStdString());
         BoatPolar *m_pBtPolar = SailObjects::btPolar(m_pBoat, pWPolarItem->name().toStdString());
         BoatOpp   *m_pBtOpp   = SailObjects::getBoatOpp(m_pBoat, m_pBtPolar, pSelectedItem->name().toDouble());
-        m_Selection = BoatTreeView::BOATOPP;
+        m_Selection = BoatExplorer::BOATOPP;
 
         if(m_pBoat!=s_pXSail->m_pCurBoat)
         {
@@ -536,7 +536,7 @@ void BoatTreeView::setObjectFromIndex(QModelIndex index)
             s_pXSail->resetCurves();
         }
     }
-    else m_Selection = BoatTreeView::NOBOAT;
+    else m_Selection = BoatExplorer::NOBOAT;
 
     s_pXSail->setControls();
     setObjectProperties();
@@ -547,7 +547,7 @@ void BoatTreeView::setObjectFromIndex(QModelIndex index)
 }
 
 
-void BoatTreeView::insertBtPolar(BoatPolar* pBtPolar)
+void BoatExplorer::insertBtPolar(BoatPolar* pBtPolar)
 {
     if(!pBtPolar) pBtPolar = s_pXSail->curBtPolar();
     if(!pBtPolar) return;
@@ -603,7 +603,7 @@ void BoatTreeView::insertBtPolar(BoatPolar* pBtPolar)
 }
 
 
-void BoatTreeView::insertBoat(Boat* pBoat)
+void BoatExplorer::insertBoat(Boat* pBoat)
 {
     if(!pBoat) pBoat = s_pXSail->curBoat();
     if(!pBoat) return;
@@ -649,7 +649,7 @@ void BoatTreeView::insertBoat(Boat* pBoat)
 }
 
 
-void BoatTreeView::removeBtPolarBtOpps(BoatPolar* pBtPolar)
+void BoatExplorer::removeBtPolarBtOpps(BoatPolar* pBtPolar)
 {
     if(!pBtPolar) return;
 
@@ -678,7 +678,7 @@ void BoatTreeView::removeBtPolarBtOpps(BoatPolar* pBtPolar)
 }
 
 
-void BoatTreeView::removeBtOpps(Boat* pBoat)
+void BoatExplorer::removeBtOpps(Boat* pBoat)
 {
     for(int ip=0; ip<SailObjects::nBtPolars(); ip++)
     {
@@ -689,7 +689,7 @@ void BoatTreeView::removeBtOpps(Boat* pBoat)
 }
 
 
-void BoatTreeView::selectBoat(Boat* pBoat)
+void BoatExplorer::selectBoat(Boat* pBoat)
 {
     if(!pBoat) pBoat = s_pXSail->m_pCurBoat;
     if(!pBoat) return;
@@ -701,7 +701,7 @@ void BoatTreeView::selectBoat(Boat* pBoat)
         // find the polar's parent Plane
         if(pPlaneItem->name().toStdString().compare(pBoat->name())==0)
         {
-            m_Selection = BoatTreeView::BOAT;
+            m_Selection = BoatExplorer::BOAT;
             if(m_pModel->index(ir, 0).isValid())
             {
                 QModelIndex index = m_pModel->index(ir, 0);
@@ -717,7 +717,7 @@ void BoatTreeView::selectBoat(Boat* pBoat)
 }
 
 
-void BoatTreeView::selectBtPolar(BoatPolar* pBtPolar)
+void BoatExplorer::selectBtPolar(BoatPolar* pBtPolar)
 {
     //qDebug("Select WPolar");
     if(!pBtPolar) pBtPolar = s_pXSail->curBtPolar();
@@ -740,7 +740,7 @@ void BoatTreeView::selectBtPolar(BoatPolar* pBtPolar)
                 ObjectTreeItem *pPolarItem = pBoatItem->child(jr);
                 if(pPolarItem->name().toStdString().compare(pBtPolar->name())==0)
                 {
-                    m_Selection = BoatTreeView::BTPOLAR;
+                    m_Selection = BoatExplorer::BTPOLAR;
                     QModelIndex polarindex = m_pModel->index(jr, 0, planeindex);
                     if(polarindex.isValid())
                     {
@@ -762,7 +762,7 @@ void BoatTreeView::selectBtPolar(BoatPolar* pBtPolar)
 }
 
 
-void BoatTreeView::selectBtOpp(BoatOpp *pBtOpp)
+void BoatExplorer::selectBtOpp(BoatOpp *pBtOpp)
 {
 //qDebug("Select BoatOpp");
     if(!pBtOpp) pBtOpp = s_pXSail->m_pCurBtOpp;
@@ -801,7 +801,7 @@ void BoatTreeView::selectBtOpp(BoatOpp *pBtOpp)
                             bSelected = fabs(val-pBtOpp->ctrl())<0.0005;
                             if(bSelected)
                             {
-                                m_Selection = BoatTreeView::BOATOPP;
+                                m_Selection = BoatExplorer::BOATOPP;
                                 m_pStruct->setCurrentIndex(poppChild);
                                 m_pStruct->scrollTo(poppChild);
                                 break;
@@ -824,7 +824,7 @@ void BoatTreeView::selectBtOpp(BoatOpp *pBtOpp)
  * @param pBoat a pointer to the Boat object to be removed
  * @return the name of the next Boat to select
  */
-QString BoatTreeView::removeBoat(Boat *pBoat)
+QString BoatExplorer::removeBoat(Boat *pBoat)
 {
     if(!pBoat) return "";
     return removeBoat(QString::fromStdString(pBoat->name()));
@@ -837,7 +837,7 @@ QString BoatTreeView::removeBoat(Boat *pBoat)
  * @param BoatName the name of the Boat object to be removed
  * @return the name of the next Boat to select
  */
-QString BoatTreeView::removeBoat(QString const &BoatName)
+QString BoatExplorer::removeBoat(QString const &BoatName)
 {
     if(!BoatName.length()) return "";
 
@@ -868,7 +868,7 @@ QString BoatTreeView::removeBoat(QString const &BoatName)
 }
 
 
-QString BoatTreeView::removeBtPolar(BoatPolar const* pBtPolar)
+QString BoatExplorer::removeBtPolar(BoatPolar const* pBtPolar)
 {
     if(!pBtPolar) return QString();
 
@@ -910,7 +910,7 @@ QString BoatTreeView::removeBtPolar(BoatPolar const* pBtPolar)
 }
 
 
-void BoatTreeView::removeBoatOpp(BoatOpp *pBtOpp)
+void BoatExplorer::removeBoatOpp(BoatOpp *pBtOpp)
 {
     if(!pBtOpp) return;
 
@@ -957,7 +957,7 @@ void BoatTreeView::removeBoatOpp(BoatOpp *pBtOpp)
 }
 
 
-void BoatTreeView::contextMenuEvent(QContextMenuEvent *pEvent)
+void BoatExplorer::contextMenuEvent(QContextMenuEvent *pEvent)
 {
     QModelIndex idx = m_pStruct->currentIndex();
 
@@ -996,26 +996,26 @@ void BoatTreeView::contextMenuEvent(QContextMenuEvent *pEvent)
         else       strong.clear();
     }
 
-    if     (m_Selection==BoatTreeView::BOATOPP)
+    if     (m_Selection==BoatExplorer::BOATOPP)
         s_pXSail->m_pMenus->m_pCurBtOppMenu->exec(pEvent->globalPos());
-    else if(m_Selection==BoatTreeView::BTPOLAR)
+    else if(m_Selection==BoatExplorer::BTPOLAR)
         s_pXSail->m_pMenus->m_pCurBtPlrMenu->exec(pEvent->globalPos());
-    else if(m_Selection==BoatTreeView::BOAT)
+    else if(m_Selection==BoatExplorer::BOAT)
         s_pXSail->m_pMenus->m_pCurBoatMenu->exec(pEvent->globalPos());
 
     pEvent->accept();
 }
 
 
-void BoatTreeView::keyPressEvent(QKeyEvent *pEvent)
+void BoatExplorer::keyPressEvent(QKeyEvent *pEvent)
 {
     switch (pEvent->key())
     {
         case Qt::Key_Delete:
         {
-            if     (m_Selection==BoatTreeView::BOATOPP) s_pXSail->onDeleteCurBtOpp();
-            else if(m_Selection==BoatTreeView::BTPOLAR) s_pXSail->onDeleteCurBtPolar();
-            else if(m_Selection==BoatTreeView::BOAT)    s_pXSail->onDeleteCurBoat();
+            if     (m_Selection==BoatExplorer::BOATOPP) s_pXSail->onDeleteCurBtOpp();
+            else if(m_Selection==BoatExplorer::BTPOLAR) s_pXSail->onDeleteCurBtPolar();
+            else if(m_Selection==BoatExplorer::BOAT)    s_pXSail->onDeleteCurBoat();
 
             pEvent->accept();
             return;
@@ -1027,7 +1027,7 @@ void BoatTreeView::keyPressEvent(QKeyEvent *pEvent)
 }
 
 
-void BoatTreeView::selectCurrentObject()
+void BoatExplorer::selectCurrentObject()
 {
 //    qDebug("selectCurrentObject");
     if(s_pXSail->isPolarView())
@@ -1042,7 +1042,7 @@ void BoatTreeView::selectCurrentObject()
 }
 
 
-void BoatTreeView::selectObjects()
+void BoatExplorer::selectObjects()
 {
 //    qDebug("Select objects");
     m_pStruct->selectionModel()->blockSignals(true);
@@ -1055,7 +1055,7 @@ void BoatTreeView::selectObjects()
 
 
 /** update the line properties for each polar and popp item in the treeview */
-void BoatTreeView::setCurveParams()
+void BoatExplorer::setCurveParams()
 {
     ObjectTreeItem *pRootItem = m_pModel->rootItem();
     for(int i0=0; i0<pRootItem->rowCount(); i0++)
@@ -1102,7 +1102,7 @@ void BoatTreeView::setCurveParams()
 }
 
 
-Qt::CheckState BoatTreeView::boatState(Boat const *pBoat) const
+Qt::CheckState BoatExplorer::boatState(Boat const *pBoat) const
 {
     bool bAll = true;
     bool bNone = true;
@@ -1136,7 +1136,7 @@ Qt::CheckState BoatTreeView::boatState(Boat const *pBoat) const
 }
 
 
-Qt::CheckState BoatTreeView::btPolarState(BoatPolar const* pWPolar) const
+Qt::CheckState BoatExplorer::btPolarState(BoatPolar const* pWPolar) const
 {
     if(s_pXSail->is3dView())
     {
@@ -1163,7 +1163,7 @@ Qt::CheckState BoatTreeView::btPolarState(BoatPolar const* pWPolar) const
 }
 
 
-void BoatTreeView::onSwitchAll(bool bChecked)
+void BoatExplorer::onSwitchAll(bool bChecked)
 {
     if(s_pXSail->isPolarView())
     {
@@ -1174,7 +1174,7 @@ void BoatTreeView::onSwitchAll(bool bChecked)
 }
 
 
-void BoatTreeView::setOverallCheckStatus()
+void BoatExplorer::setOverallCheckStatus()
 {
     if(s_pXSail->isPolarView())
     {
@@ -1200,7 +1200,7 @@ void BoatTreeView::setOverallCheckStatus()
 }
 
 
-void BoatTreeView::onSetFilter()
+void BoatExplorer::onSetFilter()
 {
     QString filter = m_pStruct->filter();
     QStringList filters = filter.split(QRegularExpression("\\s+"));
@@ -1277,7 +1277,7 @@ void BoatTreeView::onSetFilter()
 }
 
 
-void BoatTreeView::updateVisibilityBoxes()
+void BoatExplorer::updateVisibilityBoxes()
 {
     for(int ir=0; ir<m_pModel->rowCount(); ir++)
     {

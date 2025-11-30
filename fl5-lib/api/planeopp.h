@@ -141,7 +141,7 @@ class FL5LIB_EXPORT PlaneOpp : public Opp3d
 
     public:
 
-        xfl::enumPolarType m_PolarType;   /**< defines the type of the parent WPolar */
+        xfl::enumPolarType m_PolarType;   /**< defines the type of the parent PlanePolar */
         std::vector<WingOpp> m_WingOpp;      /**< An array of pointers to the four WingOpp objects associated to the four wings */
 
         std::complex<double> m_EigenValue[8];      /**< the eigenvalues of the four longitudinal and four lateral modes */

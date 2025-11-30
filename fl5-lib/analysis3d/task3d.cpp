@@ -25,6 +25,7 @@
 
 #define _MATH_DEFINES_DEFINED
 
+#include <iostream>
 #include <thread>
 
 #include <task3d.h>
@@ -92,7 +93,7 @@ void Task3d::traceStdLog(std::string const &str)
     // output to the terminal
     if(m_bStdOut)
     {
-        printf(str.c_str());
+        std::cout << str.c_str() << std::endl;
     }
 }
 
@@ -110,7 +111,7 @@ void Task3d::traceVPWLog(double ctrl)
 }
 
 
-void Task3d::onCancel()
+void Task3d::cancelTask()
 {
     traceStdLog("Cancelling the panel analysis\n");
     if(m_pPA) m_pPA->cancelAnalysis();

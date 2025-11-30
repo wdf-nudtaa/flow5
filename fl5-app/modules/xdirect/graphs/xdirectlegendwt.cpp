@@ -31,7 +31,7 @@
 #include <modules/xdirect/graphs/xdirectlegendwt.h>
 
 #include <modules/xdirect/xdirect.h>
-#include <modules/xdirect/controls/foiltreeview.h>
+#include <modules/xdirect/controls/foilexplorer.h>
 
 #include <interfaces/graphs/graph/graph.h>
 #include <core/displayoptions.h>
@@ -229,7 +229,7 @@ void XDirectLegendWt::onClickedPolarBtn()
     Polar *pPolar = dynamic_cast<Polar*>(m_XflObjectMap[pLegendBtn]);
     s_pXDirect->setFoil(Objects2d::foil(pPolar->foilName()));
     s_pXDirect->setPolar(pPolar);
-    s_pXDirect->m_pFoilTreeView->selectPolar(pPolar);
+    s_pXDirect->m_pFoilExplorer->selectPolar(pPolar);
     s_pXDirect->updateView();
 }
 
@@ -248,7 +248,7 @@ void XDirectLegendWt::onClickedPolarBtnLine(LineStyle ls)
     pPolar->setLineColor(ls.m_Color);
     pPolar->setPointStyle(ls.m_Symbol);
     s_pXDirect->resetCurves();
-    s_pXDirect->m_pFoilTreeView->setCurveParams();
+    s_pXDirect->m_pFoilExplorer->setCurveParams();
     s_pXDirect->updateView();
     emit s_pXDirect->projectModified();
 }
@@ -268,7 +268,7 @@ void XDirectLegendWt::onClickedOppBtnLine(LineStyle ls)
     pOpp->setLineColor(ls.m_Color);
     pOpp->setPointStyle(ls.m_Symbol);
     s_pXDirect->resetCurves();
-    s_pXDirect->m_pFoilTreeView->setCurveParams();
+    s_pXDirect->m_pFoilExplorer->setCurveParams();
     s_pXDirect->updateView();
     emit s_pXDirect->projectModified();
 }
@@ -281,7 +281,7 @@ void XDirectLegendWt::onClickedOppBtn()
     s_pXDirect->setFoil(Objects2d::foil(pOpp->foilName()));
     s_pXDirect->setPolar(Objects2d::polar(pOpp->foilName(), pOpp->polarName()));
     s_pXDirect->setOpp(pOpp);
-    s_pXDirect->m_pFoilTreeView->selectOpPoint(pOpp);
+    s_pXDirect->m_pFoilExplorer->selectOpPoint(pOpp);
     s_pXDirect->updateView();
 }
 

@@ -27,7 +27,7 @@
 #include <QHeaderView>
 #include <QVBoxLayout>
 
-#include "planetreeview.h"
+#include "planeexplorer.h"
 
 #include <globals/mainframe.h>
 #include <modules/xplane/xplane.h>
@@ -49,18 +49,18 @@
 #include <api/planeopp.h>
 
 
-MainFrame *PlaneTreeView::s_pMainFrame(nullptr);
-XPlane *PlaneTreeView::s_pXPlane(nullptr);
-int PlaneTreeView::s_Width(351);
-QByteArray PlaneTreeView::s_SplitterSizes;
+MainFrame *PlaneExplorer::s_pMainFrame = nullptr;
+XPlane *PlaneExplorer::s_pXPlane = nullptr;
+int PlaneExplorer::s_Width=351;
+QByteArray PlaneExplorer::s_SplitterSizes;
 
-PlaneTreeView::PlaneTreeView(QWidget *pParent) : QWidget(pParent)
+PlaneExplorer::PlaneExplorer(QWidget *pParent) : QWidget(pParent)
 {
     m_pTreeView = nullptr;
-    m_pModel    = nullptr;
+    m_pModel  = nullptr;
 
     m_pptObjectProps = new PlainTextOutput;
-    m_Selection = PlaneTreeView::NOOBJECT;
+    m_Selection = PlaneExplorer::NOOBJECT;
 
     setupLayout();
 
@@ -81,69 +81,88 @@ PlaneTreeView::PlaneTreeView(QWidget *pParent) : QWidget(pParent)
     m_pDelegate = new ObjectTreeDelegate(this);
     m_pTreeView->setItemDelegate(m_pDelegate);
 
-    connect(m_pTreeView,                   SIGNAL(pressed(QModelIndex)),         SLOT(onItemClicked(QModelIndex)));
-    connect(m_pTreeView,                   SIGNAL(doubleClicked(QModelIndex)),   SLOT(onItemDoubleClicked(QModelIndex)));
+    connect(m_pTreeView, SIGNAL(pressed(QModelIndex)),         SLOT(onItemClicked(QModelIndex)));
+    connect(m_pTreeView, SIGNAL(doubleClicked(QModelIndex)),   SLOT(onItemDoubleClicked(QModelIndex)));
+//    connect(m_pTreeView, SIGNAL(activated(QModelIndex)),       SLOT(onCurrentRowChanged(QModelIndex)));
     connect(m_pTreeView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), SLOT(onCurrentRowChanged(QModelIndex)));
-    connect(m_pTreeView->m_pleFilter,      SIGNAL(returnPressed()),              SLOT(onSetFilter()));
+    connect(m_pTreeView->m_pleFilter, SIGNAL(returnPressed()), SLOT(onSetFilter()));
 }
 
 
-void PlaneTreeView::showEvent(QShowEvent *pEvent)
+PlaneExplorer::~PlaneExplorer()
+{
+}
+
+
+void PlaneExplorer::showEvent(QShowEvent *pEvent)
 {
     m_pMainSplitter->restoreState(s_SplitterSizes);
     QWidget::showEvent(pEvent);
 }
 
 
-void PlaneTreeView::hideEvent(QHideEvent *)
+void PlaneExplorer::hideEvent(QHideEvent *)
 {
     s_Width = width();
     s_SplitterSizes = m_pMainSplitter->saveState();
 }
 
 
-void PlaneTreeView::resizeEvent(QResizeEvent *pEvent)
+void PlaneExplorer::resizeEvent(QResizeEvent *pEvent)
 {
     updateGeometry(); // Notifies the layout system that the sizeHint() has changed
     pEvent->accept();
 }
 
 
-void PlaneTreeView::setObjectProperties()
+void PlaneExplorer::setObjectProperties()
 {
     Plane const *pPlane = s_pXPlane->m_pCurPlane;
-    std::string props;
+    QString props;
     switch(m_Selection)
     {
-        case PlaneTreeView::PLANE:
+        case PlaneExplorer::PLANE:
         {
             if(pPlane)
             {
                 if(pPlane->description().length())
                 {
-                    props = pPlane->description() + "\n\n";
+                    props = QString::fromStdString(pPlane->description()) + "\n\n";
                 }
                 if(s_pXPlane->m_pCurPlPolar)
-                    props += pPlane->planeData(s_pXPlane->m_pCurPlPolar->bIncludeOtherWingAreas());
+                    props += QString::fromStdString(pPlane->planeData(s_pXPlane->m_pCurPlPolar->bIncludeOtherWingAreas()));
                 else
-                    props += pPlane->planeData(false);
+                    props += QString::fromStdString(pPlane->planeData(false));
             }
             break;
         }
-        case PlaneTreeView::WPOLAR:
+        case PlaneExplorer::WPOLAR:
         {
             if(s_pXPlane->m_pCurPlPolar && pPlane)
             {
-                s_pXPlane->m_pCurPlPolar->getProperties(props, pPlane);
+                std::string properties;
+                s_pXPlane->m_pCurPlPolar->getProperties(properties, pPlane);
+                props = QString::fromStdString(properties);
                 break;
             }
             break;
         }
-        case PlaneTreeView::PLANEOPP:
+        case PlaneExplorer::PLANEOPP:
         {
             if(s_pXPlane->m_pCurPOpp)
             {
-                s_pXPlane->m_pCurPOpp->getProperties(pPlane, s_pXPlane->m_pCurPlPolar, props);
+                std::string properties;
+                s_pXPlane->m_pCurPOpp->getProperties(pPlane, s_pXPlane->m_pCurPlPolar, properties);
+                props = QString::fromStdString(properties);
+                break;
+            }
+            break;
+        }
+        case PlaneExplorer::STABILITYMODE:
+        {
+            if(s_pXPlane->m_pCurPOpp)
+            {
+//                fillEigenThings(props);
                 break;
             }
             break;
@@ -154,30 +173,44 @@ void PlaneTreeView::setObjectProperties()
             break;
         }
     }
-    m_pptObjectProps->setStdText(props);
+    m_pptObjectProps->setPlainText(props);
 }
 
 
-void PlaneTreeView::setPropertiesFont(QFont const &fnt)
+void PlaneExplorer::setPropertiesFont(QFont const &fnt)
 {
     m_pptObjectProps->setFont(fnt);
 }
 
 
-void PlaneTreeView::setTreeFontStruct(const FontStruct &fntstruct)
+void PlaneExplorer::setTreeFontStruct(const FontStruct &fntstruct)
 {
     m_pTreeView->setFont(fntstruct.font());
+//    m_pDelegate->setTreeFontStruct(fntstruct);
     //    setFont(fntstruct.font());
 }
 
 
-void PlaneTreeView::setupLayout()
+
+
+void PlaneExplorer::updatePOpps()
+{
+    for(int iPolar=0; iPolar<Objects3d::nPolars(); iPolar++)
+    {
+        PlanePolar const*pWPolar = Objects3d::wPolarAt(iPolar);
+        addPOpps(pWPolar);
+    }
+}
+
+
+void PlaneExplorer::setupLayout()
 {
     m_pTreeView = new ExpandableTreeView;
     m_pTreeView->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
     m_pTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_pTreeView->setUniformRowHeights(true);
     m_pTreeView->setRootIsDecorated(true);
+    m_pTreeView->setMinimumHeight(100);
     connect(m_pTreeView, SIGNAL(switchAll(bool)), SLOT(onSwitchAll(bool)));
 
 
@@ -196,7 +229,7 @@ void PlaneTreeView::setupLayout()
 }
 
 
-void PlaneTreeView::fillModelView()
+void PlaneExplorer::fillModelView()
 {
     m_pModel->removeRows(0, m_pModel->rowCount());
 
@@ -207,6 +240,7 @@ void PlaneTreeView::fillModelView()
         Plane const *pPlane = Objects3d::planeAt(iPlane);
         if(!pPlane) continue;
 
+        LineStyle ls(pPlane->theStyle());
         ObjectTreeItem *pPlaneItem = m_pModel->appendRow(pRootItem, pPlane->name(), pPlane->theStyle(), planeState(pPlane));
 
         fillWPolars(pPlaneItem, pPlane);
@@ -214,7 +248,8 @@ void PlaneTreeView::fillModelView()
 }
 
 
-void PlaneTreeView::updatePlane(const Plane *pPlane)
+/** updates the plane items after the WPolars or PlaneOpps have been changed, deleted or something */
+void PlaneExplorer::updatePlane(const Plane *pPlane)
 {
     if(!pPlane) return;
 
@@ -222,7 +257,7 @@ void PlaneTreeView::updatePlane(const Plane *pPlane)
     {
         ObjectTreeItem *pPlaneItem = m_pModel->item(ir);
         QModelIndex planeindex = m_pModel->index(ir, 0);
-        if(pPlaneItem->name().toStdString().compare(pPlane->name())==0)
+        if(pPlaneItem->name().compare(QString::fromStdString(pPlane->name()))==0)
         {
             ObjectTreeItem *pItem = m_pModel->itemFromIndex(planeindex);
             if(!pItem) continue;
@@ -237,7 +272,7 @@ void PlaneTreeView::updatePlane(const Plane *pPlane)
 }
 
 
-void PlaneTreeView::fillWPolars(ObjectTreeItem *pPlaneItem, const Plane *pPlane)
+void PlaneExplorer::fillWPolars(ObjectTreeItem *pPlaneItem, const Plane *pPlane)
 {
     if(!pPlane || !pPlaneItem) return;
 
@@ -249,7 +284,7 @@ void PlaneTreeView::fillWPolars(ObjectTreeItem *pPlaneItem, const Plane *pPlane)
         {
             LineStyle ls(pWPolar->theStyle());
             ls.m_bIsEnabled = true;
-            m_pModel->appendRow(pPlaneItem, pWPolar->name(), ls, wPolarState(pWPolar));
+            m_pModel->appendRow(pPlaneItem, pWPolar->name(), ls, polarState(pWPolar));
 
             addPOpps(pWPolar);
         }
@@ -257,17 +292,7 @@ void PlaneTreeView::fillWPolars(ObjectTreeItem *pPlaneItem, const Plane *pPlane)
 }
 
 
-void PlaneTreeView::updatePOpps()
-{
-    for(int iPolar=0; iPolar<Objects3d::nPolars(); iPolar++)
-    {
-        PlanePolar const*pWPolar = Objects3d::wPolarAt(iPolar);
-        addPOpps(pWPolar);
-    }
-}
-
-
-void PlaneTreeView::addPOpps(PlanePolar const *pWPolar)
+void PlaneExplorer::addPOpps(const PlanePolar *pWPolar)
 {
     if(!pWPolar) pWPolar = s_pXPlane->curWPolar();
     if(!pWPolar) return;
@@ -279,13 +304,13 @@ void PlaneTreeView::addPOpps(PlanePolar const *pWPolar)
     {
         ObjectTreeItem *pPlaneItem = m_pModel->item(ir);
         // find the polar's parent Plane
-        if(pPlaneItem->name().toStdString().compare(pWPolar->planeName())==0)
+        if(pPlaneItem->name().compare(QString::fromStdString(pWPolar->planeName()))==0)
         {
             //find the WPolar item
             for(int jr=0; jr<pPlaneItem->rowCount(); jr++)
             {
                 ObjectTreeItem *pWPolarItem = pPlaneItem->child(jr);
-                if(pWPolarItem->name().toStdString().compare(pWPolar->name())==0)
+                if(pWPolarItem->name().compare(QString::fromStdString(pWPolar->name()), Qt::CaseInsensitive)==0)
                 {
                     QModelIndex polarindex = m_pModel->index(jr, 0, pPlaneItem);
                     if(pWPolarItem->rowCount())
@@ -297,17 +322,25 @@ void PlaneTreeView::addPOpps(PlanePolar const *pWPolar)
                         if(pPOpp->planeName().compare(pWPolar->planeName())==0 && pPOpp->polarName().compare(pWPolar->name())==0)
                         {
                             QString strange = QString::fromStdString(pPOpp->name());
+                            ObjectTreeItem *pPOppItem = nullptr;
                             if(s_pXPlane->isPOppView())
                             {
                                 LineStyle ls(pPOpp->theStyle());
                                 ls.m_bIsEnabled = true;
-                                m_pModel->appendRow(pWPolarItem, strange, ls, pPOpp->isVisible() ? Qt::Checked : Qt::Unchecked);
+                                pPOppItem = m_pModel->appendRow(pWPolarItem, strange, ls, pPOpp->isVisible() ? Qt::Checked : Qt::Unchecked);
                             }
                             else
                             {
                                 LineStyle ls(pPOpp->theStyle());
                                 ls.m_bIsEnabled = false;
-                                m_pModel->appendRow(pWPolarItem, strange, ls, Qt::PartiallyChecked);
+                                pPOppItem = m_pModel->appendRow(pWPolarItem, strange, ls, Qt::PartiallyChecked);
+                            }
+                            if(pPOpp->isType7() && pPOppItem)
+                            {
+                                for(int iMode=0; iMode<8; iMode++)
+                                {
+                                    m_pModel->appendRow(pPOppItem, QString::asprintf("Mode %d", iMode+1), LineStyle(), Qt::Unchecked);
+                                }
                             }
                         }
                     }
@@ -323,138 +356,7 @@ void PlaneTreeView::addPOpps(PlanePolar const *pWPolar)
 }
 
 
-void PlaneTreeView::onCurrentRowChanged(QModelIndex currentfilteredidx)
-{
-    setObjectFromIndex(currentfilteredidx);
-    s_pXPlane->updateView();
-}
-
-
-void PlaneTreeView::onItemClicked(const QModelIndex &index)
-{
-    PlaneOpp *pPOpp   = s_pXPlane->m_pCurPOpp;
-    PlanePolar   *pWPolar = s_pXPlane->m_pCurPlPolar;
-    Plane    *pPlane  = s_pXPlane->m_pCurPlane;
-
-    if(index.column()==1)
-    {
-        ObjectTreeItem *pItem = m_pModel->itemFromIndex(index);
-
-        if(pPOpp)
-        {
-            if(s_pXPlane->isPOppView())
-            {
-                LineStyle ls(pPOpp->theStyle());
-                LineMenu *pLineMenu = new LineMenu(nullptr);
-                pLineMenu->initMenu(ls);
-                pLineMenu->exec(QCursor::pos());
-                ls = pLineMenu->theStyle();
-                pPOpp->setLineStipple(ls.m_Stipple);
-                pPOpp->setLineWidth(ls.m_Width);
-                pPOpp->setLineColor(ls.m_Color);
-                pPOpp->setPointStyle(ls.m_Symbol);
-                pItem->setTheStyle(ls);
-                s_pXPlane->resetCurves();
-                emit s_pXPlane->projectModified();
-            }
-        }
-        else if(pWPolar)
-        {
-            if(s_pXPlane->isPOppView() || s_pXPlane->isPolarView() || s_pXPlane->isStabilityView())
-            {
-                LineStyle ls(pWPolar->theStyle());
-                LineMenu *pLineMenu = new LineMenu(nullptr);
-                pLineMenu->initMenu(ls);
-                pLineMenu->exec(QCursor::pos());
-                ls = pLineMenu->theStyle();
-
-                Objects3d::setWPolarStyle(pWPolar, ls, pLineMenu->styleChanged(), pLineMenu->widthChanged(), pLineMenu->colorChanged(), pLineMenu->pointsChanged(), xfl::darkFactor());
-                setCurveParams();
-
-                if(pItem) pItem->setTheStyle(ls);
-                s_pXPlane->resetCurves();
-                emit s_pXPlane->projectModified();
-            }
-        }
-        else if(pPlane)
-        {
-            LineStyle ls(pPlane->theStyle());
-            LineMenu *pLineMenu = new LineMenu(nullptr);
-            pLineMenu->initMenu(ls);
-            pLineMenu->exec(QCursor::pos());
-            ls = pLineMenu->theStyle();
-
-            Objects3d::setPlaneStyle(pPlane, ls, pLineMenu->styleChanged(), pLineMenu->widthChanged(), pLineMenu->colorChanged(), pLineMenu->pointsChanged(),xfl::darkFactor());
-            setCurveParams();
-
-            if(pItem) pItem->setTheStyle(ls);
-            s_pXPlane->resetCurves();
-            emit s_pXPlane->projectModified();
-
-            s_pXPlane->resetCurves();
-        }
-    }
-    else if (index.column()==2)
-    {
-        ObjectTreeItem *pItem = m_pModel->itemFromIndex(index);
-        if(pPOpp)
-        {
-            if(s_pXPlane->isPOppView())
-            {
-                if(pItem)
-                {
-                    pPOpp->setVisible(!pPOpp->isVisible());
-                    setCurveParams();
-                    s_pXPlane->resetCurves();
-                    emit s_pXPlane->projectModified();
-                }
-            }
-        }
-        else if(pWPolar)
-        {
-//            if(s_pXPlane->isPOppView() || s_pXPlane->isPolarView())
-            {
-                if(pItem)
-                {
-                    Qt::CheckState state = wPolarState(pWPolar);
-                    if(state==Qt::PartiallyChecked || state==Qt::Unchecked)
-                        Objects3d::setWPolarVisible(pWPolar, true);
-                    else
-                        Objects3d::setWPolarVisible(pWPolar, false);
-
-                    setCurveParams();
-                    s_pXPlane->resetCurves();
-                    emit s_pXPlane->projectModified();
-                }
-            }
-        }
-        else if(pPlane)
-        {
-            if(pItem)
-            {
-                Qt::CheckState state = planeState(pPlane);
-                if(state==Qt::PartiallyChecked || state==Qt::Unchecked)
-                    Objects3d::setPlaneVisible(pPlane, true,  s_pXPlane->isStabPolarView());
-                else if(state==Qt::Checked)
-                    Objects3d::setPlaneVisible(pPlane, false, s_pXPlane->isStabPolarView());
-
-                setCurveParams();
-                s_pXPlane->resetCurves();
-                emit s_pXPlane->projectModified();
-            }
-        }
-        setOverallCheckStatus();
-    }
-
-    m_pModel->updateData();
-    s_pXPlane->m_pAnalysisControls->setAnalysisRange();
-    s_pXPlane->updateView();
-
-    update();
-}
-
-
-void PlaneTreeView::onItemDoubleClicked(const QModelIndex &index)
+void PlaneExplorer::onItemDoubleClicked(const QModelIndex &index)
 {
     setObjectFromIndex(index);
 
@@ -462,11 +364,11 @@ void PlaneTreeView::onItemDoubleClicked(const QModelIndex &index)
     s_pXPlane->updateView();
     if(index.column()==0)
     {
-        if(m_Selection==PlaneTreeView::PLANE)
+        if(m_Selection==PlaneExplorer::PLANE)
         {
             s_pXPlane->onEditCurPlane();
         }
-        else if(m_Selection==PlaneTreeView::WPOLAR)
+        else if(m_Selection==PlaneExplorer::WPOLAR)
         {
             s_pXPlane->onEditCurWPolar();
         }
@@ -474,71 +376,7 @@ void PlaneTreeView::onItemDoubleClicked(const QModelIndex &index)
 }
 
 
-void PlaneTreeView::setObjectFromIndex(QModelIndex index)
-{
-    ObjectTreeItem *pSelectedItem = nullptr;
-
-    if(index.column()==0)
-    {
-        pSelectedItem = m_pModel->itemFromIndex(index);
-    }
-    else if(index.column()>=1)
-    {
-        QModelIndex ind = index.siblingAtColumn(0);
-        pSelectedItem = m_pModel->itemFromIndex(ind);
-    }
-
-    if(!pSelectedItem) return;
-
-    if(pSelectedItem->level()==1)
-    {
-        s_pXPlane->setPlane(pSelectedItem->name());
-        s_pXPlane->m_pCurPlPolar = nullptr;
-        s_pXPlane->m_pCurPOpp = nullptr;
-        m_Selection = PlaneTreeView::PLANE;
-    }
-    else if(pSelectedItem->level()==2)
-    {
-        ObjectTreeItem *pPlaneItem = pSelectedItem->parentItem();
-        Plane *pPlane  = Objects3d::plane(pPlaneItem->name().toStdString());
-        PlanePolar *pWPolar = Objects3d::wPolar(pPlane, pSelectedItem->name().toStdString());
-        s_pXPlane->setPlane(pPlane);
-        s_pXPlane->setPolar(pWPolar);
-        s_pXPlane->m_pCurPOpp = nullptr;
-
-        m_Selection = PlaneTreeView::WPOLAR;
-    }
-    else if(pSelectedItem->level()==3)
-    {
-        ObjectTreeItem *pWPolarItem = pSelectedItem->parentItem();
-        ObjectTreeItem *pPlaneItem = pWPolarItem->parentItem();
-        Plane *pPlane  = Objects3d::plane(pPlaneItem->name().toStdString());
-        PlanePolar *pWPolar = Objects3d::wPolar(pPlane, pWPolarItem->name().toStdString());
-
-        PlaneOpp *pPOpp   = Objects3d::planeOpp(pPlane, pWPolar, pSelectedItem->name().toStdString());
-
-        m_Selection = PlaneTreeView::PLANEOPP;
-
-        if(pPlane!=s_pXPlane->m_pCurPlane)
-        {
-            s_pXPlane->setPlane(pPlane);
-            s_pXPlane->setPolar(pWPolar);
-        }
-        else if(pWPolar != s_pXPlane->m_pCurPlPolar) s_pXPlane->setPolar(pWPolar);
-        if(pPOpp)
-        {
-            s_pXPlane->setPlaneOpp(pPOpp);
-            s_pXPlane->resetCurves();
-        }
-    }
-    else m_Selection = PlaneTreeView::NOOBJECT;
-
-    s_pXPlane->setControls();
-    setObjectProperties();
-}
-
-
-void PlaneTreeView::insertWPolar(PlanePolar const *pWPolar)
+void PlaneExplorer::insertWPolar(const PlanePolar *pWPolar)
 {
     if(!pWPolar) pWPolar = s_pXPlane->curWPolar();
     if(!pWPolar) return;
@@ -548,28 +386,28 @@ void PlaneTreeView::insertWPolar(PlanePolar const *pWPolar)
         ObjectTreeItem *pPlaneItem = m_pModel->item(ir);
 
         // find the polar's parent Plane
-        if(pPlaneItem->name().toStdString().compare(pWPolar->planeName())==0)
+        if(pPlaneItem->name().compare(QString::fromStdString(pWPolar->planeName()))==0)
         {
             ObjectTreeItem *pNewPolarItem = nullptr;
             for(int jr=0; jr<pPlaneItem->rowCount(); jr++)
             {
                 ObjectTreeItem *pOldPolarItem = pPlaneItem->child(jr);
-                if(pOldPolarItem->name().toStdString().compare(pWPolar->name())==0)
+                if(pOldPolarItem->name().compare(QString::fromStdString(pWPolar->name()), Qt::CaseInsensitive)==0)
                 {
                     pNewPolarItem = pOldPolarItem;
                 }
-                else if(pOldPolarItem->name().toStdString().compare(pWPolar->name())>0)
+                else if(pOldPolarItem->name().compare(QString::fromStdString(pWPolar->name()), Qt::CaseInsensitive)>0)
                 {
                     //insert before
 //                    pNewPolarItem = pPlaneItem->insertRow(jr, pWPolar->name(), pWPolar->theStyle(), wPolarState(pWPolar));
-                    pNewPolarItem = m_pModel->insertRow(pPlaneItem, jr, pWPolar->name(), pWPolar->theStyle(), wPolarState(pWPolar));
+                    pNewPolarItem = m_pModel->insertRow(pPlaneItem, jr, pWPolar->name(), pWPolar->theStyle(), polarState(pWPolar));
                 }
                 if(pNewPolarItem) break;
             }
             if(!pNewPolarItem)
             {
                 //append
-                pNewPolarItem = m_pModel->appendRow(pPlaneItem, pWPolar->name(), pWPolar->theStyle(), wPolarState(pWPolar));
+                pNewPolarItem = m_pModel->appendRow(pPlaneItem, pWPolar->name(), pWPolar->theStyle(), polarState(pWPolar));
             }
 
             if(pNewPolarItem)
@@ -580,18 +418,17 @@ void PlaneTreeView::insertWPolar(PlanePolar const *pWPolar)
                 LineStyle ls(pWPolar->theStyle());
                 ls.m_bIsEnabled = (s_pXPlane->isPolarView() || s_pXPlane->isStabilityView());
                 pNewPolarItem->setTheStyle(ls);
-                pNewPolarItem->setCheckState(wPolarState(pWPolar));
+                pNewPolarItem->setCheckState(polarState(pWPolar));
             }
             return;
         }
     }
 
-    m_pModel->updateData();
     setOverallCheckStatus();
 }
 
 
-void PlaneTreeView::insertPlane(Plane* pPlane)
+void PlaneExplorer::insertPlane(Plane* pPlane)
 {
     if(!pPlane) pPlane = s_pXPlane->curPlane();
     if(!pPlane) return;
@@ -601,12 +438,12 @@ void PlaneTreeView::insertPlane(Plane* pPlane)
     {
         ObjectTreeItem *pItem = m_pModel->item(ir);
         // insert alphabetically
-        if(pItem->name().toStdString().compare(pPlane->name())==0)
+        if(pItem->name().compare(QString::fromStdString(pPlane->name()))==0)
         {
             //A Plane of that name already exists
             return;
         }
-        else if(pItem->name().toStdString().compare(pPlane->name())>0)
+        else if(pItem->name().compare(QString::fromStdString(pPlane->name()), Qt::CaseInsensitive)>0)
         {
             //insert before
             m_pModel->insertRow(m_pModel->rootItem(), ir, pPlane->name(), pPlane->theStyle(), planeState(pPlane));
@@ -630,12 +467,11 @@ void PlaneTreeView::insertPlane(Plane* pPlane)
         }
     }
 
-    m_pModel->updateData();
     setOverallCheckStatus();
 }
 
 
-void PlaneTreeView::selectPlane(Plane *pPlane)
+void PlaneExplorer::selectPlane(Plane *pPlane)
 {
     if(!pPlane) pPlane = s_pXPlane->m_pCurPlane;
     if(!pPlane) return;
@@ -644,9 +480,9 @@ void PlaneTreeView::selectPlane(Plane *pPlane)
     for(int ir=0; ir<m_pModel->rowCount(); ir++)
     {
         ObjectTreeItem *pPlaneItem = m_pModel->item(ir);
-        if(pPlaneItem->name().toStdString().compare(pPlane->name())==0)
+        if(pPlaneItem->name().compare(QString::fromStdString(pPlane->name()), Qt::CaseInsensitive)==0)
         {
-            m_Selection = PlaneTreeView::PLANE;
+            m_Selection = PlaneExplorer::PLANE;
 
             QModelIndex ind = m_pModel->index(ir, 0, m_pModel->rootItem());
             if(ind.isValid())
@@ -666,7 +502,7 @@ void PlaneTreeView::selectPlane(Plane *pPlane)
 }
 
 
-void PlaneTreeView::selectWPolar(PlanePolar *pWPolar, bool bSelectPOpp)
+void PlaneExplorer::selectWPolar(PlanePolar *pWPolar, bool bSelectPOpp)
 {
     if(!pWPolar) pWPolar = s_pXPlane->curWPolar();
     if(!pWPolar) return;
@@ -682,15 +518,15 @@ void PlaneTreeView::selectWPolar(PlanePolar *pWPolar, bool bSelectPOpp)
         QModelIndex planeindex = m_pModel->index(ir, 0);
         Q_ASSERT(planeindex.isValid());
         // find the polar's parent Plane
-        if(pPlaneItem->name().toStdString().compare(pWPolar->planeName())==0)
+        if(pPlaneItem->name().compare(QString::fromStdString(pWPolar->planeName()))==0)
         {
             //find the WPolar item
             for(int jr=0; jr<pPlaneItem->rowCount(); jr++)
             {
                 ObjectTreeItem *pPolarItem = pPlaneItem->child(jr);
-                if(pPolarItem->name().toStdString().compare(pWPolar->name())==0)
+                if(pPolarItem->name().compare(QString::fromStdString(pWPolar->name()), Qt::CaseInsensitive)==0)
                 {
-                    m_Selection = PlaneTreeView::WPOLAR;
+                    m_Selection = PlaneExplorer::WPOLAR;
 
                     QModelIndex polarindex = m_pModel->index(jr, 0, planeindex);
                     if(polarindex.isValid())
@@ -714,7 +550,7 @@ void PlaneTreeView::selectWPolar(PlanePolar *pWPolar, bool bSelectPOpp)
 }
 
 
-void PlaneTreeView::selectPlaneOpp(PlaneOpp *pPOpp)
+void PlaneExplorer::selectPlaneOpp(PlaneOpp *pPOpp)
 {
     if(!pPOpp) pPOpp = s_pXPlane->m_pCurPOpp;
     if(!pPOpp) return;
@@ -726,22 +562,22 @@ void PlaneTreeView::selectPlaneOpp(PlaneOpp *pPOpp)
     {
         ObjectTreeItem *pPlaneItem = m_pModel->item(ir);
         // find the polar's parent Plane
-        if(pPlaneItem->name().toStdString().compare(pPOpp->planeName())==0)
+        if(pPlaneItem->name().compare(QString::fromStdString(pPOpp->planeName()))==0)
         {
             //find the WPolar item
             for(int jr=0; jr<pPlaneItem->rowCount(); jr++)
             {
-                //                const QModelIndex &oldWPolarChild = pPlaneItem->index().child(jr, 0);
-                //                PlaneTreeItem *pPolarItem = m_pModel->itemFromIndex(oldWPolarChild);
+                //				const QModelIndex &oldWPolarChild = pPlaneItem->index().child(jr, 0);
+                //				PlaneTreeItem *pPolarItem = m_pModel->itemFromIndex(oldWPolarChild);
                 ObjectTreeItem *pPolarItem = pPlaneItem->child(jr);
 
-                if(pPolarItem->name().toStdString().compare(pPOpp->polarName())==0)
+                if(pPolarItem->name().compare(QString::fromStdString(pPOpp->polarName()), Qt::CaseInsensitive)==0)
                 {
                     //find the POpp item
                     for(int jr=0; jr<pPolarItem->rowCount(); jr++)
                     {
-                        //                        const QModelIndex &poppChild = pPolarItem->index().child(jr, 0);
-                        //                        PlaneTreeItem *poppItem = m_pModel->itemFromIndex(poppChild);
+                        //						const QModelIndex &poppChild = pPolarItem->index().child(jr, 0);
+                        //						PlaneTreeItem *poppItem = m_pModel->itemFromIndex(poppChild);
                         ObjectTreeItem *pPOppItem = pPolarItem->child(jr);
                         QModelIndex poppChild = m_pModel->index(jr,0, pPolarItem);
                         QString strange = QString::fromStdString(pPOpp->name());
@@ -749,7 +585,7 @@ void PlaneTreeView::selectPlaneOpp(PlaneOpp *pPOpp)
                         if(strange.compare(pPOppItem->name())==0)
                         {
                             bSelected = true;
-                            m_Selection = PlaneTreeView::PLANEOPP;
+                            m_Selection = PlaneExplorer::PLANEOPP;
                             m_pTreeView->setCurrentIndex(poppChild);
                             m_pTreeView->scrollTo(poppChild);
                             break;
@@ -811,7 +647,7 @@ void PlaneTreeView::selectPlaneOpp(PlaneOpp *pPOpp)
  * @param pPlane a pointer to the plane object to be removed
  * @return the name of the next plane to select
  */
-QString PlaneTreeView::removePlane(Plane *pPlane)
+QString PlaneExplorer::removePlane(Plane *pPlane)
 {
     if(!pPlane) return "";
     return removePlane(QString::fromStdString(pPlane->name()));
@@ -824,7 +660,7 @@ QString PlaneTreeView::removePlane(Plane *pPlane)
  * @param planeName the name of the plane object to be removed
  * @return the name of the next plane to select
  */
-QString PlaneTreeView::removePlane(QString const &planeName)
+QString PlaneExplorer::removePlane(QString const &planeName)
 {
     if(!planeName.length()) return QString();
 
@@ -845,7 +681,6 @@ QString PlaneTreeView::removePlane(QString const &planeName)
         }
     }
 
-    m_pModel->updateData();
     setOverallCheckStatus();
     m_pTreeView->selectionModel()->blockSignals(false);
 
@@ -855,12 +690,11 @@ QString PlaneTreeView::removePlane(QString const &planeName)
         return QString::fromStdString(Objects3d::planeAt(irow-1)->name());
 
 
-    m_pModel->updateData();
-    return QString("");
+    return QString();
 }
 
 
-QString PlaneTreeView::removeWPolar(PlanePolar *pWPolar)
+QString PlaneExplorer::removeWPolar(PlanePolar *pWPolar)
 {
     if(!pWPolar) return "";
 
@@ -870,7 +704,7 @@ QString PlaneTreeView::removeWPolar(PlanePolar *pWPolar)
         ObjectTreeItem *pPlaneItem = m_pModel->item(ir);
         QModelIndex planeindex = m_pModel->index(ir, 0);
         // find the polar's parent Plane
-        if(pPlaneItem->name().toStdString().compare(pWPolar->planeName())==0)
+        if(pPlaneItem->name().compare(QString::fromStdString(pWPolar->planeName()))==0)
         {
             for(int jr=0; jr<pPlaneItem->rowCount(); jr++)
             {
@@ -878,7 +712,7 @@ QString PlaneTreeView::removeWPolar(PlanePolar *pWPolar)
 
                 if(pOldPolarItem)
                 {
-                    if(pOldPolarItem->name().toStdString().compare(pWPolar->name())==0)
+                    if(pOldPolarItem->name().compare(QString::fromStdString(pWPolar->name()), Qt::CaseInsensitive)==0)
                     {
                         m_pModel->removeRow(jr, planeindex);
 
@@ -897,14 +731,13 @@ QString PlaneTreeView::removeWPolar(PlanePolar *pWPolar)
         }
     }
 
-    m_pModel->updateData();
     setOverallCheckStatus();
     m_pTreeView->selectionModel()->blockSignals(false);
     return QString();
 }
 
 
-void PlaneTreeView::removeWPolars(Plane const*pPlane)
+void PlaneExplorer::removeWPolars(Plane const*pPlane)
 {
     if(!pPlane) return;
 
@@ -913,7 +746,7 @@ void PlaneTreeView::removeWPolars(Plane const*pPlane)
     {
         ObjectTreeItem *pPlaneItem = m_pModel->item(ir);
         // find the polar's parent Plane
-        if(pPlaneItem->name().toStdString().compare(pPlane->name())==0)
+        if(pPlaneItem->name().compare(QString::fromStdString(pPlane->name()))==0)
         {
             QModelIndex planeindex = m_pModel->index(ir, 0);
             Q_ASSERT(planeindex.isValid());
@@ -922,13 +755,12 @@ void PlaneTreeView::removeWPolars(Plane const*pPlane)
         }
     }
 
-    m_pModel->updateData();
     setOverallCheckStatus();
     m_pTreeView->selectionModel()->blockSignals(false);
 }
 
 
-void PlaneTreeView::removeWPolarPOpps(PlanePolar const*pWPolar)
+void PlaneExplorer::removeWPolarPOpps(PlanePolar const*pWPolar)
 {
     if(!pWPolar) return;
 
@@ -937,13 +769,13 @@ void PlaneTreeView::removeWPolarPOpps(PlanePolar const*pWPolar)
     {
         ObjectTreeItem *pPlaneItem = m_pModel->item(ir);
         // find the polar's parent Plane item
-        if(pPlaneItem->name().toStdString().compare(pWPolar->planeName())==0)
+        if(pPlaneItem->name().compare(QString::fromStdString(pWPolar->planeName()))==0)
         {
             //find the WPolar item
             for(int jr=0; jr<pPlaneItem->rowCount(); jr++)
             {
                 ObjectTreeItem *pPolarItem = pPlaneItem->child(jr);
-                if(pPolarItem->name().toStdString().compare(pWPolar->name())==0)
+                if(pPolarItem->name().compare(QString::fromStdString(pWPolar->name()), Qt::CaseInsensitive)==0)
                 {
                     QModelIndex polarindex = m_pModel->index(jr, 0, pPlaneItem);
                     m_pModel->removeRows(0, pPolarItem->rowCount(), polarindex);
@@ -953,13 +785,12 @@ void PlaneTreeView::removeWPolarPOpps(PlanePolar const*pWPolar)
         }
     }
 
-    m_pModel->updateData();
     setOverallCheckStatus();
     m_pTreeView->selectionModel()->blockSignals(false);
 }
 
 
-void PlaneTreeView::removePlaneOpp(PlaneOpp *pPOpp)
+void PlaneExplorer::removePlaneOpp(PlaneOpp *pPOpp)
 {
     if(!pPOpp) return;
 
@@ -974,13 +805,13 @@ void PlaneTreeView::removePlaneOpp(PlaneOpp *pPOpp)
         Plane *m_pPlane = Objects3d::plane(pPlaneItem->name().toStdString());
 
         // find the polar's parent Plane
-        if(pPlaneItem->name().toStdString().compare(pPOpp->planeName())==0)
+        if(pPlaneItem->name().compare(QString::fromStdString(pPOpp->planeName()))==0)
         {
             //find the WPolar item
             for(int jr=0; jr<pPlaneItem->rowCount(); jr++)
             {
                 ObjectTreeItem *pPolarItem = pPlaneItem->child(jr);
-                if(pPolarItem->name().toStdString().compare(pPOpp->polarName())==0)
+                if(pPolarItem->name().compare(QString::fromStdString(pPOpp->polarName()), Qt::CaseInsensitive)==0)
                 {
                     QModelIndex polarindex = m_pModel->index(jr, 0, pPlaneItem);
 
@@ -991,7 +822,7 @@ void PlaneTreeView::removePlaneOpp(PlaneOpp *pPOpp)
                     for(int jr=0; jr<pPolarItem->rowCount(); jr++)
                     {
                         ObjectTreeItem *poppItem = pPolarItem->child(jr);
-                        if(poppItem->name().toStdString().compare(pPOpp->name())==0)
+                        if(poppItem->name().compare(QString::fromStdString(pPOpp->name()))==0)
                         {
                             m_pModel->removeRow(jr,polarindex);
                             bRemoved = true;
@@ -1004,25 +835,20 @@ void PlaneTreeView::removePlaneOpp(PlaneOpp *pPOpp)
         }
     }
 
-//    m_pModel->blockSignals(false);
-//    m_pTreeView->selectionModel()->blockSignals(false);
-
-//    m_pTreeView->update();
-//    m_pModel->updateData();
     setOverallCheckStatus();
 }
 
 
-void PlaneTreeView::contextMenuEvent(QContextMenuEvent *pEvent)
+void PlaneExplorer::contextMenuEvent(QContextMenuEvent *pEvent)
 {
     QModelIndex index = m_pTreeView->currentIndex();
     setObjectFromIndex(index);
 
     ObjectTreeItem *pItem = m_pModel->itemFromIndex(index);
 
-    PlaneOpp *m_pPOpp = s_pXPlane->m_pCurPOpp;
-    PlanePolar *m_pWPolar = s_pXPlane->m_pCurPlPolar;
-    Plane* m_pPlane = s_pXPlane->m_pCurPlane;
+    PlaneOpp *pPOpp = s_pXPlane->m_pCurPOpp;
+    PlanePolar *pPlPolar = s_pXPlane->m_pCurPlPolar;
+    Plane* pPlane = s_pXPlane->m_pCurPlane;
 
     QString strong;
 
@@ -1030,103 +856,104 @@ void PlaneTreeView::contextMenuEvent(QContextMenuEvent *pEvent)
 
     if(pItem->level()==1)
     {
-        // no parent, a plane is selected
-        m_pPlane = Objects3d::plane(pItem->name().toStdString());
-        if(m_pPlane) strong = QString::fromStdString(m_pPlane->name());
+        // no parent, we have a plane
+        pPlane = Objects3d::plane(pItem->name().toStdString());
+        if(pPlane) strong  = QString::fromStdString(pPlane->name());
         else         strong.clear();
     }
     else if(pItem->level()==2)
     {
-        // a WPolar is selected;
+        //we have a WPolar;
         ObjectTreeItem *pParent = pItem->parentItem();
-        m_pPlane = Objects3d::plane(pParent->name().toStdString());
-        m_pWPolar = Objects3d::wPolar(m_pPlane, pItem->name().toStdString());
-        if(m_pWPolar) strong = QString::fromStdString(m_pWPolar->name());
+        pPlane = Objects3d::plane(pParent->name().toStdString());
+        pPlPolar = Objects3d::wPolar(pPlane, pItem->name().toStdString());
+        if(pPlPolar) strong = QString::fromStdString(pPlPolar->name());
         else          strong.clear();
     }
     else if(pItem->level()==3)
     {
-        // a POpp is selected;
+        //we have a POpp selected;
         ObjectTreeItem *pParent = pItem->parentItem();
         ObjectTreeItem *pParent2 = pParent->parentItem();
-        m_pPlane  = Objects3d::plane(pParent2->name().toStdString());
-        m_pWPolar = Objects3d::wPolar(m_pPlane, pParent->name().toStdString());
-        m_pPOpp   = Objects3d::planeOpp(m_pPlane, m_pWPolar, pItem->name().toStdString());
-        if(m_pPOpp) strong = pItem->name();
+        pPlane  = Objects3d::plane(pParent2->name().toStdString());
+        pPlPolar = Objects3d::wPolar(pPlane, pParent->name().toStdString());
+        pPOpp   = Objects3d::planeOpp(pPlane, pPlPolar, pItem->name().toStdString());
+        if(pPOpp) strong = pItem->name();
         else        strong.clear();
     }
 
-    if     (m_Selection==PlaneTreeView::PLANEOPP && m_pPOpp)
+    if     (m_Selection==PlaneExplorer::PLANEOPP && pPOpp)
         s_pXPlane->m_pMenus->m_pCurPOppCtxMenu->exec(pEvent->globalPos());
-    else if(m_Selection==PlaneTreeView::WPOLAR && m_pWPolar)
+    else if(m_Selection==PlaneExplorer::WPOLAR && pPlPolar)
         s_pXPlane->m_pMenus->m_pCurWPlrCtxMenu->exec(pEvent->globalPos());
-    else if(m_Selection==PlaneTreeView::PLANE && m_pPlane)
+    else if(m_Selection==PlaneExplorer::PLANE && pPlane)
         s_pXPlane->m_pMenus->m_pCurrentPlaneCtxMenu->exec(pEvent->globalPos());
 
     pEvent->accept();
 }
 
 
-void PlaneTreeView::keyPressEvent(QKeyEvent *pEvent)
+void PlaneExplorer::keyPressEvent(QKeyEvent *pEvent)
 {
-    PlaneOpp *m_pPOpp = s_pXPlane->m_pCurPOpp;
-    PlanePolar *m_pWPolar = s_pXPlane->m_pCurPlPolar;
-    Plane* m_pPlane = s_pXPlane->m_pCurPlane;
+    PlaneOpp   *pPOpp = s_pXPlane->m_pCurPOpp;
+    PlanePolar *pWPolar = s_pXPlane->m_pCurPlPolar;
+    Plane      *pPlane = s_pXPlane->m_pCurPlane;
 
     switch (pEvent->key())
     {
         case Qt::Key_Delete:
         {
-            if(m_Selection==PlaneTreeView::PLANEOPP && m_pPOpp)
+            if(m_Selection==PlaneExplorer::PLANEOPP && pPOpp)
                 s_pXPlane->onDeleteCurPOpp();
-            else if(m_Selection==PlaneTreeView::WPOLAR && m_pWPolar)
+            else if(m_Selection==PlaneExplorer::WPOLAR && pWPolar)
                 s_pXPlane->onDeleteCurWPolar();
-            else if(m_Selection==PlaneTreeView::PLANE && m_pPlane)
+            else if(m_Selection==PlaneExplorer::PLANE && pPlane)
                 s_pXPlane->onDeleteCurPlane();
 
             pEvent->accept();
-            return;
+            break;
         }
+
         default:
             s_pXPlane->keyPressEvent(pEvent);
     }
 }
 
 
-void PlaneTreeView::loadSettings(QSettings &settings)
+void PlaneExplorer::loadSettings(QSettings &settings)
 {
     settings.beginGroup("PlaneTreeView");
     {
-        s_SplitterSizes = settings.value("HSplitterSizes").toByteArray();
+        s_SplitterSizes = settings.value("SplitterSizes").toByteArray();
     }
     settings.endGroup();
 }
 
 
-void PlaneTreeView::saveSettings(QSettings &settings)
+void PlaneExplorer::saveSettings(QSettings &settings)
 {
     settings.beginGroup("PlaneTreeView");
     {
-        settings.setValue("HSplitterSizes", s_SplitterSizes);
+        settings.setValue("SplitterSizes", s_SplitterSizes);
     }
     settings.endGroup();
 }
 
 
 /**
- * @brief PlaneTreeView::selectCurrentItem
+ * @brief PlaneExplorer::selectCurrentItem
  * Selects the active object, a PlaneOpp, a WPolar or a Plane
  */
-void PlaneTreeView::selectCurrentObject()
+void PlaneExplorer::selectCurrentObject()
 {
-    //    qDebug("selectCurrentObject");
+    //	qDebug("selectCurrentObject");
     if(s_pXPlane->isPOppView() || s_pXPlane->m_eView==XPlane::CPVIEW)
     {
         if     (s_pXPlane->m_pCurPOpp)   selectPlaneOpp(s_pXPlane->m_pCurPOpp);
         else if(s_pXPlane->m_pCurPlPolar) selectWPolar(s_pXPlane->m_pCurPlPolar, false);
         else if(s_pXPlane->m_pCurPlane)  selectPlane(s_pXPlane->m_pCurPlane);
     }
-    else if(s_pXPlane->m_eView==XPlane::WPOLARVIEW || s_pXPlane->m_eView==XPlane::STABPOLARVIEW)
+    else if(s_pXPlane->m_eView==XPlane::POLARVIEW || s_pXPlane->m_eView==XPlane::STABPOLARVIEW)
     {
         if     (s_pXPlane->m_pCurPlPolar) selectWPolar(s_pXPlane->m_pCurPlPolar, false);
         else if(s_pXPlane->m_pCurPlane)  selectPlane(s_pXPlane->m_pCurPlane);
@@ -1138,7 +965,7 @@ void PlaneTreeView::selectCurrentObject()
 }
 
 
-void PlaneTreeView::selectObjects()
+void PlaneExplorer::selectObjects()
 {
     if     (s_pXPlane->curPOpp())   selectPlaneOpp();
     else if(s_pXPlane->curWPolar()) selectWPolar(s_pXPlane->curWPolar(), false);
@@ -1146,8 +973,54 @@ void PlaneTreeView::selectObjects()
 }
 
 
+void PlaneExplorer::updateVisibilityBoxes()
+{
+    ObjectTreeItem const *pRootItem = m_pModel->rootItem();
+    for(int ir=0; ir<pRootItem->rowCount(); ir++)
+    {
+        ObjectTreeItem *pPlaneItem = pRootItem->child(ir);
+        if(!pPlaneItem) continue;
+        Plane *pPlane = Objects3d::plane(pPlaneItem->name().toStdString());
+        if(!pPlane) continue;
+
+        QModelIndex checkindex = m_pModel->index(ir, 2);
+        m_pModel->setData(checkindex, planeState(pPlane), Qt::DisplayRole);
+
+        for(int jr=0; jr<pPlaneItem->rowCount(); jr++)
+        {
+            ObjectTreeItem *pPolarItem = pPlaneItem->child(jr);
+            PlanePolar *pPlPolar = Objects3d::wPolar(pPlane, pPolarItem->name().toStdString());
+            if(!pPlPolar) continue;
+
+            QModelIndex checkindex = m_pModel->index(jr, 2, pPlaneItem);
+            m_pModel->setData(checkindex, polarState(pPlPolar), Qt::DisplayRole);
+
+            for(int i2=0; i2<pPolarItem->rowCount(); i2++)
+            {
+                ObjectTreeItem *pOppItem = pPolarItem->child(i2);
+                if(pOppItem)
+                {
+                    QString strange = pOppItem->name();
+//                    strange = strange.remove(DEGch);
+//                    double val = strange.toDouble();
+                    PlaneOpp *pOpp = Objects3d::planeOpp(pPlane, pPlPolar, strange.toStdString());
+
+                    if(!pOpp) continue;
+
+                    bool bChecked = pOpp->isVisible() && s_pXPlane->isPOppView();
+                    Qt::CheckState state = bChecked ? Qt::Checked : Qt::Unchecked;
+
+                    QModelIndex checkindex = m_pModel->index(i2, 2, pPolarItem);
+                    m_pModel->setData(checkindex, state, Qt::DisplayRole);
+                }
+            }
+        }
+    }
+}
+
+
 /** update the line properties for each polar and popp item in the treeview */
-void PlaneTreeView::setCurveParams()
+void PlaneExplorer::setCurveParams()
 {
     ObjectTreeItem *pRootItem = m_pModel->rootItem();
     if(!pRootItem)
@@ -1189,7 +1062,7 @@ void PlaneTreeView::setCurveParams()
                         }
                         else
                         {
-                            pWPolarItem->setCheckState(wPolarState(pWPolar));
+                            pWPolarItem->setCheckState(polarState(pWPolar));
                         }
 
                         for(int i2=0; i2<pWPolarItem->rowCount(); i2++)
@@ -1217,11 +1090,10 @@ void PlaneTreeView::setCurveParams()
             }
         }
     }
-    m_pModel->updateData();
 }
 
 
-Qt::CheckState PlaneTreeView::planeState(const Plane *pPlane) const
+Qt::CheckState PlaneExplorer::planeState(const Plane *pPlane) const
 {
     bool bAll = true;
     bool bNone = true;
@@ -1267,7 +1139,7 @@ Qt::CheckState PlaneTreeView::planeState(const Plane *pPlane) const
 }
 
 
-Qt::CheckState PlaneTreeView::wPolarState(PlanePolar const*pWPolar) const
+Qt::CheckState PlaneExplorer::polarState(const PlanePolar *pWPolar) const
 {
     if(s_pXPlane->isPOppView())
     {
@@ -1298,7 +1170,7 @@ Qt::CheckState PlaneTreeView::wPolarState(PlanePolar const*pWPolar) const
 }
 
 
-void PlaneTreeView::setOverallCheckStatus()
+void PlaneExplorer::setOverallCheckStatus()
 {
     if(s_pXPlane->isPOppView())
     {
@@ -1317,7 +1189,7 @@ void PlaneTreeView::setOverallCheckStatus()
         else if(bAllUnchecked) m_pTreeView->setOverallCheckedState(Qt::Unchecked);
         else                   m_pTreeView->setOverallCheckedState(Qt::PartiallyChecked);
     }
-    else if(s_pXPlane->isPolarView() || s_pXPlane->isStabPolarView())
+    else if(s_pXPlane->isPolarView())
     {
         m_pTreeView->enableSelectBox(true);
         bool bAllChecked   = true;
@@ -1333,6 +1205,25 @@ void PlaneTreeView::setOverallCheckStatus()
         else if(bAllUnchecked) m_pTreeView->setOverallCheckedState(Qt::Unchecked);
         else                   m_pTreeView->setOverallCheckedState(Qt::PartiallyChecked);
     }
+    else if(s_pXPlane->isStabPolarView())
+    {
+        m_pTreeView->enableSelectBox(true);
+        bool bAllChecked   = true;
+        bool bAllUnchecked = true;
+        for(int io=0; io<Objects3d::nPolars(); io++)
+        {
+            PlanePolar *const pWPolar = Objects3d::wPolarAt(io);
+            if(pWPolar->isStabilityPolar())
+            {
+                if(pWPolar->isVisible()) bAllUnchecked = false;
+                else                     bAllChecked   = false;
+            }
+        }
+
+        if     (bAllChecked)   m_pTreeView->setOverallCheckedState(Qt::Checked);
+        else if(bAllUnchecked) m_pTreeView->setOverallCheckedState(Qt::Unchecked);
+        else                   m_pTreeView->setOverallCheckedState(Qt::PartiallyChecked);
+    }
     else
     {
         m_pTreeView->enableSelectBox(false);
@@ -1341,7 +1232,7 @@ void PlaneTreeView::setOverallCheckStatus()
 }
 
 
-void PlaneTreeView::onSwitchAll(bool bChecked)
+void PlaneExplorer::onSwitchAll(bool bChecked)
 {
     if(s_pXPlane->isPOppView())
     {
@@ -1358,11 +1249,12 @@ void PlaneTreeView::onSwitchAll(bool bChecked)
         if(bChecked) s_pXPlane->onShowAllWPolars();
         else         s_pXPlane->onHideAllWPolars();
     }
-    m_pModel->updateData();
+
+    updateVisibilityBoxes();
 }
 
 
-void PlaneTreeView::onSetFilter()
+void PlaneExplorer::onSetFilter()
 {
     QString filter = m_pTreeView->filter();
     QStringList filters = filter.split(QRegularExpression("\\s+"));
@@ -1399,7 +1291,7 @@ void PlaneTreeView::onSetFilter()
     }
     else
     {
-        QString planefilter = filters.front();
+        QString planefilter = filters.first();
         QString polarfilter = filters.at(1);
         for(int jp=0; jp<Objects3d::nPolars(); jp++)
         {
@@ -1435,8 +1327,219 @@ void PlaneTreeView::onSetFilter()
     m_pTreeView->update();
 
     emit s_pXPlane->projectModified();
-
 }
 
+
+
+void PlaneExplorer::onCurrentRowChanged(QModelIndex currentfilteredidx)
+{
+    setObjectFromIndex(currentfilteredidx);
+    s_pXPlane->updateView();
+}
+
+
+void PlaneExplorer::setObjectFromIndex(QModelIndex index)
+{
+    ObjectTreeItem *pSelectedItem = nullptr;
+
+    if(index.column()==0)
+    {
+        pSelectedItem = m_pModel->itemFromIndex(index);
+    }
+    else if(index.column()>=1)
+    {
+        QModelIndex ind = index.siblingAtColumn(0);
+        pSelectedItem = m_pModel->itemFromIndex(ind);
+    }
+
+    if(!pSelectedItem) return;
+
+    if(pSelectedItem->level()==1)
+    {
+        s_pXPlane->setPlane(pSelectedItem->name());
+        s_pXPlane->m_pCurPlPolar = nullptr;
+        s_pXPlane->m_pCurPOpp = nullptr;
+        m_Selection = PlaneExplorer::PLANE;
+    }
+    else if(pSelectedItem->level()==2)
+    {
+        ObjectTreeItem *pPlaneItem = pSelectedItem->parentItem();
+        Plane *pPlane  = Objects3d::plane(pPlaneItem->name().toStdString());
+        PlanePolar *pWPolar = Objects3d::wPolar(pPlane, pSelectedItem->name().toStdString());
+        s_pXPlane->setPlane(pPlane);
+        s_pXPlane->setPolar(pWPolar);
+        s_pXPlane->m_pCurPOpp = nullptr;
+
+        m_Selection = PlaneExplorer::WPOLAR;
+    }
+    else if(pSelectedItem->level()==3)
+    {
+        ObjectTreeItem *pWPolarItem = pSelectedItem->parentItem();
+        ObjectTreeItem *pPlaneItem  = pWPolarItem->parentItem();
+        Plane *pPlane        = Objects3d::plane(pPlaneItem->name().toStdString());
+        PlanePolar *pPlPolar = Objects3d::wPolar(pPlane, pWPolarItem->name().toStdString());
+        PlaneOpp *pPOpp      = Objects3d::planeOpp(pPlane, pPlPolar, pSelectedItem->name().toStdString());
+
+        m_Selection = PlaneExplorer::PLANEOPP;
+
+        if(pPlane!=s_pXPlane->m_pCurPlane)
+        {
+            s_pXPlane->setPlane(pPlane);
+            s_pXPlane->setPolar(pPlPolar);
+        }
+        else if(pPlPolar != s_pXPlane->m_pCurPlPolar)
+            s_pXPlane->setPolar(pPlPolar);
+        if(pPOpp)
+        {
+            s_pXPlane->setPlaneOpp(pPOpp);
+            s_pXPlane->resetCurves();
+        }
+    }
+    else if(pSelectedItem->level()==4)
+    {
+        //three parents, the user has clicked a Mode
+        ObjectTreeItem *pPOppItem   = pSelectedItem->parentItem();
+        ObjectTreeItem *pWPolarItem = pPOppItem->parentItem();
+        ObjectTreeItem *pPlaneItem  = pWPolarItem->parentItem();
+        Plane      *pPlane  = Objects3d::plane(pPlaneItem->name().toStdString());
+        PlanePolar *pWPolar = Objects3d::wPolar(pPlane, pWPolarItem->name().toStdString());
+        PlaneOpp   *pPOpp   = Objects3d::planeOpp(pPlane, pWPolar, pPOppItem->name().toStdString());
+
+        s_pXPlane->setPlane(pPlane);
+        s_pXPlane->setPolar(pWPolar);
+        s_pXPlane->setPlaneOpp(pPOpp);
+
+        int iMode = pSelectedItem->name().right(1).toInt()-1;
+        if(iMode>=0 && iMode<8)
+        {
+            m_Selection = PlaneExplorer::STABILITYMODE;
+//            s_pXPlane->setMode(iMode);
+            s_pXPlane->resetCurves();
+            s_pXPlane->updateView();
+        }
+    }
+    else m_Selection = PlaneExplorer::NOOBJECT;
+
+    s_pXPlane->setControls();
+    setObjectProperties();
+}
+
+
+void PlaneExplorer::onItemClicked(const QModelIndex &index)
+{
+    PlaneOpp   *pPOpp   = s_pXPlane->m_pCurPOpp;
+    PlanePolar *pWPolar = s_pXPlane->m_pCurPlPolar;
+    Plane     *pPlane  = s_pXPlane->m_pCurPlane;
+
+    if(index.column()==1)
+    {
+        ObjectTreeItem *pItem = m_pModel->itemFromIndex(index);
+
+        if(pPOpp)
+        {
+            if(s_pXPlane->isPOppView())
+            {
+                LineStyle ls(pPOpp->theStyle());
+                LineMenu *pLineMenu = new LineMenu(nullptr);
+                pLineMenu->initMenu(ls);
+                pLineMenu->exec(QCursor::pos());
+                ls = pLineMenu->theStyle();
+                pPOpp->setLineStipple(ls.m_Stipple);
+                pPOpp->setLineWidth(ls.m_Width);
+                pPOpp->setLineColor(ls.m_Color);
+                pPOpp->setPointStyle(ls.m_Symbol);
+                pItem->setTheStyle(ls);
+                s_pXPlane->resetCurves();
+            }
+        }
+        else if(pWPolar)
+        {
+            LineStyle ls(pWPolar->theStyle());
+            LineMenu *pLineMenu = new LineMenu(nullptr);
+            pLineMenu->initMenu(ls);
+            pLineMenu->exec(QCursor::pos());
+            ls = pLineMenu->theStyle();
+
+            Objects3d::setWPolarStyle(pWPolar, ls, pLineMenu->styleChanged(), pLineMenu->widthChanged(), pLineMenu->colorChanged(), pLineMenu->pointsChanged(), 100);
+            setCurveParams();
+
+            if(pItem) pItem->setTheStyle(ls);
+            s_pXPlane->resetCurves();
+        }
+        else if(pPlane)
+        {
+            if(!s_pXPlane->is3dView())
+            {
+                LineStyle ls(pPlane->theStyle());
+                LineMenu *pLineMenu = new LineMenu(nullptr);
+                pLineMenu->initMenu(ls);
+                pLineMenu->exec(QCursor::pos());
+                ls = pLineMenu->theStyle();
+
+                Objects3d::setPlaneStyle(pPlane, ls, pLineMenu->styleChanged(), pLineMenu->widthChanged(), pLineMenu->colorChanged(), pLineMenu->pointsChanged(), 100);
+                setCurveParams();
+
+                if(pItem) pItem->setTheStyle(ls);
+                s_pXPlane->resetCurves();
+            }
+        }
+    }
+    else if (index.column()==2)
+    {
+        if(pPOpp)
+        {
+            if(s_pXPlane->isPOppView())
+            {
+                ObjectTreeItem *pItem = m_pModel->itemFromIndex(index);
+                if(pItem)
+                {
+                    pPOpp->setVisible(!pPOpp->isVisible());
+                    updateVisibilityBoxes();
+                    s_pXPlane->resetCurves();
+                }
+            }
+        }
+        else if(pWPolar)
+        {
+            ObjectTreeItem *pItem = m_pModel->itemFromIndex(index);
+            if(pItem)
+            {
+                Qt::CheckState state = polarState(pWPolar);
+                if(state==Qt::PartiallyChecked || state==Qt::Unchecked)
+                    Objects3d::setWPolarVisible(pWPolar, true);
+                else
+                    Objects3d::setWPolarVisible(pWPolar, false);
+
+                updateVisibilityBoxes();
+                s_pXPlane->resetCurves();
+            }
+        }
+        else if(pPlane)
+        {
+            if(!s_pXPlane->is3dView())
+            {
+                ObjectTreeItem *pItem = m_pModel->itemFromIndex(index);
+                if(pItem)
+                {
+                    Qt::CheckState state = planeState(pPlane);
+                    if(state==Qt::PartiallyChecked || state==Qt::Unchecked)
+                        Objects3d::setPlaneVisible(pPlane, true,  s_pXPlane->isStabPolarView());
+                    else if(state==Qt::Checked)
+                        Objects3d::setPlaneVisible(pPlane, false, s_pXPlane->isStabPolarView());
+
+                    updateVisibilityBoxes();
+                    s_pXPlane->resetCurves();
+                }
+            }
+        }
+        setOverallCheckStatus();
+    }
+
+    s_pXPlane->m_pAnalysisControls->setAnalysisRange();
+    s_pXPlane->updateView();
+
+    update();
+    emit s_pXPlane->projectModified();
+}
 
 

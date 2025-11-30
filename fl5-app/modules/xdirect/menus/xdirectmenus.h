@@ -34,7 +34,7 @@ class XDirectMenus
     friend class XDirect;
     friend class MainFrame;
     friend class OpPointWt;
-    friend class FoilTreeView;
+    friend class FoilExplorer;
     friend class BLGraphTiles;
     friend class PlrGraphTiles;
     friend class ProfileTiles;

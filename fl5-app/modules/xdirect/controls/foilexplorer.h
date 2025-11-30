@@ -47,17 +47,17 @@ class ObjectTreeModel;
 class ObjectTreeItem;
 class PlainTextOutput;
 
-class FoilTreeView : public QWidget
+class FoilExplorer : public QWidget
 {
     Q_OBJECT
 
     public:
-        /** @enum The different objects selectable in the FoilTreeView */
+        /** @enum The different objects selectable in the FoilExplorer */
         enum enumSelectionType {NONE, FOIL, POLAR, OPPOINT};
 
     public:
-        FoilTreeView(QWidget *pParent = nullptr);
-        ~FoilTreeView() override;
+        FoilExplorer(QWidget *pParent = nullptr);
+        ~FoilExplorer() override;
 
         void contextMenuEvent(QContextMenuEvent *event) override;
         void keyPressEvent(QKeyEvent *pEvent) override;
@@ -94,6 +94,8 @@ class FoilTreeView : public QWidget
         void setOverallCheckStatus();
 
         void setCurveParams();
+        void updateVisibilityBoxes();
+
         void setPropertiesFont(QFont const &fnt);
 
         QByteArray const &splitterSize() const {return m_SplitterSizes;}
@@ -119,6 +121,7 @@ class FoilTreeView : public QWidget
 
         void onSwitchAll(bool bChecked);
         void onSetFilter();
+        void onDataChanged(QModelIndex idxTop,QModelIndex idxBot);
 
     protected:
         static MainFrame *s_pMainFrame;
@@ -131,7 +134,7 @@ class FoilTreeView : public QWidget
         static int s_Width;
 
     private:
-        ExpandableTreeView *m_pStruct;
+        ExpandableTreeView *m_pTreeView;
         ObjectTreeModel *m_pModel;
         ObjectTreeDelegate *m_pDelegate;
 

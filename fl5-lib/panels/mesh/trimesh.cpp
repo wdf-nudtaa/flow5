@@ -558,7 +558,7 @@ void TriMesh::makeConnectionsFromNodePosition(int i0, int np0, double MERGEDISTA
                     {
                         p0.setNeighbour(it1, nEdge0);
                         int nEdge1 = p1.edgeIndex(p0.edge(nEdge0), MERGEDISTANCE);
-                        if(nEdge1>=0) // should alawys be true
+                        if(nEdge1>=0) // should always be true
                         {
                             p1.setNeighbour(it0, nEdge1);
                         }

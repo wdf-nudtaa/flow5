@@ -29,7 +29,7 @@
 #include <QHeaderView>
 
 
-#include "foiltableview.h"
+#include "foiltable.h"
 
 #include <api/foil.h>
 #include <api/objects2d.h>
@@ -44,24 +44,24 @@
 #include <modules/xdirect/xdirect.h>
 
 
-XDirect *FoilTableView::s_pXDirect=nullptr;
-int FoilTableView::s_Height = 351;
+XDirect *FoilTable::s_pXDirect=nullptr;
+int FoilTable::s_Height = 351;
 
-FoilTableView::FoilTableView(QWidget *pParent) : CPTableView(pParent)
+FoilTable::FoilTable(QWidget *pParent) : CPTableView(pParent)
 {
     makeFoilTable();
     connectSignals();
 }
 
 
-FoilTableView::FoilTableView()
+FoilTable::FoilTable()
 {
     if(m_pFoilModel) delete m_pFoilModel;
     m_pFoilModel = nullptr;
 }
 
 
-void FoilTableView::makeFoilTable()
+void FoilTable::makeFoilTable()
 {
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -95,7 +95,7 @@ void FoilTableView::makeFoilTable()
 }
 
 
-void FoilTableView::connectSignals()
+void FoilTable::connectSignals()
 {
     connect(this, SIGNAL(pressed(QModelIndex)), SLOT(onItemClicked(QModelIndex)));
     //    connect(m_pStruct, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onItemDoubleClicked(QModelIndex)));
@@ -103,7 +103,7 @@ void FoilTableView::connectSignals()
 }
 
 
-void FoilTableView::updateTable()
+void FoilTable::updateTable()
 {
     m_pFoilModel->setRowCount(Objects2d::nFoils());
     fillFoilTable();
@@ -111,7 +111,7 @@ void FoilTableView::updateTable()
 }
 
 
-void FoilTableView::selectFoil(Foil *pFoil)
+void FoilTable::selectFoil(Foil *pFoil)
 {
     if(!pFoil)
     {
@@ -133,7 +133,7 @@ void FoilTableView::selectFoil(Foil *pFoil)
 }
 
 
-void FoilTableView::fillFoilTable()
+void FoilTable::fillFoilTable()
 {
     // Because the QString default compare method is case-sensitive,
     // we need to make a re-ordered case-insensitive list of foils
@@ -182,7 +182,7 @@ void FoilTableView::fillFoilTable()
 }
 
 
-void FoilTableView::resizeColumns()
+void FoilTable::resizeColumns()
 {
     int w = width();
     int w12 = int(double(w)*0.9/13);
@@ -202,14 +202,14 @@ void FoilTableView::resizeColumns()
 }
 
 
-void FoilTableView::hideEvent(QHideEvent *pEvent)
+void FoilTable::hideEvent(QHideEvent *pEvent)
 {
     s_Height = height();
     CPTableView::hideEvent(pEvent);
 }
 
 
-void FoilTableView::showEvent(QShowEvent *pEvent)
+void FoilTable::showEvent(QShowEvent *pEvent)
 {
     fillFoilTable();
     resizeColumns();
@@ -217,14 +217,14 @@ void FoilTableView::showEvent(QShowEvent *pEvent)
 }
 
 
-void FoilTableView::resizeEvent(QResizeEvent *pEvent)
+void FoilTable::resizeEvent(QResizeEvent *pEvent)
 {
     resizeColumns();
     CPTableView::resizeEvent(pEvent);
 }
 
 
-void FoilTableView::contextMenuEvent(QContextMenuEvent *pEvent)
+void FoilTable::contextMenuEvent(QContextMenuEvent *pEvent)
 {
     QModelIndex index = currentIndex();
     Foil *pFoil = setObjectFromIndex(index);
@@ -279,7 +279,7 @@ void FoilTableView::contextMenuEvent(QContextMenuEvent *pEvent)
 }
 
 
-Foil* FoilTableView::setObjectFromIndex(QModelIndex index)
+Foil* FoilTable::setObjectFromIndex(QModelIndex index)
 {
     QModelIndex ind0 = index.sibling(index.row(), 0);
     QStandardItem *pSelectedItem = m_pFoilModel->itemFromIndex(ind0);
@@ -294,13 +294,13 @@ Foil* FoilTableView::setObjectFromIndex(QModelIndex index)
 }
 
 
-void FoilTableView::onCurrentRowChanged(QModelIndex currentindex, QModelIndex)
+void FoilTable::onCurrentRowChanged(QModelIndex currentindex, QModelIndex)
 {
     setObjectFromIndex(currentindex);
 }
 
 
-void FoilTableView::onItemClicked(const QModelIndex &index)
+void FoilTable::onItemClicked(const QModelIndex &index)
 {
     Foil *pFoil = setObjectFromIndex(index);
     if(!pFoil) return;
@@ -332,7 +332,7 @@ void FoilTableView::onItemClicked(const QModelIndex &index)
 }
 
 
-void FoilTableView::setTableFontStruct(const FontStruct &fntstruct)
+void FoilTable::setTableFontStruct(const FontStruct &fntstruct)
 {
     setFont(fntstruct.font());
     setFont(fntstruct.font());

@@ -28,8 +28,8 @@
 
 
 #include <globals/mainframe.h>
-#include <modules/xdirect/controls/foiltableview.h>
-#include <modules/xdirect/controls/foiltreeview.h>
+#include <modules/xdirect/controls/foiltable.h>
+#include <modules/xdirect/controls/foilexplorer.h>
 #include <modules/xdirect/view2d/dfoillegendwt.h>
 #include <modules/xdirect/view2d/dfoilwt.h>
 #include <modules/xdirect/xdirect.h>

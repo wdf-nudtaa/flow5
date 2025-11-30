@@ -127,7 +127,7 @@ void PlaneAnalysisDlg::keyPressEvent(QKeyEvent *pEvent)
         case Qt::Key_Escape:
         {
             if(m_pActiveTask && m_pActiveTask->isRunning())
-                m_pActiveTask->onCancel();
+                m_pActiveTask->cancelTask();
             else
                 close();
             pEvent->accept();
@@ -288,7 +288,7 @@ void PlaneAnalysisDlg::cancelTask(PlaneTask *pTask)
 {
     TriMesh::setCancelled(true);
     XFoilTask::setCancelled(true);
-    if(pTask) pTask->onCancel();
+    if(pTask) pTask->cancelTask();
 }
 
 

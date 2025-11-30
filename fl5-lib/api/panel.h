@@ -123,6 +123,9 @@ class FL5LIB_EXPORT Panel
         void setWakeColumn(int idx) {m_iWakeColumn=idx;}
         int iWakeColumn() const {return m_iWakeColumn;}
 
+        bool isVisible() const {return m_bVisible;}
+        void show()  {m_bVisible=true;}
+        void setVisible(bool b) {m_bVisible=b;}
 
         static void setRFF(double rff) {s_RFF=rff;}
         static double RFF() {return s_RFF;}
@@ -161,6 +164,8 @@ class FL5LIB_EXPORT Panel
 
         Vector3d m_TELeftBisector; /** only for bottom trailing panels, gives the bisector direction between the top and bottom surfaces. Points downstream */
         Vector3d m_TERightBisector; /** only for bottom trailing panels, gives the bisector direction between the top and bottom surfaces. Points downstream */
+
+        bool m_bVisible; /** Convenience field for use in 3d views; not stored */
 };
 
 

@@ -89,6 +89,13 @@ PlaneTask::~PlaneTask()
 }
 
 
+void PlaneTask::cancelTask()
+{
+    Task3d::cancelTask();
+    XFoilTask::setCancelled(true);
+}
+
+
 void PlaneTask::setViscousLoopSettings(bool bInitVTwist, double relaxfactor, double alphaprec, int maxiters)
 {
     s_bViscInitTwist     = bInitVTwist;
@@ -132,6 +139,8 @@ bool PlaneTask::initializeTask()
     QString lenlab = Units::lengthUnitQLabel();
 
     m_bWarning = m_bError = false;
+
+    XFoilTask::setCancelled(false);
 
     traceStdLog("Initializing task\n\n");
 
@@ -242,20 +251,6 @@ bool PlaneTask::initializeTask()
         }
         traceStdLog("   ...done\n\n");
 
-        auto start = std::chrono::system_clock::now();
-
-        traceStdLog("Connecting triangular panels...");
-
-        if(!m_pPlane->connectTriMesh(false, m_pPlPolar->bThickSurfaces(), true))
-        {
-            strange = "\n   Error making trailing edge connections -- aborting.\n\n";
-            traceLog(strange);
-            m_bError = true;
-            return false;
-        }
-
-        m_pPlane->restoreMesh();
-
         if(m_pPlPolar->isTriUniformMethod())
         {
             m_pP3A = new P3UniAnalysis;
@@ -265,17 +260,9 @@ bool PlaneTask::initializeTask()
         {
             // make the node normals on the fly
             // node normals are required to compute local Cp coefficients at nodes
-            m_pPlane->refTriMesh().makeNodeNormals(false);
             m_pP3A = new P3LinAnalysis;
             m_pPA = m_pP3A;
         }
-
-        auto end = std::chrono::system_clock::now();
-        int duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        strange = QString::asprintf("   done in %.3f s\n", double(duration)/1000.0);
-
-
-        traceLog(strange);
     }
 
     switch(m_pPlPolar->type())
@@ -301,8 +288,25 @@ bool PlaneTask::initializeTask()
 
             std::string outstring;
             if(pPlaneXfl) pPlaneXfl->setFlaps(m_pPlPolar, outstring);
-
             traceStdLog(outstring);
+
+            auto start = std::chrono::system_clock::now();
+
+            traceStdLog("Connecting triangular panels...");
+
+            if(!m_pPlane->connectTriMesh(false, false, m_pPlPolar->bThickSurfaces(), true))
+            {
+                strange = "\n   Error making trailing edge connections -- aborting.\n\n";
+                traceLog(strange);
+                m_bError = true;
+                return false;
+            }
+
+            auto end = std::chrono::system_clock::now();
+            int duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+            strange = QString::asprintf("   done in %.3f s\n", double(duration)/1000.0);
+            traceLog(strange);
+
 
             if(fabs(m_pPlPolar->phi())>AOAPRECISION)
             {
@@ -1342,13 +1346,13 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
             for(int iw=0; iw<nWings; iw++)
             {
                 WingXfl *pWing = pPlaneXfl->wing(iw);
-                traceStdLog("             Processing "+ pWing->name() + EOLstr);
                 std::string logmsg;
 
                 bool bViscOK = true;
 
                 if(m_pPlPolar->isViscInterpolated())
                 {
+                    traceStdLog("             Processing "+ pWing->name() + EOLstr);
                     bViscOK = computeViscousDrag(pWing, alpha, beta, QInf, m_pPlPolar, CoG, iStation, m_SpanDistFF[iw], logmsg);
                     if(logmsg.length()!=0)
                     {
@@ -1358,6 +1362,10 @@ PlaneOpp* PlaneTask::computePlane(double ctrl, double alpha, double beta, double
                 }
                 else
                 {
+                    traceLog("             Processing "+
+                             QString::fromStdString(pWing->name()) +": " +
+                             QString::asprintf("%d surfaces", pWing->nSurfaces()) +
+                             EOLch);
                     bViscOK = computeViscousDragOTF(pWing, alpha, beta, QInf, m_pPlPolar, CoG, m_pPlPolar->flapCtrls(iw), m_SpanDistFF[iw], logmsg);
                     if(logmsg.length()!=0)
                     {
@@ -2813,7 +2821,7 @@ bool PlaneTask::computeViscousDrag(WingXfl *pWing, double alpha, double beta, do
 }
 
 
-bool PlaneTask::computeSurfaceDragOTF(Surface const &surf, int iStartStation, double theta, SpanDistribs &spandist) const
+bool PlaneTask::computeSurfaceDragOTF(Surface const &surf, int iStartStation, double theta, SpanDistribs &spandist)
 {
     Foil foilA, foilB;
     foilA.copy(surf.foilA(), true);
@@ -2861,8 +2869,6 @@ bool PlaneTask::computeSurfaceDragOTF(Surface const &surf, int iStartStation, do
     XFoilTask *pLeftTask = new XFoilTask();
     pLeftTask->initialize(&foilA, &LeftSidePolar, false);
 
-
-
     // Process right side foil
     Polar RightSidePolar;
     RightSidePolar.setType(xfl::T1POLAR);
@@ -2904,6 +2910,8 @@ bool PlaneTask::computeSurfaceDragOTF(Surface const &surf, int iStartStation, do
     delete pRightTask;
 
 
+    bool bCv = true;
+    QString logg;
     int iStation=iStartStation;
     for(int k=0; k<surf.NYPanels(); k++)
     {
@@ -2924,11 +2932,36 @@ bool PlaneTask::computeSurfaceDragOTF(Surface const &surf, int iStartStation, do
         spandist.m_XTrTop[iStation] = LeftSidePolar.m_XTrTop.at(k) * (1.0-tau) + RightSidePolar.m_XTrTop.at(k) * tau;
         spandist.m_XTrBot[iStation] = LeftSidePolar.m_XTrBot.at(k) * (1.0-tau) + RightSidePolar.m_XTrBot.at(k) * tau;
 
+
+        if(!spandist.m_bConverged.at(iStation))
+        {
+            QString strong = "                     ";
+            strong +=  QString::asprintf("span pos. %9.3f ", spandist.m_StripPos.at(iStation)*Units::mtoUnit());
+            strong += Units::lengthUnitLabel();
+            strong += QString::asprintf(", Cl=%9.5f, Re=%7.0f", spandist.m_Cl.at(iStation), spandist.m_Re.at(iStation));
+
+            logg += strong + EOLch;
+            bCv = false;
+        }
+
+
         iStation++; // wing station counter
         if(s_bCancel) break;
     }
 
-    return true;
+    QString report = QString::asprintf("                 ...done surface %d", surf.index());
+    if(bCv)
+    {
+        report += EOLch;
+    }
+    else
+    {
+        report += " - OTF failures:" + EOLch + logg;
+    }
+
+    traceLog(report);
+
+    return bCv;
 }
 
 
@@ -2961,11 +2994,9 @@ bool PlaneTask::computeSectionDragOTF(XFoilTask *pTask) const
 }
 
 
-
-
 bool PlaneTask::computeViscousDragOTF(WingXfl *pWing, double alpha, double beta, double QInf,
                                       PlanePolar const *pWPolar, Vector3d const &cog, AngleControl const &TEFlapAngles, SpanDistribs &SpanResFF,
-                                      std::string &logmsg) const
+                                      std::string &logmsg)
 {
     // on the fly viscous drag calculation
     // for each surface, calulate the drag at each end foil for each lift and reynolds at each span station
@@ -2990,6 +3021,7 @@ bool PlaneTask::computeViscousDragOTF(WingXfl *pWing, double alpha, double beta,
 
     std::vector<std::thread> threads;
 
+
     for (int jsurf=0; jsurf<pWing->nSurfaces(); jsurf++)
     {
         Surface const &surf = pWing->surface(jsurf);
@@ -2998,7 +3030,6 @@ bool PlaneTask::computeViscousDragOTF(WingXfl *pWing, double alpha, double beta,
 
         threads.push_back(std::thread(&PlaneTask::computeSurfaceDragOTF, this, surf, m, theta, std::ref(SpanResFF)));
 
-        computeSurfaceDragOTF(surf, m, theta, SpanResFF);
         m += surf.NYPanels();
     }
 
@@ -3013,19 +3044,18 @@ bool PlaneTask::computeViscousDragOTF(WingXfl *pWing, double alpha, double beta,
     {
         if(!sd.m_bConverged.at(k))
         {
-            QString strong = "                  ";
+/*            QString strong = "                  ";
             strong +=  QString::asprintf("span pos. %9.3f ", sd.m_StripPos.at(k)*Units::mtoUnit());
             strong += Units::lengthUnitLabel();
             strong += QString::asprintf(", Cl=%9.5f, Re=%7.0f", sd.m_Cl.at(k), sd.m_Re.at(k));
 
-            logg += strong + EOLch;
+            logg += strong + EOLch;*/
             bCv = false;
         }
     }
 
     if(bCv)
     {
-
         m = 0;
         for (int jsurf=0; jsurf<pWing->nSurfaces(); jsurf++)
         {

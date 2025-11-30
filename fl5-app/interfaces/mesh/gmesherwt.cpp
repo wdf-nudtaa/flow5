@@ -779,7 +779,6 @@ void GMesherWt::meshFuseShells()
 
     onCheckLogger();
 
-
     // converting to BREP and export+import
     TopoDS_ListOfShape const *pShells(nullptr);
     FuseXfl const*pFuseXfl = dynamic_cast<FuseXfl const*>(m_pFuse);
@@ -788,6 +787,7 @@ void GMesherWt::meshFuseShells()
     std::vector<std::string> brepstr;
     occ::shapesToBreps(*pShells, brepstr);
     gmesh::BRepstoGmsh(brepstr);
+
 
     // get all the fuse faces
     gmsh::vectorpair fusedimtags;
@@ -863,7 +863,6 @@ void GMesherWt::meshFuseShells()
     gmsh::model::occ::remove(RedundantDimTags, true);
 
     gmsh::model::occ::synchronize();
-
 
     emit outputMsg("Starting G-mesher in a separate thread...\n");
     emit meshCurrent();

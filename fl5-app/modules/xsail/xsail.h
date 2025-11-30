@@ -39,7 +39,7 @@ class Boat;
 class BoatAnalysisDlg;
 class BoatOpp;
 class BoatPolar;
-class BoatTreeView;
+class BoatExplorer;
 class Curve;
 class CurveModel;
 class Graph;
@@ -58,7 +58,7 @@ class gl3dXSailView;
 class XSail : public QObject
 {
     Q_OBJECT
-    friend class BoatTreeView;
+    friend class BoatExplorer;
     friend class MainFrame;
     friend class XSailActions;
     friend class XSailAnalysisCtrls;
@@ -223,7 +223,7 @@ class XSail : public QObject
 
         bool m_bResetCurves;
 
-        BoatTreeView *m_pBoatTreeView;
+        BoatExplorer *m_pBoatExplorer;
 
         XSailActions *m_pActions;
         XSailMenus *m_pMenus;

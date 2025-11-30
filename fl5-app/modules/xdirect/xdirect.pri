@@ -7,9 +7,9 @@ HEADERS += \
     $$PWD/analysis/xfoilanalysisdlg.h \
     $$PWD/analysis/polarnamemaker.h \
     $$PWD/controls/analysis2dctrls.h \
+    $$PWD/controls/foilexplorer.h \
+    $$PWD/controls/foiltable.h \
     $$PWD/controls/foiltabledelegate.h \
-    $$PWD/controls/foiltableview.h \
-    $$PWD/controls/foiltreeview.h \
     $$PWD/controls/lecircledlg.h \
     $$PWD/controls/oppointctrls.h \
     $$PWD/graphs/blgraphctrls.h \
@@ -32,9 +32,9 @@ SOURCES += \
     $$PWD/analysis/xfoilanalysisdlg.cpp \
     $$PWD/analysis/polarnamemaker.cpp \
     $$PWD/controls/analysis2dctrls.cpp \
+    $$PWD/controls/foilexplorer.cpp \
+    $$PWD/controls/foiltable.cpp \
     $$PWD/controls/foiltabledelegate.cpp \
-    $$PWD/controls/foiltableview.cpp \
-    $$PWD/controls/foiltreeview.cpp \
     $$PWD/controls/lecircledlg.cpp \
     $$PWD/controls/oppointctrls.cpp \
     $$PWD/graphs/blgraphctrls.cpp \

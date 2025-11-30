@@ -127,8 +127,8 @@
 #include <interfaces/widgets/mvc/objecttreedelegate.h>
 #include <interfaces/widgets/view/section2doptions.h>
 #include <modules/xdirect/controls/analysis2dctrls.h>
-#include <modules/xdirect/controls/foiltableview.h>
-#include <modules/xdirect/controls/foiltreeview.h>
+#include <modules/xdirect/controls/foiltable.h>
+#include <modules/xdirect/controls/foilexplorer.h>
 #include <modules/xdirect/controls/oppointctrls.h>
 #include <modules/xdirect/graphs/blgraphctrls.h>
 #include <modules/xdirect/graphs/xdirectlegendwt.h>
@@ -143,7 +143,7 @@
 #include <modules/xplane/analysis/analysis3dsettings.h>
 #include <modules/xplane/analysis/planeanalysisdlg.h>
 #include <modules/xplane/controls/analysis3dctrls.h>
-#include <modules/xplane/controls/planetreeview.h>
+#include <modules/xplane/controls/planeexplorer.h>
 #include <modules/xplane/controls/popp3dctrls.h>
 #include <modules/xplane/controls/stab3dctrls.h>
 #include <modules/xplane/controls/stabtimectrls.h>
@@ -156,7 +156,7 @@
 #include <modules/xplane/menus/xplaneactions.h>
 #include <modules/xplane/menus/xplanemenus.h>
 #include <modules/xplane/xplane.h>
-#include <modules/xsail/controls/boattreeview.h>
+#include <modules/xsail/controls/boatexplorer.h>
 #include <modules/xsail/controls/gl3dxsailctrls.h>
 #include <modules/xsail/controls/xsailanalysisctrls.h>
 #include <modules/xsail/menus/xsailactions.h>
@@ -228,7 +228,7 @@ MainFrame::MainFrame(QWidget *parent) : QMainWindow(parent)
     std::srand(t);
 
     m_pLogMessageDlg = new LogMessageDlg;
-    m_pLogMessageDlg->setOutputFont(DisplayOptions::tableFont());
+//    m_pLogMessageDlg->setOutputFont(DisplayOptions::tableFont());
 
     m_pLogWt = new LogWt;
 
@@ -268,8 +268,8 @@ MainFrame::MainFrame(QWidget *parent) : QMainWindow(parent)
     hideDockWindows();
 
     m_pXDirect->m_pFoilTable->setTableFontStruct(DisplayOptions::tableFontStruct());
-    m_pXPlane->m_pPlaneTreeView->setTreeFontStruct(DisplayOptions::treeFontStruct());
-    m_pXSail->m_pBoatTreeView->setTreeFontStruct(DisplayOptions::treeFontStruct());
+    m_pXPlane->m_pPlaneExplorer->setTreeFontStruct(DisplayOptions::treeFontStruct());
+    m_pXSail->m_pBoatExplorer->setTreeFontStruct(DisplayOptions::treeFontStruct());
 
     setCentralWidget(m_pswCentralWidget);
     setActiveCentralWidget();
@@ -337,7 +337,8 @@ MainFrame::MainFrame(QWidget *parent) : QMainWindow(parent)
 
     connectSignals();
     gmsh::initialize();
-    gmsh::option::setNumber("General.Terminal", 0);
+    gmsh::option::setNumber("General.Terminal", 0);  
+    gmsh::option::setNumber("Geometry.OCCParallel", 1.0);
 }
 
 
@@ -788,8 +789,8 @@ void MainFrame::createDockWindows()
 
     DFoilLegendWt::setXDirect(m_pXDirect);
 
-    FoilTreeView::setMainFrame(this);
-    PlaneTreeView::setMainFrame(this);
+    FoilExplorer::setMainFrame(this);
+    PlaneExplorer::setMainFrame(this);
 }
 
 
@@ -824,7 +825,7 @@ void MainFrame::createXSailDockWindows()
     m_pdwBoatTree = new QDockWidget("Boat object explorer", this);
     m_pdwBoatTree->setObjectName(m_pdwBoatTree->windowTitle());
     addDockWidget(Qt::LeftDockWidgetArea, m_pdwBoatTree);
-    m_pdwBoatTree->setWidget(m_pXSail->m_pBoatTreeView);
+    m_pdwBoatTree->setWidget(m_pXSail->m_pBoatExplorer);
 }
 
 
@@ -887,7 +888,7 @@ void MainFrame::createXDirectDockWindows()
     m_pdwFoilTree->setFloating(false);
     m_pdwFoilTree->resize(100,600);
     m_pdwFoilTree->move(60,60);
-    m_pdwFoilTree->setWidget(m_pXDirect->m_pFoilTreeView);
+    m_pdwFoilTree->setWidget(m_pXDirect->m_pFoilExplorer);
 
     m_pdwFoilTable = new QDockWidget("Foil object table", this);
     m_pdwFoilTable->setObjectName(m_pdwFoilTable->windowTitle());
@@ -964,7 +965,7 @@ void MainFrame::createXPlaneDockWindows()
     m_pdwAnalysis3d->setWidget(m_pXPlane->m_pAnalysisControls);
 
     m_pdwPlaneTree = new QDockWidget("Plane Explorer", this);
-    m_pdwPlaneTree->setWidget(m_pXPlane->m_pPlaneTreeView);
+    m_pdwPlaneTree->setWidget(m_pXPlane->m_pPlaneExplorer);
     m_pdwPlaneTree->setObjectName(m_pdwPlaneTree->windowTitle());
     addDockWidget(Qt::LeftDockWidgetArea, m_pdwPlaneTree);
 
@@ -1204,7 +1205,7 @@ void MainFrame::deleteProject()
     m_pXPlane->resetCurves();
     m_pXPlane->setPlane(nullptr);
     m_pXPlane->setControls();
-    m_pXPlane->m_pPlaneTreeView->setObjectProperties();
+    m_pXPlane->m_pPlaneExplorer->setObjectProperties();
 
     displayMessage("   Deleting sail objects\n", false);
     m_pXSail->m_pCurBoat    = nullptr;
@@ -1618,7 +1619,7 @@ void MainFrame::onLoadFoilFile()
     if(s_iApp==xfl::XDIRECT)
     {
         m_pXDirect->updateFoilExplorers();
-        m_pXDirect->m_pFoilTreeView->selectFoil(XDirect::curFoil());
+        m_pXDirect->m_pFoilExplorer->selectFoil(XDirect::curFoil());
         m_pXDirect->setControls();
     }
 
@@ -1683,7 +1684,7 @@ void MainFrame::onLoadPlrFile()
     if(s_iApp==xfl::XDIRECT)
     {
         m_pXDirect->updateFoilExplorers();
-        m_pXDirect->m_pFoilTreeView->selectFoil(XDirect::curFoil());
+        m_pXDirect->m_pFoilExplorer->selectFoil(XDirect::curFoil());
         m_pXDirect->setControls();
     }
 
@@ -2116,7 +2117,7 @@ void MainFrame::onInsertProject()
     {
         m_pXPlane->updateTreeView();
         m_pXPlane->setPlane();
-        m_pXPlane->m_pPlaneTreeView->selectPlane(m_pXPlane->curPlane());
+        m_pXPlane->m_pPlaneExplorer->selectPlane(m_pXPlane->curPlane());
         m_pXPlane->resetCurves();
     }
     else if(s_iApp == xfl::XDIRECT)
@@ -2128,7 +2129,7 @@ void MainFrame::onInsertProject()
     {
         m_pXSail->updateObjectView();
         m_pXSail->setBoat();
-        m_pXSail->m_pBoatTreeView->selectBoat(m_pXSail->curBoat());
+        m_pXSail->m_pBoatExplorer->selectBoat(m_pXSail->curBoat());
         m_pXPlane->resetCurves();
     }
     updateView();
@@ -2379,8 +2380,8 @@ void MainFrame::onXDirect()
     if(m_pXDirect->m_pOpPointWt) m_pXDirect->m_pOpPointWt->setFoilScale(true);
 
     m_pXDirect->updateFoilExplorers();
-    m_pXDirect->m_pFoilTreeView->selectObjects();
-    m_pXDirect->m_pFoilTreeView->setObjectProperties();
+    m_pXDirect->m_pFoilExplorer->selectObjects();
+    m_pXDirect->m_pFoilExplorer->setObjectProperties();
     m_pXDirect->resetCurves();
 
     m_pXDirect->setControls();
@@ -2427,8 +2428,8 @@ void MainFrame::onXPlane()
     displayMessage(" done\n\n", false);
 
     m_pXPlane->updateTreeView();
-    m_pXPlane->m_pPlaneTreeView->selectObjects();
-    m_pXPlane->m_pPlaneTreeView->setObjectProperties();
+    m_pXPlane->m_pPlaneExplorer->selectObjects();
+    m_pXPlane->m_pPlaneExplorer->setObjectProperties();
     m_pXPlane->resetCurves();
     m_pXPlane->m_pgl3dXPlaneView->resetglPOpp();
     m_pXPlane->m_pgl3dXPlaneView->resetglColorMap();
@@ -2464,7 +2465,7 @@ void MainFrame::onXSail()
     m_pXSail->resetCurves();
 
     m_pXSail->enableObjectView(true);
-    m_pXSail->m_pBoatTreeView->selectObjects();
+    m_pXSail->m_pBoatExplorer->selectObjects();
     m_pXSail->setControls();
     m_pXSail->updateView();
     m_pXSail->m_pgl3dXSailView->resetglBtOpp();
@@ -4201,7 +4202,7 @@ void MainFrame::setColorListFromFile()
     if(!fi.exists()) ColorPathName = ":/textfiles/colorlist.txt";
 
     QFile ColorFile(ColorPathName);
-    ColorFile.open(QIODevice::ReadOnly);
+    if(!ColorFile.open(QIODevice::ReadOnly)) return;
 
     QStringList LineColorList;
     QStringList LineColorNames;
@@ -4230,10 +4231,10 @@ void MainFrame::setColorListFromFile()
 }
 
 
-void MainFrame::setPlainColorsFromFile()
+void MainFrame::setPlainColorsFromFile() const
 {
     QFile ColorFile(":/textfiles/colors_google.txt");
-    ColorFile.open(QIODevice::ReadOnly);
+    if(!ColorFile.open(QIODevice::ReadOnly)) return;
 
     QStringList GoogleColorNames;
     QTextStream stream(&ColorFile);
@@ -4277,7 +4278,7 @@ void MainFrame::setDefaultStaticFonts()
 
     DisplayOptions::setTextFont(fixedfnt);
     DisplayOptions::setTableFont(fixedfnt);
-    DisplayOptions::setTreeFont(generalfnt);
+    DisplayOptions::setTreeFont(fixedfnt);
     DisplayOptions::setToolTipFont(generalfnt);
 
     QToolTip::setFont(DisplayOptions::toolTipFont());
@@ -4794,7 +4795,7 @@ int MainFrame::onTestRun()
 
         std::string separator = ", ";
         std::string exportstr = pPlPolar->exportToString(separator);
-        printf(exportstr.c_str());
+        std::cout<<exportstr.c_str()<<std::endl;
         printf("\n");
 
         // clean up

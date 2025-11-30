@@ -31,13 +31,13 @@ class XDirect;
 class FoilTableDelegate;
 class Foil;
 
-class FoilTableView : public CPTableView
+class FoilTable : public CPTableView
 {
     Q_OBJECT
 
     public:
-        FoilTableView(QWidget *pParent);
-        FoilTableView();
+        FoilTable(QWidget *pParent);
+        FoilTable();
 
         void updateTable();
         void showEvent(QShowEvent *pEvent) override;

@@ -72,8 +72,8 @@
 #include <modules/xdirect/analysis/batchaltdlg.h>
 #include <modules/xdirect/analysis/batchxfoildlg.h>
 #include <modules/xdirect/controls/analysis2dctrls.h>
-#include <modules/xdirect/controls/foiltableview.h>
-#include <modules/xdirect/controls/foiltreeview.h>
+#include <modules/xdirect/controls/foiltable.h>
+#include <modules/xdirect/controls/foilexplorer.h>
 #include <modules/xdirect/controls/lecircledlg.h>
 #include <modules/xdirect/controls/oppointctrls.h>
 #include <modules/xdirect/graphs/blgraphctrls.h>
@@ -134,11 +134,11 @@ XDirect::XDirect(MainFrame *pMainFrame)
     OpPointWt::setMainFrame(s_pMainFrame);
     BLGraphCtrls::setXDirect(this);
     XDirectLegendWt::setXDirect(this);
-    FoilTreeView::setXDirect(this);
-    FoilTableView::setXDirect(this);
+    FoilExplorer::setXDirect(this);
+    FoilTable::setXDirect(this);
 
-    m_pFoilTreeView = new FoilTreeView;
-    m_pFoilTable = new FoilTableView(s_pMainFrame);
+    m_pFoilExplorer = new FoilExplorer;
+    m_pFoilTable = new FoilTable(s_pMainFrame);
 
     m_pActions = new XDirectActions(s_pMainFrame, this);
     m_pMenus = new XDirectMenus(s_pMainFrame, this);
@@ -304,7 +304,7 @@ XDirect::~XDirect()
 
     if(m_pXFADlg) delete m_pXFADlg;
 
-    if(m_pFoilTreeView) delete m_pFoilTreeView;
+    if(m_pFoilExplorer) delete m_pFoilExplorer;
     if(m_pFoilTable) delete m_pFoilTable;
 
     if(m_pMenus) delete m_pMenus;
@@ -370,8 +370,8 @@ void XDirect::showDockWidgets()
 
 void XDirect::setControls()
 {
-    m_pFoilTreeView->setCurveParams();
-    m_pFoilTreeView->setOverallCheckStatus();
+    m_pFoilExplorer->setCurveParams();
+    m_pFoilExplorer->setOverallCheckStatus();
 
     m_pMenus->m_pActivePolarMenu->setEnabled(s_pCurPolar);
     m_pMenus->m_pActiveOppMenu->setEnabled(s_pCurOpp);
@@ -441,7 +441,7 @@ void XDirect::connectSignals()
     connect(s_pMainFrame->m_pPolarTiles,    SIGNAL(varSetChanged(int)),         SLOT(onVarSetChanged(int)));
     connect(m_pActions->m_pResetFoilScale,  SIGNAL(triggered()), m_pOpPointWt,  SLOT(onResetFoilScale()));
 
-    connect(s_pMainFrame->m_pDFoilWt,       SIGNAL(foilSelected(Foil*)), m_pFoilTreeView, SLOT(selectFoil(Foil*)));
+    connect(s_pMainFrame->m_pDFoilWt,       SIGNAL(foilSelected(Foil*)), m_pFoilExplorer, SLOT(selectFoil(Foil*)));
     connect(s_pMainFrame->m_pDFoilWt,       SIGNAL(foilSelected(Foil*)), m_pFoilTable,    SLOT(selectFoil(Foil*)));
 
 }
@@ -887,6 +887,7 @@ void XDirect::fillOppCurves(OpPoint *pOpp, Curve*pViscCurve, Curve*pInviscidCurv
     }
 }
 
+
 void XDirect::onOpPointGraphChanged()
 {
     BLGraph(0)->resetLimits();
@@ -1003,7 +1004,7 @@ void XDirect::loadSettings(QSettings &settings)
 
         s_bKeepOpenErrors = settings.value("KeepOpenErrors").toBool();
 
-        m_pFoilTreeView->setSplitterSize(settings.value("FoilTreeSplitterSizes").toByteArray());
+        m_pFoilExplorer->setSplitterSize(settings.value("FoilTreeSplitterSizes").toByteArray());
 
         LineStyle ls;
         xfl::loadLineSettings(settings, ls, "SplineFoil");
@@ -1030,7 +1031,7 @@ void XDirect::loadSettings(QSettings &settings)
     }
     settings.endGroup();
 
-    m_pFoilTreeView->setPropertiesFont(DisplayOptions::tableFont());
+    m_pFoilExplorer->setPropertiesFont(DisplayOptions::tableFont());
 
     EditPlrDlg::loadSettings(settings);
     OpPointWt::loadSettings(settings);
@@ -1098,7 +1099,7 @@ void XDirect::saveSettings(QSettings &settings)
 
         settings.setValue("KeepOpenErrors", s_bKeepOpenErrors);
 
-        settings.setValue("FoilTreeSplitterSizes", m_pFoilTreeView->splitterSize());
+        settings.setValue("FoilTreeSplitterSizes", m_pFoilExplorer->splitterSize());
 
 
         xfl::saveLineSettings(settings, Foil2SplineDlg::s_SF.theStyle(), "SplineFoil");
@@ -1193,7 +1194,7 @@ void XDirect::onFinishAnalysis()
 {
     Objects2d::setPolarStyle(s_pCurPolar, s_pCurPolar->theStyle(), true, true, true, true, false, xfl::darkFactor());
 
-    m_pFoilTreeView->addOpps(s_pCurPolar);
+    m_pFoilExplorer->addOpps(s_pCurPolar);
     if(s_pCurPolar->isXFoil())
     {
         if(m_pXFADlg)
@@ -1204,8 +1205,8 @@ void XDirect::onFinishAnalysis()
         }
     }
 
-    if(s_pCurOpp) m_pFoilTreeView->selectOpPoint(s_pCurOpp);
-    else          m_pFoilTreeView->selectPolar(  s_pCurPolar);
+    if(s_pCurOpp) m_pFoilExplorer->selectOpPoint(s_pCurOpp);
+    else          m_pFoilExplorer->selectPolar(  s_pCurPolar);
 
     //refresh the view
     m_bResetCurves = true;
@@ -1214,7 +1215,7 @@ void XDirect::onFinishAnalysis()
 
     m_pAnalysisControls->enableAnalyze(true);
 
-    m_pFoilTreeView->setFocus();
+    m_pFoilExplorer->setFocus();
 
     emit projectModified();
 }
@@ -1230,7 +1231,7 @@ void XDirect::onBatchAltAnalysis()
     delete pBatchDlg;
 
     setPolar();
-    m_pFoilTreeView->fillModelView();
+    m_pFoilExplorer->fillModelView();
 
     setOpp();
     setControls();
@@ -1251,7 +1252,7 @@ void XDirect::onBatchAnalysis()
     delete pBatchDlg;
 
     setPolar();
-    m_pFoilTreeView->fillModelView();
+    m_pFoilExplorer->fillModelView();
 
     setOpp();
     setControls();
@@ -1339,8 +1340,8 @@ void XDirect::onDefineAnalysis()
         pNewPolar->setVisible(true);
         insertNewPolar(pNewPolar);
         setPolar(pNewPolar);
-        m_pFoilTreeView->insertPolar(pNewPolar);
-        m_pFoilTreeView->selectPolar(pNewPolar);
+        m_pFoilExplorer->insertPolar(pNewPolar);
+        m_pFoilExplorer->selectPolar(pNewPolar);
 
         updateView();
         emit projectModified();
@@ -1371,7 +1372,7 @@ void XDirect::onEditCurPolar()
 
         pModPolar = insertNewPolar(pModPolar);
         setPolar(pModPolar);
-        if(pModPolar) m_pFoilTreeView->insertPolar(pModPolar);
+        if(pModPolar) m_pFoilExplorer->insertPolar(pModPolar);
 
         updateView();
         emit projectModified();
@@ -1402,13 +1403,13 @@ void XDirect::onDeleteCurFoil()
     XDirect::setCurPolar(nullptr);
     XDirect::setCurOpp(nullptr);
 
-    m_pFoilTreeView->removeFoil(pDoomedFoil);
+    m_pFoilExplorer->removeFoil(pDoomedFoil);
 
     Foil*pNextFoil = Objects2d::deleteFoil(pDoomedFoil);
 
     setFoil(pNextFoil);
 
-    m_pFoilTreeView->selectFoil(s_pCurFoil);
+    m_pFoilExplorer->selectFoil(s_pCurFoil);
     m_pFoilTable->selectFoil(s_pCurFoil);
     m_pFoilTable->updateTable();
     m_pDFoilWt->resetLegend();
@@ -1433,7 +1434,7 @@ void XDirect::onDeleteCurOpp()
     if (!pOpPoint) return;
 
     double alfa = s_pCurOpp->m_Alpha;
-    m_pFoilTreeView->removeOpPoint(pOpPoint);
+    m_pFoilExplorer->removeOpPoint(pOpPoint);
     Objects2d::deleteOpp(s_pCurOpp);
 
     double dist = 1000.0;
@@ -1451,7 +1452,7 @@ void XDirect::onDeleteCurOpp()
         }
     }
     setOpp(alfa_m1);
-    m_pFoilTreeView->selectOpPoint();
+    m_pFoilExplorer->selectOpPoint();
     updateView();
 
     setControls();
@@ -1471,7 +1472,7 @@ void XDirect::onDeleteCurPolar()
     if (QMessageBox::Yes != QMessageBox::question(s_pMainFrame, "Question", str,
                                                   QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel)) return;
 
-    QString nextPolarName = m_pFoilTreeView->removePolar(s_pCurPolar);
+    QString nextPolarName = m_pFoilExplorer->removePolar(s_pCurPolar);
 
     Objects2d::deletePolar(s_pCurPolar);
     XDirect::setCurPolar(nullptr);
@@ -1481,9 +1482,9 @@ void XDirect::onDeleteCurPolar()
     setPolar(pNextPolar);
 
     if(pNextPolar)
-        m_pFoilTreeView->selectPolar(s_pCurPolar);
+        m_pFoilExplorer->selectPolar(s_pCurPolar);
     else
-        m_pFoilTreeView->selectFoil(XDirect::s_pCurFoil);
+        m_pFoilExplorer->selectFoil(XDirect::s_pCurFoil);
 
     emit projectModified();
     updateView();
@@ -1510,7 +1511,7 @@ void XDirect::onDeletePolarOpps()
     setCurOpp(nullptr);
     emit projectModified();
 
-    m_pFoilTreeView->removePolarOpps(pCurPolar);
+    m_pFoilExplorer->removePolarOpps(pCurPolar);
 //    m_pFoilTreeView->updateObjectView();
 //    m_pFoilTable->updateTable();
 
@@ -1539,7 +1540,7 @@ void XDirect::onDeleteFoilOpps()
     for(Polar *pPolar : Objects2d::polars())
     {
         if(pPolar->foilName()==s_pCurFoil->name())
-            m_pFoilTreeView->removePolarOpps(pPolar);
+            m_pFoilExplorer->removePolarOpps(pPolar);
     }
 
 //    m_pFoilTreeView->updateObjectView();
@@ -1597,7 +1598,7 @@ void XDirect::onDeleteFoilPolars()
 
     m_bResetCurves = true;
 
-    m_pFoilTreeView->removeFoilPolars(s_pCurFoil);
+    m_pFoilExplorer->removeFoilPolars(s_pCurFoil);
 //    m_pFoilTreeView->updateObjectView();
 //    m_pFoilTable->updateTable();
 
@@ -2007,8 +2008,8 @@ void XDirect::onFoilCoordinates()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -2033,8 +2034,8 @@ void XDirect::onFoilFromCoords()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -2057,8 +2058,8 @@ void XDirect::onHideAllOpps()
     }
     emit projectModified();
     m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
-    m_pFoilTreeView->update();
+    m_pFoilExplorer->setCurveParams();
+    m_pFoilExplorer->update();
     updateView();
 }
 
@@ -2072,8 +2073,8 @@ void XDirect::onHideAllPolars()
     }
     emit projectModified();
     m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
-    m_pFoilTreeView->update();
+    m_pFoilExplorer->setCurveParams();
+    m_pFoilExplorer->update();
     updateView();
 }
 
@@ -2092,7 +2093,7 @@ void XDirect::onHideFoilPolars()
     }
     emit projectModified();
     m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
+    m_pFoilExplorer->setCurveParams();
     updateView();
 }
 
@@ -2109,7 +2110,7 @@ void XDirect::onHideFoilOpps()
     }
     emit projectModified();
     m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
+    m_pFoilExplorer->setCurveParams();
     updateView();
 }
 
@@ -2127,7 +2128,7 @@ void XDirect::onHidePolarOpps()
     }
     emit projectModified();
     m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
+    m_pFoilExplorer->setCurveParams();
     updateView();
 }
 
@@ -2180,7 +2181,7 @@ void XDirect::onImportXFoilPolars()
 
     setCurOpp(nullptr);
     setPolar(pPolar);
-    m_pFoilTreeView->updateObjectView();
+    m_pFoilExplorer->updateObjectView();
     m_pFoilTable->updateTable();
 
     updateView();
@@ -2304,7 +2305,7 @@ void XDirect::onImportJavaFoilPolar()
         }
         setCurOpp(nullptr);
         setPolar();
-        m_pFoilTreeView->updateObjectView();
+        m_pFoilExplorer->updateObjectView();
         m_pFoilTable->updateTable();
 
         updateView();
@@ -2341,8 +2342,8 @@ void XDirect::onInterpolateFoils()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -2409,8 +2410,8 @@ void XDirect::onCircleFoil()
 
         pCircleFoil->initGeometry();
         setFoil(pCircleFoil);
-        m_pFoilTreeView->insertFoil(pCircleFoil);
-        m_pFoilTreeView->selectFoil(pCircleFoil);
+        m_pFoilExplorer->insertFoil(pCircleFoil);
+        m_pFoilExplorer->selectFoil(pCircleFoil);
 
         m_pFoilTable->updateTable();
         m_pFoilTable->selectFoil(pCircleFoil);
@@ -2482,8 +2483,8 @@ void XDirect::onSquareFoil()
 
         pSquareFoil->initGeometry();
         setFoil(pSquareFoil);
-        m_pFoilTreeView->insertFoil(pSquareFoil);
-        m_pFoilTreeView->selectFoil(pSquareFoil);
+        m_pFoilExplorer->insertFoil(pSquareFoil);
+        m_pFoilExplorer->selectFoil(pSquareFoil);
 
         m_pFoilTable->updateTable();
         m_pFoilTable->selectFoil(pSquareFoil);
@@ -2527,8 +2528,8 @@ void XDirect::onNacaFoils()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -2581,8 +2582,8 @@ void XDirect::onDerotateFoil()
 
         pNormFoil->initGeometry();
         setFoil(pNormFoil);
-        m_pFoilTreeView->insertFoil(pNormFoil);
-        m_pFoilTreeView->selectFoil(pNormFoil);
+        m_pFoilExplorer->insertFoil(pNormFoil);
+        m_pFoilExplorer->selectFoil(pNormFoil);
 
         m_pFoilTable->updateTable();
         m_pFoilTable->selectFoil(pNormFoil);
@@ -2685,8 +2686,8 @@ void XDirect::onFoilScale()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -2718,8 +2719,8 @@ void XDirect::onRefineGlobally()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -2750,8 +2751,8 @@ void XDirect::onFoilFrom1Spline()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -2783,8 +2784,8 @@ void XDirect::onFoilFrom2Splines()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -2816,8 +2817,8 @@ void XDirect::onFoilFromCamber()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -2951,7 +2952,7 @@ void XDirect::onRenameCurPolar()
         }
     }
 
-    m_pFoilTreeView->updateObjectView();
+    m_pFoilExplorer->updateObjectView();
     m_pFoilTable->updateTable();
 
     updateView();
@@ -3022,7 +3023,7 @@ void XDirect::onResetCurPolar()
     setCurOpp(nullptr);
 
 //    m_pFoilTreeView->updateObjectView();
-    m_pFoilTreeView->removePolarOpps(pPolar);
+    m_pFoilExplorer->removePolarOpps(pPolar);
 //    m_pFoilTable->updateTable();
 
     m_bResetCurves = true;
@@ -3118,8 +3119,6 @@ Polar* XDirect::insertNewPolar(Polar *pNewPolar)
     if(resp==10)
     {
         //user wants to overwrite an existing name
-        //so find the existing Polar with that name
-
         Objects2d::insertPolar(pNewPolar);
 
         return pNewPolar;
@@ -3166,8 +3165,8 @@ void XDirect::onSetFlap()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -3202,8 +3201,8 @@ void XDirect::onSetLERadius()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -3240,8 +3239,8 @@ void XDirect::onSetTEGap()
         if(addNewFoil(pNewFoil))
         {
             setFoil(pNewFoil);
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
+            m_pFoilExplorer->insertFoil(pNewFoil);
+            m_pFoilExplorer->selectFoil(pNewFoil);
             m_pFoilTable->updateTable();
             m_pFoilTable->selectFoil(pNewFoil);
             m_pDFoilWt->resetLegend();
@@ -3267,7 +3266,7 @@ void XDirect::onShowAllOpps()
     }
     emit projectModified();
     m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
+    m_pFoilExplorer->setCurveParams();
     updateView();
 }
 
@@ -3282,7 +3281,7 @@ void XDirect::onShowAllPolars()
     }
     emit projectModified();
     m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
+    m_pFoilExplorer->setCurveParams();
     updateView();
 }
 
@@ -3299,7 +3298,7 @@ void XDirect::onShowFoilPolarsOnly()
     }
     emit projectModified();
     m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
+    m_pFoilExplorer->setCurveParams();
     updateView();
 }
 
@@ -3318,7 +3317,7 @@ void XDirect::onShowFoilPolars()
     }
     emit projectModified();
     m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
+    m_pFoilExplorer->setCurveParams();
 
     updateView();
 }
@@ -3340,7 +3339,7 @@ void XDirect::onShowFoilOpps()
     }
     emit projectModified();
     if(isOppView()) m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
+    m_pFoilExplorer->setCurveParams();
 
     updateView();
 }
@@ -3360,7 +3359,7 @@ void XDirect::onShowPolarOpps()
     }
     emit projectModified();
     if(isOppView()) m_bResetCurves = true;
-    m_pFoilTreeView->setCurveParams();
+    m_pFoilExplorer->setCurveParams();
 
     updateView();
 }
@@ -3403,7 +3402,7 @@ Foil* XDirect::setFoil(Foil* pFoil)
 
 Polar *XDirect::setPolar(Polar *pPolar)
 {
-    if(pPolar && pPolar==s_pCurPolar) return pPolar;
+//    if(pPolar && pPolar==s_pCurPolar) return pPolar;
 
     stopAnimate();
 
@@ -3441,17 +3440,16 @@ Polar *XDirect::setPolar(Polar *pPolar)
            pCurFoil->setTEFlapAngle(theta);
            pCurFoil->setFlaps();
         }
-    }
-    else
-    {
-        pCurFoil->setTEFlapAngle(0.0);
-        pCurFoil->applyBase();
+        else
+        {
+            pCurFoil->setTEFlapAngle(0.0);
+            pCurFoil->applyBase();
+        }
     }
 
     m_bResetCurves = true;
     m_pAnalysisControls->onSetControls();
 
-//    setOpp();
     return pPolar;
 }
 
@@ -3476,7 +3474,7 @@ OpPoint* XDirect::setOpp(double OpParameter)
             //try to use the same parameters
             if     (s_pCurPolar->isControlPolar())  OpParameter = s_pCurOpp->theta();
             else if(s_pCurPolar->isFixedaoaPolar()) OpParameter = s_pCurOpp->Reynolds();
-            else                                              OpParameter = s_pCurOpp->aoa();
+            else                                    OpParameter = s_pCurOpp->aoa();
             pOpp = Objects2d::opPointAt(s_pCurFoil, s_pCurPolar, OpParameter);
         }
     }
@@ -3508,7 +3506,7 @@ OpPoint* XDirect::setOpp(double OpParameter)
 
 void XDirect::setOpp(OpPoint *pOpPoint)
 {
-    if(pOpPoint && pOpPoint==s_pCurOpp) return;
+//    if(pOpPoint && pOpPoint==s_pCurOpp) return;
     setCurOpp(pOpPoint);
     m_bResetCurves = true;
 
@@ -3655,13 +3653,13 @@ void XDirect::onDuplicateAnalyses()
         pNewPolar->setVisible(true);
 
         Objects2d::insertPolar(pNewPolar);
-        if(pNewPolar) m_pFoilTreeView->insertPolar(pNewPolar);
+        if(pNewPolar) m_pFoilExplorer->insertPolar(pNewPolar);
     }
 
     if(pNewPolar)
     {
         setPolar(pNewPolar);
-        m_pFoilTreeView->selectPolar(pNewPolar);
+        m_pFoilExplorer->selectPolar(pNewPolar);
         setCurOpp(nullptr);
     }
 
@@ -3681,8 +3679,8 @@ void XDirect::onDuplicateFoil()
 
     if(addNewFoil(pNewFoil))
     {
-        m_pFoilTreeView->insertFoil(pNewFoil);
-        m_pFoilTreeView->selectFoil(pNewFoil);
+        m_pFoilExplorer->insertFoil(pNewFoil);
+        m_pFoilExplorer->selectFoil(pNewFoil);
         m_pFoilTable->updateTable();
         m_pFoilTable->selectFoil(pNewFoil);
         m_pDFoilWt->resetLegend();
@@ -3701,9 +3699,9 @@ void XDirect::onRenameCurFoil()
 
     if(oldName.compare(s_pCurFoil->name())!=0)
     {
-        m_pFoilTreeView->removeFoil(QString::fromStdString(oldName));
-        m_pFoilTreeView->insertFoil(s_pCurFoil);
-        m_pFoilTreeView->selectFoil(s_pCurFoil);
+        m_pFoilExplorer->removeFoil(QString::fromStdString(oldName));
+        m_pFoilExplorer->insertFoil(s_pCurFoil);
+        m_pFoilExplorer->selectFoil(s_pCurFoil);
 
         m_pFoilTable->updateTable();
         m_pFoilTable->selectFoil(s_pCurFoil);
@@ -3724,7 +3722,7 @@ void XDirect::onSetFoilDescription()
 
     if(dlg.exec() != QDialog::Accepted) return;
     XDirect::s_pCurFoil->setDescription(dlg.newText().toStdString());
-    m_pFoilTreeView->setObjectProperties();
+    m_pFoilExplorer->setObjectProperties();
 }
 
 
@@ -3862,7 +3860,7 @@ void XDirect::importAnalysisFromXML(QFile &xmlFile)
         setCurOpp(nullptr);
         setCurPolar(pPolar);
 
-        m_pFoilTreeView->updateObjectView();
+        m_pFoilExplorer->updateObjectView();
         m_pFoilTable->updateTable();
 
         emit projectModified();
@@ -3907,7 +3905,7 @@ void XDirect::onExportXMLAnalysis()
 
 void XDirect::updateFoilExplorers()
 {
-    m_pFoilTreeView->updateObjectView();
+    m_pFoilExplorer->updateObjectView();
     m_pFoilTable->updateTable();
     m_pDFoilWt->resetLegend();
 }
@@ -3949,8 +3947,8 @@ void XDirect::onCurveClicked(Curve*pCurve)
                     setFoil(Objects2d::foil(pOpp->foilName()));
                     setPolar(Objects2d::polar(pOpp->foilName(), pOpp->polarName()));
                     setOpp(pOpp->aoa());
-                    m_pFoilTreeView->selectOpPoint(pOpp);
-                    m_pFoilTreeView->setCurveParams();
+                    m_pFoilExplorer->selectOpPoint(pOpp);
+                    m_pFoilExplorer->setCurveParams();
                     //                    QString strange = "Selected the operating point: "+pOpp->foilName()+"/"+pOpp->polarName()+"/"+QString::fromUtf8("%1°").arg(pOpp->aoa(),5,'f',3);
                     //                    s_pMainFrame->displayMessage(strange,5000);
                     updateView();
@@ -3982,8 +3980,8 @@ void XDirect::onCurveClicked(Curve*pCurve)
                     //this is the one which has been clicked
                     setFoil(Objects2d::foil(pPolar->foilName()));
                     setPolar(pPolar);
-                    m_pFoilTreeView->selectPolar(pPolar);
-                    m_pFoilTreeView->setCurveParams();
+                    m_pFoilExplorer->selectPolar(pPolar);
+                    m_pFoilExplorer->setCurveParams();
 //                    s_pMainFrame->statusBar()->showMessage("Selected the polar: "+pPolar->foilName()+"/"+pPolar->polarName(), 5000);
                     updateView();
                     return;
@@ -4018,7 +4016,7 @@ void XDirect::onCurveDoubleClicked(Curve*pCurve)
                     pOpp->setLineColor(ls.m_Color);
                     pOpp->setPointStyle(ls.m_Symbol);
                     emit projectModified();
-                    m_pFoilTreeView->setCurveParams();
+                    m_pFoilExplorer->setCurveParams();
                     m_bResetCurves = true;
                     updateView();
                     m_pOpPointWt->update();
@@ -4039,8 +4037,8 @@ void XDirect::onCurveDoubleClicked(Curve*pCurve)
                     //this is the one which has been clicked
                     setFoil(Objects2d::foil(pPolar->foilName()));
                     setPolar(pPolar);
-                    m_pFoilTreeView->selectPolar(pPolar);
-                    m_pFoilTreeView->setCurveParams();
+                    m_pFoilExplorer->selectPolar(pPolar);
+                    m_pFoilExplorer->setCurveParams();
                     updateView();
                     return;
                 }
@@ -4053,7 +4051,7 @@ void XDirect::onCurveDoubleClicked(Curve*pCurve)
 void XDirect::resetPrefs()
 {
     m_bResetCurves = true;
-    m_pFoilTreeView->setPropertiesFont(DisplayOptions::tableFont());
+    m_pFoilExplorer->setPropertiesFont(DisplayOptions::tableFont());
     m_pFoilTable->setTableFontStruct(DisplayOptions::tableFontStruct());
     updateView();
 }
@@ -4134,7 +4132,7 @@ void XDirect::onShowActiveFoilOnly()
     }
 
     m_bResetCurves = true;
-    m_pFoilTreeView->updateObjectView();
+    m_pFoilExplorer->updateObjectView();
     m_pFoilTable->updateTable();
 
     updateView();
@@ -4162,7 +4160,7 @@ void XDirect::onShowActivePolarOnly()
     }
 
     m_bResetCurves = true;
-    m_pFoilTreeView->updateObjectView();
+    m_pFoilExplorer->updateObjectView();
     m_pFoilTable->updateTable();
     updateView();
     emit projectModified();
@@ -4177,7 +4175,7 @@ void XDirect::onShowAllFoils()
         pFoil->setVisible(true);
     }
     m_pDFoilWt->updateView();
-    m_pFoilTreeView->updateObjectView();
+    m_pFoilExplorer->updateObjectView();
     m_pFoilTable->updateTable();
     m_pFoilTable->viewport()->update();
     emit projectModified();
@@ -4193,7 +4191,7 @@ void XDirect::onHideAllFoils()
     }
 
     m_pDFoilWt->updateView();
-    m_pFoilTreeView->updateObjectView();
+    m_pFoilExplorer->updateObjectView();
     m_pFoilTable->updateTable();
     m_pFoilTable->viewport()->update();
     emit projectModified();
@@ -4336,7 +4334,7 @@ void XDirect::onScanPolarFiles()
     dlg.initDlg(SaveOptions::plrPolarDirName());
     dlg.exec();
 
-    m_pFoilTreeView->updateObjectView();
+    m_pFoilExplorer->updateObjectView();
     m_pFoilTable->updateTable();
 
     m_bResetCurves = true;
@@ -4405,7 +4403,7 @@ void XDirect::onOptimFoil()
     o2d.exec();
     if(o2d.isModified())
     {
-        m_pFoilTreeView->fillModelView();
+        m_pFoilExplorer->fillModelView();
         emit projectModified();
     }
     updateView();

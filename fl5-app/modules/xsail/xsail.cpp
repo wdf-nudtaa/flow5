@@ -100,7 +100,7 @@
 #include <modules/xobjects.h>
 #include <modules/xplane/analysis/analysis3dsettings.h>
 #include <modules/xsail/analysis/boatanalysisdlg.h>
-#include <modules/xsail/controls/boattreeview.h>
+#include <modules/xsail/controls/boatexplorer.h>
 #include <modules/xsail/controls/gl3dxsailctrls.h>
 #include <modules/xsail/controls/xsailanalysisctrls.h>
 #include <modules/xsail/controls/xsaildisplayctrls.h>
@@ -117,7 +117,7 @@ XSail::XSail(MainFrame *pMainFrame) : QObject()
 {
     s_pMainFrame = pMainFrame;
     gl3dXSailView::setXSail(this);
-    BoatTreeView::setXSail(this);
+    BoatExplorer::setXSail(this);
     GraphTiles::setMainFrame(s_pMainFrame);
     GraphTiles::setXSail(this);
     XSailLegendWt::setXSail(this);
@@ -144,7 +144,7 @@ XSail::XSail(MainFrame *pMainFrame) : QObject()
 
     connectSignals();
 
-    m_pBoatTreeView = new BoatTreeView;
+    m_pBoatExplorer = new BoatExplorer;
 }
 
 
@@ -307,7 +307,7 @@ void XSail::setControls()
     m_pActions->m_pConvertMainSailToNURBS->setEnabled(m_pCurBoat && m_pCurBoat->mainSail() && m_pCurBoat->mainSail()->isSplineSail());
     m_pActions->m_pConvertJibToNURBS->setEnabled(m_pCurBoat && m_pCurBoat->jib() && m_pCurBoat->jib()->isSplineSail());
 
-    m_pBoatTreeView->setCurveParams();
+    m_pBoatExplorer->setCurveParams();
     m_pAnalysisCtrls->onSetControls();
 
     m_pgl3dControls->setControls();
@@ -327,8 +327,8 @@ void XSail::checkActions()
 
 void XSail::updateObjectView()
 {
-    m_pBoatTreeView->setObjectProperties();
-    m_pBoatTreeView->fillModelView();
+    m_pBoatExplorer->setObjectProperties();
+    m_pBoatExplorer->fillModelView();
 }
 
 
@@ -346,7 +346,7 @@ void XSail::loadSettings(QSettings &settings)
 
         BoatDlg::loadSettings(settings);
         SailDlg::loadSettings(settings);
-        BoatTreeView::loadSettings(settings);
+        BoatExplorer::loadSettings(settings);
         BoatAnalysisDlg::loadSettings(settings);
         BtPolarAutoNameDlg::loadSettings(settings);
         XSailDisplayCtrls::loadSettings(settings);
@@ -374,8 +374,8 @@ void XSail::loadSettings(QSettings &settings)
 
     m_pgl3dControls->initWidget();
 
-    m_pBoatTreeView->setPropertiesFont(DisplayOptions::tableFont());
-    m_pBoatTreeView->setTreeFontStruct(DisplayOptions::treeFontStruct());
+    m_pBoatExplorer->setPropertiesFont(DisplayOptions::tableFont());
+    m_pBoatExplorer->setTreeFontStruct(DisplayOptions::treeFontStruct());
 }
 
 
@@ -389,7 +389,7 @@ void XSail::saveSettings(QSettings &settings)
             case POLARVIEW:             settings.setValue("iView", 1);    break;
         }
 
-        BoatTreeView::saveSettings(settings);
+        BoatExplorer::saveSettings(settings);
         BoatDlg::saveSettings(settings);
         SailDlg::saveSettings(settings);
         BoatAnalysisDlg::saveSettings(settings);
@@ -494,8 +494,8 @@ void XSail::onNewBoat()
     }
     SailObjects::appendBoat(pNewBoat);
     setBoat(pNewBoat);
-    m_pBoatTreeView->insertBoat(pNewBoat);
-    m_pBoatTreeView->selectBoat(pNewBoat);
+    m_pBoatExplorer->insertBoat(pNewBoat);
+    m_pBoatExplorer->selectBoat(pNewBoat);
     if(m_pCurBoat) m_pCurBoat->makeRefTriMesh(true, xfl::isMultiThreaded());
     m_pCurBtPolar = nullptr;
     m_pCurBtOpp=nullptr;
@@ -534,7 +534,7 @@ void XSail::onEditCurBoat()
         {
             if(is<pModBoat->nHulls()) m_pCurBoat->hull(is)->setName(pModBoat->hullAt(is)->name());
         }
-        m_pBoatTreeView->setObjectProperties();
+        m_pBoatExplorer->setObjectProperties();
         m_pgl3dXSailView->resetglBoat();
         updateObjectView();
         return;
@@ -550,7 +550,7 @@ void XSail::onEditCurBoat()
 
     m_pCurBoat->makeRefTriMesh(m_pCurBtPolar&&!m_pCurBtPolar->bIgnoreBodyPanels(), xfl::isMultiThreaded());
 
-    m_pBoatTreeView->removeBtOpps(m_pCurBoat);
+    m_pBoatExplorer->removeBtOpps(m_pCurBoat);
     m_pCurBtOpp=nullptr;
 
     m_pgl3dXSailView->resetglBoat();
@@ -605,8 +605,8 @@ void XSail::onDefinePolar()
         {
             pNewBtPolar->makeDefaultArrays();
             setBtPolar(pNewBtPolar);
-            m_pBoatTreeView->insertBtPolar(pNewBtPolar);
-            m_pBoatTreeView->selectBtPolar(pNewBtPolar);
+            m_pBoatExplorer->insertBtPolar(pNewBtPolar);
+            m_pBoatExplorer->selectBtPolar(pNewBtPolar);
             m_pCurBtOpp = nullptr;
         }
 
@@ -636,8 +636,8 @@ void XSail::onDuplicateCurAnalysis()
     if(pNewWPolar)
     {
         setBtPolar(pNewWPolar);
-        m_pBoatTreeView->insertBtPolar(pNewWPolar);
-        m_pBoatTreeView->selectBtPolar(pNewWPolar);
+        m_pBoatExplorer->insertBtPolar(pNewWPolar);
+        m_pBoatExplorer->selectBtPolar(pNewWPolar);
         m_pCurBtOpp = nullptr;
     }
 
@@ -673,13 +673,13 @@ void XSail::onDuplicateAnalysis()
         pNewWPolar->setVisible(true);
 
         pNewWPolar = insertNewBtPolar(pNewWPolar, m_pCurBoat);
-        if(pNewWPolar) m_pBoatTreeView->insertBtPolar(pNewWPolar);
+        if(pNewWPolar) m_pBoatExplorer->insertBtPolar(pNewWPolar);
     }
 
     if(pNewWPolar)
     {
         setBtPolar(pNewWPolar);
-        m_pBoatTreeView->selectBtPolar(pNewWPolar);
+        m_pBoatExplorer->selectBtPolar(pNewWPolar);
         m_pCurBtOpp = nullptr;
     }
 
@@ -721,7 +721,7 @@ void XSail::onPolarView()
     m_eView = POLARVIEW;
     m_bResetCurves = true;
 
-    m_pBoatTreeView->setCurveParams();
+    m_pBoatExplorer->setCurveParams();
     setGraphTiles();
     setControls();
     s_pMainFrame->setActiveCentralWidget();
@@ -786,10 +786,10 @@ void XSail::onFinishAnalysis()
     }
 
 
-    m_pBoatTreeView->addBtOpps(m_pCurBtPolar);
+    m_pBoatExplorer->addBtOpps(m_pCurBtPolar);
     setBtOpp(m_pBtAnalysisDlg->lastBtOpp());
-    m_pBoatTreeView->selectBtOpp();
-    m_pBoatTreeView->setCurveParams();
+    m_pBoatExplorer->selectBtOpp();
+    m_pBoatExplorer->setCurveParams();
 
     //refresh the view
     m_bResetCurves = true;
@@ -849,7 +849,7 @@ void XSail::updateUnits()
 
     m_bResetCurves = true;
 
-    m_pBoatTreeView->setCurveParams();
+    m_pBoatExplorer->setCurveParams();
     m_bResetCurves = true;
     updateView();
 }
@@ -1050,8 +1050,8 @@ void XSail::onEditCurBtPolar()
 
         setBtPolar(pNewBtPolar);
 
-        m_pBoatTreeView->insertBtPolar(pNewBtPolar);
-        m_pBoatTreeView->selectBtPolar(pNewBtPolar);
+        m_pBoatExplorer->insertBtPolar(pNewBtPolar);
+        m_pBoatExplorer->selectBtPolar(pNewBtPolar);
 
         m_pgl3dXSailView->resetglBoat();
         m_pgl3dXSailView->resetglMesh();
@@ -1077,7 +1077,7 @@ void XSail::onRenameCurBtPolar()
     if(!m_pCurBoat) return;
 
     renameBtPolar(m_pCurBtPolar, m_pCurBoat);
-    m_pBoatTreeView->selectBtPolar(m_pCurBtPolar);
+    m_pBoatExplorer->selectBtPolar(m_pCurBtPolar);
 }
 
 
@@ -1178,8 +1178,8 @@ void XSail::resetPrefs()
 
     m_pgl3dXSailView->setLabelFonts();
 
-    m_pBoatTreeView->setPropertiesFont(DisplayOptions::tableFont());
-    m_pBoatTreeView->setTreeFontStruct(DisplayOptions::treeFontStruct());
+    m_pBoatExplorer->setPropertiesFont(DisplayOptions::tableFont());
+    m_pBoatExplorer->setTreeFontStruct(DisplayOptions::treeFontStruct());
 
     if(!W3dPrefs::isClipPlaneEnabled())
     {
@@ -1398,7 +1398,7 @@ void XSail::onDeleteCurBtPolar()
     if (QMessageBox::Yes != QMessageBox::question(s_pMainFrame, "Question", strong,
                                                   QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel)) return;
 
-    QString nextWPolarName = m_pBoatTreeView->removeBtPolar(m_pCurBtPolar);
+    QString nextWPolarName = m_pBoatExplorer->removeBtPolar(m_pCurBtPolar);
     SailObjects::deleteBtPolar(m_pCurBtPolar);
 
     m_pCurBtOpp = nullptr;
@@ -1407,10 +1407,10 @@ void XSail::onDeleteCurBtPolar()
 
     setBtPolar(nextWPolarName);
 
-    if(m_pCurBtPolar) m_pBoatTreeView->selectBtPolar(m_pCurBtPolar);
-    else              m_pBoatTreeView->selectBoat(m_pCurBoat);
+    if(m_pCurBtPolar) m_pBoatExplorer->selectBtPolar(m_pCurBtPolar);
+    else              m_pBoatExplorer->selectBoat(m_pCurBoat);
 
-    m_pBoatTreeView->setObjectProperties();
+    m_pBoatExplorer->setObjectProperties();
 
     setControls();
     resetCurves();
@@ -1440,8 +1440,8 @@ void XSail::onCurveClicked(Curve* pCurve, int)
                     //this is the one which has been clicked
                     setBoat(QString::fromStdString(pBtPolar->boatName()));
                     setBtPolar(pBtPolar);
-                    m_pBoatTreeView->selectBtPolar(pBtPolar);
-                    m_pBoatTreeView->setCurveParams();
+                    m_pBoatExplorer->selectBtPolar(pBtPolar);
+                    m_pBoatExplorer->setCurveParams();
                     m_bResetCurves = true;
                     updateView();
                     s_pMainFrame->m_pXSailTiles->update();
@@ -1477,7 +1477,7 @@ void XSail::onCurveDoubleClicked(Curve* pCurve)
                     pBtPolar->setLineColor(ls.m_Color);
                     pBtPolar->setPointStyle(ls.m_Symbol);
 
-                    m_pBoatTreeView->setCurveParams();
+                    m_pBoatExplorer->setCurveParams();
                     m_bResetCurves = true;
                     updateView();
                     s_pMainFrame->m_pXSailTiles->update();
@@ -1498,9 +1498,9 @@ void XSail::onRenameCurBoat()
     QString newName = QString::fromStdString(m_pCurBoat->name());
     if(newName.compare(oldName, Qt::CaseInsensitive)!=0)
     {
-        m_pBoatTreeView->removeBoat(oldName);
-        m_pBoatTreeView->insertBoat(m_pCurBoat);
-        m_pBoatTreeView->selectBoat(m_pCurBoat);
+        m_pBoatExplorer->removeBoat(oldName);
+        m_pBoatExplorer->insertBoat(m_pCurBoat);
+        m_pBoatExplorer->selectBoat(m_pCurBoat);
         emit projectModified();
     }
 
@@ -1554,8 +1554,8 @@ Boat* XSail::setModBoat(Boat *pModBoat)
 
     setControls();
     if(pBoat->hull(0)) pBoat->hull(0)->makeFuseGeometry();
-    m_pBoatTreeView->insertBoat(pBoat);
-    m_pBoatTreeView->selectBoat(pBoat);
+    m_pBoatExplorer->insertBoat(pBoat);
+    m_pBoatExplorer->selectBoat(pBoat);
 
     gl3dXSailView::s_bResetglBoat   = true;
     gl3dXSailView::s_bResetglMesh   = true;
@@ -1575,8 +1575,8 @@ void XSail::onDuplicateCurBoat()
     setBoat(pNewBoat);
     if(m_pCurBoat)
     {
-        m_pBoatTreeView->insertBoat(m_pCurBoat);
-        m_pBoatTreeView->selectBoat(m_pCurBoat);
+        m_pBoatExplorer->insertBoat(m_pCurBoat);
+        m_pBoatExplorer->selectBoat(m_pCurBoat);
         m_pCurBoat->makeRefTriMesh(true, xfl::isMultiThreaded());
         m_pCurBoat->restoreMesh();
     }
@@ -1632,7 +1632,7 @@ void XSail::onDeleteBtPolars()
             BoatPolar *pBtPolar = SailObjects::btPolar(i);
             if (pBtPolar->boatName() == m_pCurBoat->name())
             {
-                m_pBoatTreeView->removeBtPolar(pBtPolar);
+                m_pBoatExplorer->removeBtPolar(pBtPolar);
             }
         }
     }
@@ -1643,7 +1643,7 @@ void XSail::onDeleteBtPolars()
     m_pCurBtOpp = nullptr;
 
     setBtPolar(nullptr);
-    m_pBoatTreeView->selectBoat(m_pCurBoat);
+    m_pBoatExplorer->selectBoat(m_pCurBoat);
 
     emit projectModified();
     setControls();
@@ -1704,7 +1704,7 @@ void XSail::onDeleteCurBtOpp()
         if(pOldBtOpp == pBtOpp)
         {
             SailObjects::removeBtOppAt(i);
-            m_pBoatTreeView->removeBoatOpp(pBtOpp);
+            m_pBoatExplorer->removeBoatOpp(pBtOpp);
             if(m_pCurBtOpp==pBtOpp) m_pCurBtOpp = nullptr;
             delete pBtOpp;
             break;
@@ -1712,10 +1712,10 @@ void XSail::onDeleteCurBtOpp()
     }
     setBtOpp(m_LastCtrl);
 
-    if     (m_pCurBtOpp)   m_pBoatTreeView->selectBtOpp(m_pCurBtOpp);
-    else if(m_pCurBtPolar) m_pBoatTreeView->selectBtPolar(m_pCurBtPolar);
-    else                   m_pBoatTreeView->selectBoat(m_pCurBoat);
-    m_pBoatTreeView->setObjectProperties();
+    if     (m_pCurBtOpp)   m_pBoatExplorer->selectBtOpp(m_pCurBtOpp);
+    else if(m_pCurBtPolar) m_pBoatExplorer->selectBtPolar(m_pCurBtPolar);
+    else                   m_pBoatExplorer->selectBoat(m_pCurBoat);
+    m_pBoatExplorer->setObjectProperties();
 
     emit projectModified();
 
@@ -1734,7 +1734,7 @@ void XSail::onDeleteBoatBtOpps()
 
     emit projectModified();
     updateObjectView();
-    m_pBoatTreeView->selectBtPolar(m_pCurBtPolar);
+    m_pBoatExplorer->selectBtPolar(m_pCurBtPolar);
 
     setControls();
     m_bResetCurves = true;
@@ -1855,7 +1855,7 @@ void XSail::editSail(Sail *pSail)
     }
 
     SailObjects::deleteBoatResults(m_pCurBoat, false);
-    m_pBoatTreeView->removeBtOpps(m_pCurBoat);
+    m_pBoatExplorer->removeBtOpps(m_pCurBoat);
     m_pCurBtOpp=nullptr;
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -2237,7 +2237,7 @@ void XSail::onEditHull()
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     SailObjects::deleteBoatResults(m_pCurBoat, false);
-    m_pBoatTreeView->removeBtOpps(m_pCurBoat);
+    m_pBoatExplorer->removeBtOpps(m_pCurBoat);
     m_pCurBtOpp=nullptr;
 
     pFuse->makeFuseGeometry();
@@ -2296,7 +2296,7 @@ void XSail::onShowAllBtPolars()
     }
 
     emit projectModified();
-    m_pBoatTreeView->setCurveParams();
+    m_pBoatExplorer->setCurveParams();
     m_bResetCurves = true;
     updateView();
 }
@@ -2312,8 +2312,8 @@ void XSail::onHideAllBtPolars()
     }
 
     emit projectModified();
-    m_pBoatTreeView->setCurveParams();
-    m_pBoatTreeView->update();
+    m_pBoatExplorer->setCurveParams();
+    m_pBoatExplorer->update();
     m_bResetCurves = true;
     updateView();
 }
@@ -2334,7 +2334,7 @@ void XSail::onResetBtPolar()
 
     m_pCurBtOpp = nullptr;
 
-    m_pBoatTreeView->removeBtPolarBtOpps(m_pCurBtPolar);
+    m_pBoatExplorer->removeBtPolarBtOpps(m_pCurBtPolar);
 
     emit projectModified();
     resetCurves();
@@ -2365,7 +2365,7 @@ void XSail::onDeleteBtPolarOpps()
 
     emit projectModified();
     updateObjectView();
-    m_pBoatTreeView->selectBtPolar(m_pCurBtPolar);
+    m_pBoatExplorer->selectBtPolar(m_pCurBtPolar);
     setControls();
     m_bResetCurves = true;
     updateView();
@@ -2412,7 +2412,7 @@ void XSail::onDeleteCurBoat()
     QString strong;
     if(m_pCurBoat) strong = "Are you sure you want to delete the Boat :\n" + QString::fromStdString(m_pCurBoat->name()) +"?\n";
     if (QMessageBox::Yes != QMessageBox::question(s_pMainFrame, "Question", strong, QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel)) return;
-    QString nextBoatName = m_pBoatTreeView->removeBoat(m_pCurBoat);
+    QString nextBoatName = m_pBoatExplorer->removeBoat(m_pCurBoat);
     SailObjects::deleteBoat(m_pCurBoat, true);
 
     m_pCurBoat = nullptr;
@@ -2420,7 +2420,7 @@ void XSail::onDeleteCurBoat()
     m_pCurBtOpp = nullptr;
 
     setBoat(nextBoatName);
-    m_pBoatTreeView->selectObjects();
+    m_pBoatExplorer->selectObjects();
     setControls();
     m_bResetCurves = true;
 
@@ -2726,7 +2726,7 @@ void XSail::onImportBtPolarFromXML()
             if(pBtPolar)
             {
                 SailObjects::insertBtPolar(pBtPolar);
-                m_pBoatTreeView->insertBtPolar(pBtPolar);
+                m_pBoatExplorer->insertBtPolar(pBtPolar);
             }
         }
     }
@@ -2734,7 +2734,7 @@ void XSail::onImportBtPolarFromXML()
     {
         m_pCurBtOpp = nullptr;
         setBtPolar(pBtPolar);
-        m_pBoatTreeView->selectBtPolar(pBtPolar);
+        m_pBoatExplorer->selectBtPolar(pBtPolar);
         emit projectModified();
 
         gl3dXSailView::s_bResetglBoat = true;
@@ -2845,7 +2845,7 @@ void XSail::onImportBoatFromXml()
     if(pBoat)
     {
         setBoat();
-        m_pBoatTreeView->selectBoat(pBoat);
+        m_pBoatExplorer->selectBoat(pBoat);
         updateObjectView();
         emit projectModified();
         setControls();
@@ -2895,7 +2895,7 @@ Boat * XSail::importBoatFromXML(QFile &xmlFile)
 
     if(SailObjects::boatExists(pBoat->name())) m_pCurBoat = setModifiedBoat(pBoat);
     else                                       m_pCurBoat = SailObjects::appendBoat(pBoat);
-    m_pBoatTreeView->insertBoat(pBoat);
+    m_pBoatExplorer->insertBoat(pBoat);
 
     return pBoat;
 }
@@ -3086,7 +3086,7 @@ void XSail::onExportAllBtPolars()
 
 void XSail::enableObjectView(bool bEnable)
 {
-    m_pBoatTreeView->setEnabled(bEnable);
+    m_pBoatExplorer->setEnabled(bEnable);
 }
 
 

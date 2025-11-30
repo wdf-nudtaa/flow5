@@ -444,10 +444,17 @@ void Objects3d::deleteWPolarResults(PlanePolar *pWPolar)
 PlaneOpp *Objects3d::planeOpp(Plane const *pPlane, PlanePolar const*pWPolar, std::string const &oppname)
 {
     if(!pPlane || !pWPolar) return nullptr;
+    std::string planename = pPlane->name();
+    std::string plpolarname = pWPolar->name();
+
     for (int i=0; i<nPOpps(); i++)
     {
         PlaneOpp* pPOpp = s_oaPlaneOpp.at(i);
-        if (pPOpp->planeName()==pPlane->name() &&pPOpp->polarName()==pWPolar->name() && pPOpp->name()==oppname)
+        std::string poppplanename = pPOpp->planeName();
+        std::string popppolarname = pPOpp->polarName();
+        std::string poppname = pPOpp->name();
+
+        if (poppplanename==planename && popppolarname==plpolarname && poppname==oppname)
         {
             return pPOpp;
         }

@@ -239,8 +239,8 @@ void gl3dQuat::glRenderView()
 {
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
-    QMatrix4x4 vmMat(m_matView*m_matModel);
-    QMatrix4x4 pvmMat(m_matProj*vmMat);
+//    QMatrix4x4 vmMat(m_matView*m_matModel);
+//    QMatrix4x4 pvmMat(m_matProj*vmMat);
 
     paintIcoSphere(Vector3d(), 1.0f, Qt::darkCyan, m_pchTriangles->isChecked(), m_pchOutline->isChecked());
 

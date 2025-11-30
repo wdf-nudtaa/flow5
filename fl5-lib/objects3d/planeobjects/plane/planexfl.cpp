@@ -1456,18 +1456,16 @@ void PlaneXfl::makeTriMesh(bool bThickSurfaces)
 
 
 /** Potentially lengthy task, so on-demand only */
-bool PlaneXfl::connectTriMesh(bool bConnectTE, bool, bool )
+bool PlaneXfl::connectTriMesh(bool bRefTriMesh, bool bConnectTE, bool, bool )
 {
-    m_RefTriMesh.makeConnectionsFromNodePosition(false, true);
-
-    /*
+    TriMesh *pTriMesh = bRefTriMesh ? &m_RefTriMesh : &m_TriMesh;
     //make internal fuse connections
     for(int ifuse=0; ifuse<fuseCount(); ifuse++)
     {
         Fuse *pFuse = fuse(ifuse);
         int i1 = pFuse->firstPanel3Index();
         int n1 = pFuse->nPanel3();
-        m_RefTriMesh.makeConnectionsFromNodePosition(i1, n1, LENGTHPRECISION, true);
+        pTriMesh->makeConnectionsFromNodePosition(i1, n1, LENGTHPRECISION, true);
     }
 
     // make internal wing connections
@@ -1475,51 +1473,22 @@ bool PlaneXfl::connectTriMesh(bool bConnectTE, bool, bool )
     {
         // first the surface
         WingXfl const &wing = m_Wing.at(iw);
-        for(int is=0; is<wing.nSurfaces(); is++)
-        {
-            Surface const & surf = wing.surfaceAt(is);
-            int i0 = surf.panel3list().front(); // indexes are sorted
-            int n0 = int(surf.panel3list().size());
-            m_RefTriMesh.makeConnectionsFromNodeIndexes(i0,n0,i0,n0);
-        }
+        int i1 = wing.firstPanel3Index();
+        int n1 = wing.nPanel3();
+        pTriMesh->makeConnectionsFromNodePosition(i1, n1, 1.0e-4, true);
+
     }
 
-    // connect wing and fuse
-    for(int iw=0; iw<nWings(); iw++)
-    {
-        WingXfl &wing = m_Wing[iw];
-        int i0 = wing.firstPanel3Index();
-        int n0 = wing.nPanel3();
-
-        for(int ifuse=0; ifuse<fuseCount(); ifuse++)
-        {
-            Fuse const *pFuse = fuse(ifuse);
-            int i1 = pFuse->firstPanel3Index();
-            int n1 = pFuse->nPanel3();
-            m_RefTriMesh.connectMeshes(i0, n0, i1, n1);
-        }
-
-        //connect surfaces
-        bool bConnectFlaps = false;
-        for(int is=0; is<wing.nSurfaces()-1; is++)
-        {
-//            Surface const &surf = wing.surfaceAt(is);
-//            if(surf.isLeftSurf() && surf.isCenterSurf()) continue; // will connect at the next step in case there is a fuse
-            wing.connectSurfaceToNext(is, m_RefTriMesh.panels(), bConnectFlaps, bThickSurfaces);
-        }
-    }
-*/
-
-
-    m_RefTriMesh.connectNodes();
+    pTriMesh->connectNodes();
 
     if(bConnectTE)
     {
         std::vector<int>errorlist;
-        if(!m_RefTriMesh.connectTrailingEdges(errorlist))    return false;
+        if(!pTriMesh->connectTrailingEdges(errorlist))    return false;
     }
 
-    m_TriMesh.copyConnections(m_RefTriMesh);
+    if(bRefTriMesh)
+        m_TriMesh.copyConnections(m_RefTriMesh);
 
     return true;
 }

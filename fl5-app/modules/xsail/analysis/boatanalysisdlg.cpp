@@ -121,7 +121,7 @@ void BoatAnalysisDlg::keyPressEvent(QKeyEvent *pEvent)
         case Qt::Key_Escape:
         {
             if(m_pActiveTask && m_pActiveTask->isRunning())
-                m_pActiveTask->onCancel();
+                m_pActiveTask->cancelTask();
             else
                 close();
             pEvent->accept();
@@ -261,7 +261,7 @@ void BoatAnalysisDlg::onCancelClose()
 
 void BoatAnalysisDlg::cancelTask(BoatTask *pTask)
 {
-    if(pTask) pTask->onCancel();
+    if(pTask) pTask->cancelTask();
 }
 
 

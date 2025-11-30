@@ -34,6 +34,8 @@
 
 OpPoint::OpPoint() : XflObject()
 {
+    m_PolarType = xfl::T1POLAR;
+
     m_BLMethod = BL::XFOIL;
     m_bViscResults = false;//not a  viscous point a priori
     m_bBL          = false;// no boundary layer surface either
@@ -75,45 +77,46 @@ OpPoint::OpPoint() : XflObject()
 
 void OpPoint::duplicate(OpPoint const &opp)
 {
-    m_FoilName = opp.m_FoilName;
-    m_PlrName  = opp.m_PlrName;
-    m_theStyle = opp.theStyle();
+    m_PolarType    = opp.m_PolarType;
+    m_FoilName     = opp.m_FoilName;
+    m_PlrName      = opp.m_PlrName;
+    m_theStyle     = opp.theStyle();
 
-    m_BLMethod = opp.m_BLMethod;
+    m_BLMethod     = opp.m_BLMethod;
     m_bViscResults = opp.m_bViscResults;
     m_bBL          = opp.m_bBL;
     m_bTEFlap      = opp.m_bTEFlap;
     m_bLEFlap      = opp.m_bLEFlap;
 
-    m_Alpha    = opp.m_Alpha;
-    m_Reynolds = opp.m_Reynolds;
-    m_Mach     = opp.m_Mach;
-    m_Theta    = opp.m_Theta;
-    m_NCrit      = opp.m_NCrit;
-    m_Cd         = opp.m_Cd;
-    m_Cdp        = opp.m_Cdp;
-    m_Cl         = opp.m_Cl;
-    m_Cm         = opp.m_Cm;
+    m_Alpha        = opp.m_Alpha;
+    m_Reynolds     = opp.m_Reynolds;
+    m_Mach         = opp.m_Mach;
+    m_Theta        = opp.m_Theta;
+    m_NCrit        = opp.m_NCrit;
+    m_Cd           = opp.m_Cd;
+    m_Cdp          = opp.m_Cdp;
+    m_Cl           = opp.m_Cl;
+    m_Cm           = opp.m_Cm;
 
-    m_XTrTop      = opp.m_XTrTop;
-    m_XTrBot      = opp.m_XTrBot;
-    m_XLamSepTop  = opp.m_XLamSepTop;
-    m_XLamSepBot  = opp.m_XLamSepBot;
-    m_XTurbSepTop = opp.m_XTurbSepTop;
-    m_XTurbSepBot = opp.m_XTurbSepBot;
+    m_XTrTop       = opp.m_XTrTop;
+    m_XTrBot       = opp.m_XTrBot;
+    m_XLamSepTop   = opp.m_XLamSepTop;
+    m_XLamSepBot   = opp.m_XLamSepBot;
+    m_XTurbSepTop  = opp.m_XTurbSepTop;
+    m_XTurbSepBot  = opp.m_XTurbSepBot;
 
 
-    m_XForce = opp.m_XForce;
-    m_YForce = opp.m_YForce;
-    m_Cpmn   = opp.m_Cpmn;
-    m_XCP  = opp.m_XCP;
-    m_m_LEHMom = opp.m_m_LEHMom;
-    m_TEHMom = opp.m_TEHMom;
+    m_XForce       = opp.m_XForce;
+    m_YForce       = opp.m_YForce;
+    m_Cpmn         = opp.m_Cpmn;
+    m_XCP          = opp.m_XCP;
+    m_m_LEHMom     = opp.m_m_LEHMom;
+    m_TEHMom       = opp.m_TEHMom;
 
-    m_Cpi = opp.m_Cpi;
-    m_Cpv = opp.m_Cpv;
-    m_Qi = opp.m_Qi;
-    m_Qv = opp.m_Qv;
+    m_Cpi          = opp.m_Cpi;
+    m_Cpv          = opp.m_Cpv;
+    m_Qi           = opp.m_Qi;
+    m_Qv           = opp.m_Qv;
 }
 
 
@@ -193,10 +196,33 @@ void OpPoint::exportOpp(std::string &out, const std::string &Version, bool bCSV,
 }
 
 
+std::string OpPoint::fullName() const
+{
+    QString name = QString::fromStdString(m_FoilName) + QString::asprintf("-Re=%g-", m_Reynolds) + ALPHAch +  QString::asprintf("=%.2f", m_Alpha) + DEGch;
+    return name.toStdString();
+}
+
+
 std::string OpPoint::name() const
 {
-    QString name = QString::fromStdString(m_FoilName) + QString::asprintf("-Re=%g-", m_Reynolds) + ALPHAch +  QString::asprintf("=%2f", m_Alpha) + DEGch;
-    return name.toStdString();
+    QString strange;
+
+    if      (isType6())
+    {
+        strange = QString::asprintf("%.2f", m_Theta) +DEGch;
+        strange = strange.rightJustified(9);
+    }
+    else if (isType4())
+    {
+        strange = QString::asprintf("%g", m_Reynolds);
+        strange = strange.rightJustified(9);
+    }
+    else
+    {
+        strange = QString::asprintf("%.2f", m_Alpha) + DEGch;
+        strange = strange.rightJustified(9);
+    }
+    return strange.toStdString();
 }
 
 

@@ -375,18 +375,28 @@ bool PlaneSTL::intersectTriangles(Vector3d A, Vector3d B, Vector3d &I, bool bMul
 }
 
 
-bool PlaneSTL::connectTriMesh(bool bConnectTE, bool, bool bMultiThreaded)
+bool PlaneSTL::connectTriMesh(bool bRefTriMesh, bool bConnectTE, bool, bool bMultiThreaded)
 {
     bool bOK = true;
-    m_RefTriMesh.makeConnectionsFromNodePosition(bConnectTE, bMultiThreaded);
-    m_RefTriMesh.connectNodes();
+    if(bRefTriMesh)
+    {
+        m_RefTriMesh.makeConnectionsFromNodePosition(bConnectTE, bMultiThreaded);
+        m_RefTriMesh.connectNodes();
 
-    std::vector<int>errorlist;
-    bOK = m_RefTriMesh.connectTrailingEdges(errorlist);
-    if(errorlist.size()) bOK = false;
+        std::vector<int>errorlist;
+        bOK = m_RefTriMesh.connectTrailingEdges(errorlist);
+        if(errorlist.size()) bOK = false;
+        m_TriMesh = m_RefTriMesh;
+    }
+    else
+    {
+        m_TriMesh.makeConnectionsFromNodePosition(bConnectTE, bMultiThreaded);
+        m_TriMesh.connectNodes();
 
-    m_TriMesh = m_RefTriMesh;
-
+        std::vector<int>errorlist;
+        bOK = m_TriMesh.connectTrailingEdges(errorlist);
+        if(errorlist.size()) bOK = false;
+    }
     return bOK;
 }
 

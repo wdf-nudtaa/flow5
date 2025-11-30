@@ -26,14 +26,12 @@
 #include <QString>
 
 
-
 #include <xfoiltask.h>
 #include <foil.h>
 #include <oppoint.h>
 #include <polar.h>
 #include <geom_params.h>
 #include <constants.h>
-
 
 
 bool XFoilTask::s_bCancel   = false;
@@ -51,6 +49,13 @@ XFoilTask::XFoilTask()
     m_bAlpha   = true;
 
     m_bErrors = false;
+}
+
+
+void XFoilTask::setCancelled(bool b)
+{
+    s_bCancel=b;
+    XFoil::setCancel(b);
 }
 
 
@@ -194,11 +199,12 @@ bool XFoilTask::processCl(int k)
     m_XFoilInstance.lvconv = false;
 
     int iterations = loop();
+    (void)iterations;
 
     if(m_XFoilInstance.lvconv)
     {
-        str = QString::asprintf("   ...converged after %3d iterations / Cl=%5f  Cd=%5f\n", iterations, m_XFoilInstance.cl, m_XFoilInstance.cd);
-        traceLog(str);
+//        str = QString::asprintf("   ...converged after %3d iterations / Cl=%5f  Cd=%5f\n", iterations, m_XFoilInstance.cl, m_XFoilInstance.cd);
+//        traceLog(str);
         // repurposing control variable to contain convergence result
         m_pPolar->m_Control[k] = m_XFoilInstance.lvconv ? 1.0 : -1.0;
         m_pPolar->m_Cd[k]      = m_XFoilInstance.cd;
@@ -207,16 +213,16 @@ bool XFoilTask::processCl(int k)
     }
     else
     {
-        str = QString::asprintf("   ...unconverged after %d iterations\n", iterations);
-        traceLog(str);     
+//        str = QString::asprintf("   ...unconverged after %d iterations\n", iterations);
+//        traceLog(str);
 
         // final fallback: build a polar to try an interpolation
-        Polar temppolar(*m_pPolar);
+/*        Polar temppolar(*m_pPolar);
 
         // define a wide range
         double ClMax(0);
-        if(m_pPolar->m_Cl.at(k)>0) ClMax = m_pPolar->m_Cl.at(k) + 0.5;
-        else                       ClMax = m_pPolar->m_Cl.at(k) -0.5;
+        if(m_pPolar->m_Cl.at(k)>0) ClMax = m_pPolar->m_Cl.at(k) +0.1;
+        else                       ClMax = m_pPolar->m_Cl.at(k) -0.1;
 
         // launch the sequence
         ClRange(&temppolar, {true,0.0, ClMax, 0.05});
@@ -227,7 +233,9 @@ bool XFoilTask::processCl(int k)
         m_pPolar->m_XTrTop[k] = temppolar.interpolateFromCl(m_pPolar->m_Cl.at(k), Polar::XTRTOP, bOutCl);
         m_pPolar->m_XTrBot[k] = temppolar.interpolateFromCl(m_pPolar->m_Cl.at(k), Polar::XTRBOT, bOutCl);
         // repurposing control variable to contain convergence result
-        m_pPolar->m_Control[k] = !bOutCl ? 1.0 : -1.0;
+        m_pPolar->m_Control[k] = !bOutCl ? 1.0 : -1.0;*/
+
+        m_pPolar->m_Control[k] = -1.0;
     }
 
     return m_pPolar->m_Control[k]>0.0;
@@ -277,6 +285,12 @@ bool XFoilTask::ClRange(Polar *pPolar, AnalysisRange const &range)
             {
                 OpPoint *pOpPoint = new OpPoint;
                 addXFoilData(pOpPoint, m_XFoilInstance, m_pFoil);
+                pOpPoint->setFoilName(m_pFoil->name());
+                pOpPoint->setPolarName(m_pPolar->name());
+                pOpPoint->setTheStyle(m_pPolar->theStyle());
+                pOpPoint->setTheta(m_pPolar->TEFlapAngle());
+                pOpPoint->setPolarType(pPolar->type());
+
                 pPolar->addOpPointData(pOpPoint); // store the data on the fly; a polar is only used by one task at a time
                 delete pOpPoint;
             }
@@ -478,6 +492,7 @@ bool XFoilTask::alphaSequence(bool bAlpha)
                     pOpPoint->setFoilName(m_pFoil->name());
                     pOpPoint->setPolarName(m_pPolar->name());
                     pOpPoint->setTheStyle(m_pPolar->theStyle());
+                    pOpPoint->setPolarType(m_pPolar->type());
                     addXFoilData(pOpPoint, m_XFoilInstance, m_pFoil);
                     m_pPolar->addOpPointData(pOpPoint); // store the data on the fly; a polar is only used by one task at a time
                     pOpPoint->setTheta(m_pPolar->TEFlapAngle());
@@ -642,6 +657,7 @@ bool XFoilTask::thetaSequence()
                     pOpPoint->setPolarName(m_pPolar->name());
                     pOpPoint->setTheStyle(m_pPolar->theStyle());
                     pOpPoint->setTheta(theta);
+                    pOpPoint->setPolarType(m_pPolar->type());
                     addXFoilData(pOpPoint, m_XFoilInstance, m_pFoil);
                     m_pPolar->addOpPointData(pOpPoint); // store the data on the fly; a polar is only used by one task at a time
 
@@ -750,6 +766,7 @@ bool XFoilTask::ReSequence()
             pOpPoint->setTheStyle(m_pPolar->theStyle());
             addXFoilData(pOpPoint, m_XFoilInstance, m_pFoil);
             pOpPoint->setTheta(m_pPolar->TEFlapAngle());
+            pOpPoint->setPolarType(m_pPolar->type());
             m_pPolar->addOpPointData(pOpPoint);
 
             if(m_bKeepOpps) m_OpPoints.push_back(pOpPoint);

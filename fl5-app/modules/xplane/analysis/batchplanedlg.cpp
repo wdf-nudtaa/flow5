@@ -69,7 +69,7 @@
 #include <interfaces/widgets/mvc/objecttreeitem.h>
 #include <interfaces/widgets/mvc/objecttreemodel.h>
 #include <modules/xplane/analysis/analysis3dsettings.h>
-#include <modules/xplane/controls/planetreeview.h>
+#include <modules/xplane/controls/planeexplorer.h>
 
 
 QByteArray BatchPlaneDlg::s_Geometry;

@@ -33,7 +33,7 @@ class XPlaneMenus
 {
     friend class XPlane;
     friend class MainFrame;
-    friend class PlaneTreeView;
+    friend class PlaneExplorer;
     friend class gl3dXPlaneView;
     friend class CpViewWt;
 

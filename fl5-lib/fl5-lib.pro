@@ -122,7 +122,7 @@ macx {
 
 
     QMAKE_MAC_SDK = macosx
-    QMAKE_APPLE_DEVICE_ARCHS = arm64
+    QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
     QMAKE_SONAME_PREFIX = @executable_path/../Frameworks
 
 
@@ -132,9 +132,9 @@ macx {
 
 
     #-------------OPENCASCADE -----------------
-    # set the paths to the OpenCascade header and lib directories
-    INCLUDEPATH += /usr/local/include/opencascade/
-    LIBS += -L/usr/local/lib/
+    INCLUDEPATH += /usr/local/include/opencascade
+    LIBS += -L/usr/local/lib
+
 
     #-------------vecLib -----------------
     DEFINES += ACCELERATE

@@ -178,7 +178,7 @@ void DisplayOptions::loadSettings(QSettings &settings)
 
         g_TextFontStruct.loadSettings(   settings, "TextFont");
         g_TableFontStruct.loadSettings(  settings, "TableFont");
-        g_TreeFontStruct.loadSettings(   settings, "TreeFont");
+        g_TreeFontStruct.loadSettings(   settings, "ExplorerFont");
         g_ToolTipFontStruct.loadSettings(settings, "ToolTipFont");
         QToolTip::setFont(DisplayOptions::toolTipFont());
 
@@ -203,7 +203,7 @@ void DisplayOptions::saveSettings(QSettings &settings)
 
         g_TextFontStruct.saveSettings(   settings, "TextFont");
         g_TableFontStruct.saveSettings(  settings, "TableFont");
-        g_TreeFontStruct.saveSettings(   settings, "TreeFont");
+        g_TreeFontStruct.saveSettings(   settings, "ExplorerFont");
         g_ToolTipFontStruct.saveSettings(settings, "ToolTipFont");
 
         if(isLightTheme()) settings.setValue("Theme",0);

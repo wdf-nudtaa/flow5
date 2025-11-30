@@ -108,8 +108,7 @@ class FL5LIB_EXPORT XFoilTask
         void traceLog(const QString &str);
         void traceStdLog(const std::string &str);
 
-        static void cancelAnalyses() {s_bCancel=true;}
-        static void setCancelled(bool b) {s_bCancel=b;}
+        static void setCancelled(bool b);
 
         static int maxIterations() {return s_IterLim;}
         static void setMaxIterations(int maxiter) {s_IterLim=maxiter;}

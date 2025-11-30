@@ -27,6 +27,7 @@
 
 #include <QList>
 #include <QVariant>
+#include <QStandardItem>
 
 #include <api/linestyle.h>
 
@@ -49,6 +50,9 @@ class ObjectTreeItem
         void setName(QString const &name) {m_Name=name;}
         void setTheStyle(LineStyle const &ls) {m_LS=ls;}
         void setCheckState(Qt::CheckState state) {m_CheckState=state;}
+
+        void setData(int column, QVariant const &var);
+
         QString const &name() const {return m_Name;}
         void setLevel(int level) {m_Level = level;}
         int level() const {return m_Level;}

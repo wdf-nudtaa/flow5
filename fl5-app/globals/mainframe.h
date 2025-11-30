@@ -146,7 +146,7 @@ class MainFrame : public QMainWindow
         void hideDockWindows();
         void setActiveCentralWidget();
         void setColorListFromFile();
-        void setPlainColorsFromFile();
+        void setPlainColorsFromFile() const;
         void setRefGraphSettings();
         void setMenus();
         void setProjectName(QString const &PathName);

@@ -883,7 +883,10 @@ void OpPointWt::paintOpPoint(QPainter &painter)
 
     double Alpha = 0.0;
     if(pCurOpp) Alpha = pCurOpp->aoa();
-    else if(pCurPolar && pCurPolar->isType6()) Alpha = pCurPolar->aoaSpec();
+    else if(pCurPolar)
+    {
+        if(pCurPolar->isType4() || pCurPolar->isType6()) Alpha = pCurPolar->aoaSpec();
+    }
 
     QPen foilpen;
     foilpen.setCosmetic(true);

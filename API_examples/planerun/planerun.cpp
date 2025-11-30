@@ -44,7 +44,7 @@ int main()
 
 
         // repanel
-        int  npanels = 150;
+        int  npanels = 149; // prefer primes
         double amp = 0.7; // 0.0: no bunching, 1.0: max. bunching
         pFoilN0009->rePanel(npanels, amp);
         pFoilN2413->rePanel(npanels, amp);
@@ -52,7 +52,6 @@ int main()
         // define the flaps
         pFoilN0009->setTEFlapData(true, 0.7, 0.5, 0.0); // stores the parameters
         pFoilN2413->setTEFlapData(true, 0.7, 0.5, 0.0); // stores the parameters
-
     }
 
 
@@ -64,7 +63,8 @@ int main()
 
         // We insert the plane = store the pointer
         // This ensures that the heap memory will not be lost and will be released properly
-        // This should be done after the plane has been given a name
+        // This should be done after the plane has been given a name so that it may be
+        // inserted in alphabetical order
         Objects3d::insertPlane(pPlaneXfl);
 
         // set the style for this plane's children objects, i.e. polars and operating points
@@ -333,9 +333,7 @@ int main()
 
     // Must call! will delete the planes, foils and children objects
     // Memory leak otherwise
-//    globals::deleteObjects();
-
-    onXPlane();
+    globals::deleteObjects();
 
     std::cout << "done" << std::endl;
 

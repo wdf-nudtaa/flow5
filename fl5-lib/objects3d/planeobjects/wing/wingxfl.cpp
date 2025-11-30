@@ -445,11 +445,13 @@ void WingXfl::createSurfaces(Vector3d const &Toffset, double XTilt, double YTilt
     if(nSurf<=0) return;
     int NSurfaces = nSurf;
 
+    for(uint jsurf=0; jsurf<m_Surface.size(); jsurf++) m_Surface[jsurf].setIndex(jsurf);
+
     //define the normals at panel junctions: average between the normals of the two connecting sufaces
-    for(int jss=0; jss<nSurf; jss++)
+    for(int jsurf=0; jsurf<nSurf; jsurf++)
     {
-        VNSide[jss+1] = VNormal[jss]+VNormal[jss+1];
-        VNSide[jss+1].normalize();
+        VNSide[jsurf+1] = VNormal[jsurf]+VNormal[jsurf+1];
+        VNSide[jsurf+1].normalize();
     }
 
     //we start with the center panel, moving towards the left wing tip
@@ -459,39 +461,39 @@ void WingXfl::createSurfaces(Vector3d const &Toffset, double XTilt, double YTilt
     int iSurf = NSurfaces-1;
 
 
-    for(int jss=0; jss<nSections()-1; jss++)
+    for(int jsurf=0; jsurf<nSections()-1; jsurf++)
     {
-        double panelLength = fabs(yPosition(jss)-yPosition(jss+1));
+        double panelLength = fabs(yPosition(jsurf)-yPosition(jsurf+1));
         if (panelLength < MinPanelSize)
         {
         }
         else
         {
             Surface &surf = m_Surface[iSurf];
-            surf.m_FoilNameA   = leftFoilName(jss+1);
-            surf.m_FoilNameB   = leftFoilName(jss);
+            surf.m_FoilNameA = leftFoilName(jsurf+1);
+            surf.m_FoilNameB = leftFoilName(jsurf);
 
-            surf.m_Length   =  yPosition(jss+1) - yPosition(jss);
+            surf.m_Length   =  yPosition(jsurf+1) - yPosition(jsurf);
 
-            PLA.x =  offset(jss+1);         PLB.x =  offset(jss);
-            PLA.y = -yPosition(jss+1);      PLB.y = -yPosition(jss);
+            PLA.x =  offset(jsurf+1);         PLB.x =  offset(jsurf);
+            PLA.y = -yPosition(jsurf+1);      PLB.y = -yPosition(jsurf);
             PLA.z =  0.0;                   PLB.z =  0.0;
-            PTA.x =  PLA.x+chord(jss+1);    PTB.x = PLB.x+chord(jss);
+            PTA.x =  PLA.x+chord(jsurf+1);    PTB.x = PLB.x+chord(jsurf);
             PTA.y =  PLA.y;                    PTB.y = PLB.y;
             PTA.z =  0.0;                   PTB.z =  0.0;
 
             surf.setCornerPoints(PLA, PTA, PLB, PTB);
             surf.setNormal(); // is (0,0,1)
 
-            surf.rotateX(surf.m_LB, -dihedral(jss));
+            surf.rotateX(surf.m_LB, -dihedral(jsurf));
             surf.m_NormalA.set(VNSide[nSurf+1].x, -VNSide[nSurf+1].y, VNSide[nSurf+1].z);
             surf.m_NormalB.set(VNSide[nSurf].x,   -VNSide[nSurf].y,   VNSide[nSurf].z);
 
-            surf.m_TwistA = twist(jss+1);
-            surf.m_TwistB = twist(jss);
+            surf.m_TwistA = twist(jsurf+1);
+            surf.m_TwistB = twist(jsurf);
             surf.setTwist(true);
 
-            if(jss>0 && iSurf<nSurfaces()-1)
+            if(jsurf>0 && iSurf<nSurfaces()-1)
             {
                 //translate the surface to the left tip of the previous surface
                 T1 = m_Surface[iSurf+1].m_LA - surf.m_LB;
@@ -502,19 +504,19 @@ void WingXfl::createSurfaces(Vector3d const &Toffset, double XTilt, double YTilt
 
             nSurf++;
 
-            surf.setNXPanels(nXPanels(jss));
-            surf.setNYPanels(nYPanels(jss));
+            surf.setNXPanels(nXPanels(jsurf));
+            surf.setNYPanels(nYPanels(jsurf));
 
 
             //AVL coding + invert XFLR5::SINE and -sine for left wing
-            surf.m_XDistType = xPanelDist(jss);
-            if     (yPanelDist(jss) == xfl::SINE)      surf.m_YDistType = xfl::INV_SINE;
-            else if(yPanelDist(jss) == xfl::COSINE)    surf.m_YDistType = xfl::COSINE;
-            else if(yPanelDist(jss) == xfl::INV_SINE)  surf.m_YDistType = xfl::SINE;
-            else if(yPanelDist(jss) == xfl::INV_SINH)  surf.m_YDistType = xfl::INV_SINH;
-            else if(yPanelDist(jss) == xfl::TANH)      surf.m_YDistType = xfl::TANH;
-            else if(yPanelDist(jss) == xfl::EXP)       surf.m_YDistType = xfl::INV_EXP;
-            else if(yPanelDist(jss) == xfl::INV_EXP)   surf.m_YDistType = xfl::EXP;
+            surf.m_XDistType = xPanelDist(jsurf);
+            if     (yPanelDist(jsurf) == xfl::SINE)      surf.m_YDistType = xfl::INV_SINE;
+            else if(yPanelDist(jsurf) == xfl::COSINE)    surf.m_YDistType = xfl::COSINE;
+            else if(yPanelDist(jsurf) == xfl::INV_SINE)  surf.m_YDistType = xfl::SINE;
+            else if(yPanelDist(jsurf) == xfl::INV_SINH)  surf.m_YDistType = xfl::INV_SINH;
+            else if(yPanelDist(jsurf) == xfl::TANH)      surf.m_YDistType = xfl::TANH;
+            else if(yPanelDist(jsurf) == xfl::EXP)       surf.m_YDistType = xfl::INV_EXP;
+            else if(yPanelDist(jsurf) == xfl::INV_EXP)   surf.m_YDistType = xfl::EXP;
             else                                       surf.m_YDistType = xfl::UNIFORM;
 
 //            surf.createXPoints();
@@ -522,8 +524,8 @@ void WingXfl::createSurfaces(Vector3d const &Toffset, double XTilt, double YTilt
             surf.init();
             surf.setLeftSurf(true);
             surf.setIsInSymPlane(false);
-            surf.m_InnerSection = jss;
-            surf.m_OuterSection = jss+1;
+            surf.m_InnerSection = jsurf;
+            surf.m_OuterSection = jsurf+1;
             --iSurf;
         }
     }
@@ -536,39 +538,39 @@ void WingXfl::createSurfaces(Vector3d const &Toffset, double XTilt, double YTilt
     {
         m_Surface[NSurfaces].setCenterSurf(true);//next right center surface
         iSurf = nSurf;
-        for (int jss=0; jss<nSections()-1; jss++)
+        for (int jsurf=0; jsurf<nSections()-1; jsurf++)
         {
-            double panelLength = fabs(yPosition(jss)-yPosition(jss+1));
+            double panelLength = fabs(yPosition(jsurf)-yPosition(jsurf+1));
             if (panelLength < MinPanelSize)
             {
             }
             else
             {
                 Surface &surf = m_Surface[iSurf];
-                surf.m_FoilNameA = rightFoilName(jss);
-                surf.m_FoilNameB = rightFoilName(jss+1);
+                surf.m_FoilNameA = rightFoilName(jsurf);
+                surf.m_FoilNameB = rightFoilName(jsurf+1);
 
-                surf.m_Length   =  yPosition(jss+1) - yPosition(jss);
+                surf.m_Length   =  yPosition(jsurf+1) - yPosition(jsurf);
 
-                PLA.x = offset(jss);        PLB.x = offset(jss+1);
-                PLA.y = yPosition(jss);     PLB.y = yPosition(jss+1);
+                PLA.x = offset(jsurf);        PLB.x = offset(jsurf+1);
+                PLA.y = yPosition(jsurf);     PLB.y = yPosition(jsurf+1);
                 PLA.z = 0.0;                PLB.z = 0.0;
-                PTA.x = PLA.x+chord(jss);   PTB.x = PLB.x+chord(jss+1);
+                PTA.x = PLA.x+chord(jsurf);   PTB.x = PLB.x+chord(jsurf+1);
                 PTA.y = PLA.y;              PTB.y = PLB.y;
                 PTA.z = 0.0;                PTB.z = 0.0;
 
                 surf.setCornerPoints(PLA, PTA, PLB, PTB);
                 surf.setNormal(); // is (0,0,1)
 
-                surf.rotateX(m_Surface[iSurf].m_LA, dihedral(jss));
+                surf.rotateX(m_Surface[iSurf].m_LA, dihedral(jsurf));
                 surf.m_NormalA.set(VNSide[iSurf-nSurf].x,   VNSide[iSurf-nSurf].y,   VNSide[iSurf-nSurf].z);
                 surf.m_NormalB.set(VNSide[iSurf-nSurf+1].x, VNSide[iSurf-nSurf+1].y, VNSide[iSurf-nSurf+1].z);
 
-                surf.m_TwistA   =  twist(jss);
-                surf.m_TwistB   =  twist(jss+1);
+                surf.m_TwistA   =  twist(jsurf);
+                surf.m_TwistB   =  twist(jsurf+1);
                 surf.setTwist(true);
 
-                if(jss>0 && iSurf>0)
+                if(jsurf>0 && iSurf>0)
                 {
                     //translate the surface to the left tip of the previous surface and merge points
                     T1 = m_Surface[iSurf-1].m_LB -surf.m_LA;
@@ -577,12 +579,12 @@ void WingXfl::createSurfaces(Vector3d const &Toffset, double XTilt, double YTilt
                     //                    m_Surface[is].m_TA = m_Surface[is-1].m_TB;
                 }
 
-                surf.setNXPanels(nXPanels(jss));
-                surf.setNYPanels(nYPanels(jss));
+                surf.setNXPanels(nXPanels(jsurf));
+                surf.setNYPanels(nYPanels(jsurf));
 
                 //AVL coding + invert XFLR5::SINE and -sine for left wing
-                surf.m_XDistType = xPanelDist(jss);
-                surf.m_YDistType = yPanelDist(jss);
+                surf.m_XDistType = xPanelDist(jsurf);
+                surf.m_YDistType = yPanelDist(jsurf);
 
 //                surf.createXPoints();
                 surf.setFlap();
@@ -591,8 +593,8 @@ void WingXfl::createSurfaces(Vector3d const &Toffset, double XTilt, double YTilt
                 surf.m_bIsRightSurf  = true;
                 surf.m_bIsInSymPlane = false;
 
-                surf.m_InnerSection = jss;
-                surf.m_OuterSection = jss+1;
+                surf.m_InnerSection = jsurf;
+                surf.m_OuterSection = jsurf+1;
 
                 iSurf++;
             }

@@ -31,7 +31,7 @@
 #include "xplanelegendwt.h"
 
 #include <modules/xplane/xplane.h>
-#include <modules/xplane/controls/planetreeview.h>
+#include <modules/xplane/controls/planeexplorer.h>
 #include <core/displayoptions.h>
 
 #include <interfaces/graphs/graph/graph.h>
@@ -60,11 +60,11 @@ void XPlaneLegendWt::makeLegend(bool bHighlight)
 
     switch(s_pXPlane->m_eView)
     {
-        case XPlane::WOPPVIEW:
+        case XPlane::POPPVIEW:
             makePOppLegendBtns(bHighlight);
             break;
         case XPlane::STABPOLARVIEW:
-        case XPlane::WPOLARVIEW:
+        case XPlane::POLARVIEW:
             makeWPolarLegendBtns(s_pXPlane->m_eView, bHighlight);
             break;
         case XPlane::W3DVIEW:
@@ -293,7 +293,7 @@ void XPlaneLegendWt::onClickedWPolarBtn()
 
     s_pXPlane->setPlane(QString::fromStdString(pWPolar->planeName()));
     s_pXPlane->setPolar(pWPolar);
-    s_pXPlane->m_pPlaneTreeView->selectWPolar(pWPolar, false);
+    s_pXPlane->m_pPlaneExplorer->selectWPolar(pWPolar, false);
     s_pXPlane->updateView();
 }
 
@@ -310,7 +310,7 @@ void XPlaneLegendWt::onClickedWPolarBtnLine(LineStyle ls)
     pWPolar->setTheStyle(ls);
     s_pXPlane->resetCurves();
     s_pXPlane->updateView();
-    s_pXPlane->m_pPlaneTreeView->setCurveParams();
+    s_pXPlane->m_pPlaneExplorer->setCurveParams();
 
     emit s_pXPlane->projectModified();
 }
@@ -326,7 +326,7 @@ void XPlaneLegendWt::onClickedPOppBtnLine(LineStyle ls)
     ls = pLineMenu->theStyle();
     pPOpp->setTheStyle(ls);
     s_pXPlane->resetCurves();
-    s_pXPlane->m_pPlaneTreeView->setCurveParams();
+    s_pXPlane->m_pPlaneExplorer->setCurveParams();
     emit (s_pXPlane->projectModified());
     s_pXPlane->updateView();
 }
@@ -340,7 +340,7 @@ void XPlaneLegendWt::onClickedPOppBtn()
     s_pXPlane->setPlane(QString::fromStdString(pPOpp->planeName()));
     s_pXPlane->setPolar(QString::fromStdString(pPOpp->polarName()));
     s_pXPlane->setPlaneOpp(pPOpp); // will call createcurves and makelegend
-    s_pXPlane->m_pPlaneTreeView->selectPlaneOpp(pPOpp);
+    s_pXPlane->m_pPlaneExplorer->selectPlaneOpp(pPOpp);
 
     s_pXPlane->updateView();
 }

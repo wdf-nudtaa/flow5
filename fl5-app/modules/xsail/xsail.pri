@@ -1,7 +1,7 @@
 
 HEADERS += \
     $$PWD/analysis/boatanalysisdlg.h \
-    $$PWD/controls/boattreeview.h \
+    $$PWD/controls/boatexplorer.h \
     $$PWD/controls/gl3dxsailctrls.h \
     $$PWD/controls/xsailanalysisctrls.h \
     $$PWD/controls/xsaildisplayctrls.h \
@@ -15,7 +15,7 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/analysis/boatanalysisdlg.cpp \
-    $$PWD/controls/boattreeview.cpp \
+    $$PWD/controls/boatexplorer.cpp \
     $$PWD/controls/gl3dxsailctrls.cpp \
     $$PWD/controls/xsailanalysisctrls.cpp \
     $$PWD/controls/xsaildisplayctrls.cpp \

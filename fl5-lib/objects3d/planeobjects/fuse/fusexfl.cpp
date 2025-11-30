@@ -23,7 +23,7 @@
 *****************************************************************************/
 
 #include <QString>
-
+#include <QDebug>
 
 
 
@@ -376,8 +376,13 @@ void FuseXfl::computeSurfaceProperties(std::string &msg, const std::string &pref
             // raises an execption if less than two points, i.e. for the leading and trailing frames
             HalfPolyMaker.Close();
         }
-        catch(StdFail_NotDone &)
+        catch(StdFail_NotDone &e)
         {
+//            qDebug()<<"FuseXfl::computeSurfaceProperties"<<e.GetMessageString();
+        }
+        catch(...)
+        {
+//            qDebug()<<"FuseXfl::computeSurfaceProperties"<<"Unknown error";
         }
 
         double area=0.0;
@@ -1562,9 +1567,9 @@ void FuseXfl::makeBodySplineShape(std::string &logmsg)
         strong = "   The right NURBS has type "+ occ::shapeType(RightBodyShell) + "\n";
         logmsg += strong;
     }
-    catch (StdFail_NotDone &)
+    catch (StdFail_NotDone &e)
     {
-        logmsg += "   Unknown failure\n";
+        logmsg += std::string("   StdFail_NotDone: ") + e.GetMessageString() + EOLstr;
         return;
     }
     catch (...)
@@ -1702,9 +1707,9 @@ void FuseXfl::makeBodySplineShape_old(std::string &logmsg)
         strong = "   The right NURBS has type "+ occ::shapeType(RightBodyShell) + "\n";
         logmsg += strong;
     }
-    catch (StdFail_NotDone &)
+    catch (StdFail_NotDone &e)
     {
-        logmsg += "   Unknown failure\n";
+        logmsg += std::string("   StdFail_NotDone: ") + e.GetMessageString() + EOLstr;
         return;
     }
     catch (...)

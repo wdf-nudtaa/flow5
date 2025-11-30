@@ -32,7 +32,7 @@
 #include "xsaillegendwt.h"
 
 
-#include <modules/xsail/controls/boattreeview.h>
+#include <modules/xsail/controls/boatexplorer.h>
 #include <modules/xsail/xsail.h>
 
 #include <interfaces/graphs/graph/graph.h>
@@ -155,7 +155,7 @@ void XSailLegendWt::onClickedPolarBtn()
 
     s_pXSail->setBoat(QString::fromStdString(pBtPolar->boatName()));
     s_pXSail->setBtPolar(pBtPolar);
-    s_pXSail->m_pBoatTreeView->selectBtPolar(pBtPolar);
+    s_pXSail->m_pBoatExplorer->selectBtPolar(pBtPolar);
     s_pXSail->updateView();
 }
 
@@ -172,7 +172,7 @@ void XSailLegendWt::onClickedPolarBtnLine(LineStyle ls)
     pBtPolar->setTheStyle(ls);
     s_pXSail->resetCurves();
     s_pXSail->updateView();
-    s_pXSail->m_pBoatTreeView->setCurveParams();
+    s_pXSail->m_pBoatExplorer->setCurveParams();
     emit s_pXSail->projectModified();
 }
 

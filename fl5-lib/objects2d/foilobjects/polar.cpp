@@ -822,10 +822,10 @@ std::string Polar::properties()
     strong = QString::asprintf("NCrit       = %5.2f\n", m_ACrit);
     polarprops += strong;
 
-    strong = QString::asprintf("Forced top trans.    = %2f\n", m_XTripTop);
+    strong = QString::asprintf("Forced top trans.    = %5.1f%%\n", m_XTripTop*100.0);
     polarprops += strong;
 
-    strong = QString::asprintf("Forced bottom trans. = %2f\n", m_XTripBot);
+    strong = QString::asprintf("Forced bottom trans. = %5.1f%%\n", m_XTripBot*100.0);
     polarprops += strong;
 
     if(isType12())

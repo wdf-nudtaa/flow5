@@ -413,7 +413,6 @@ void BatchDlg::saveSettings(QSettings &settings)
 {
     settings.beginGroup("BatchDlg");
     {
-
         settings.setValue("VSplitterSizes",  s_HSplitterSizes);
         settings.setValue("WindowGeom",      s_Geometry);
     }

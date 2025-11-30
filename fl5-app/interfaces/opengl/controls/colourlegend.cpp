@@ -29,10 +29,10 @@
 #include <QPaintEvent>
 
 
+
 #include <core/displayoptions.h>
-#include <interfaces/controls/w3dprefs.h>
 #include <core/xflcore.h>
-#include <api/utils.h>
+#include <interfaces/controls/w3dprefs.h>
 
 
 #define NCPCOLORS 20
@@ -120,9 +120,8 @@ void ColourLegend::makeLegend()
     float delta = -range / float(nLabels);
 
     double yPos  = m_GradientRect.top()+m_CharHeight;
-    double h = m_GradientRect.height();
-    qreal dy  = (h-yPos-m_CharHeight)/double(nLabels-1);
-//    qreal dy  = (h-yPos)/double(nLabels-1);
+    double h = m_GradientRect.height()-m_CharHeight;
+    double dy  = (h)/double(nLabels-1);
 
     QString strong;
 
@@ -131,7 +130,7 @@ void ColourLegend::makeLegend()
         float f = f0 + float(i) * delta;
         if(xfl::isLocalized()) strong = QString("%L1").arg(f, 9, 'f', 2);
         else                   strong = QString("%1" ).arg(f, 9, 'f', 2);
-        qreal x = m_GradientRect.left()-fs.width(strong)*(m_DevicePixelRatio*1.1);
+        double x = m_GradientRect.left()-fs.width(strong)*(m_DevicePixelRatio*1.1);
         painter.drawText(x, yPos, strong);
         yPos += dy;
     }

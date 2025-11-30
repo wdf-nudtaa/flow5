@@ -49,6 +49,8 @@ std::vector<Vector3d> Surface::s_DebugVecs;
 
 Surface::Surface()
 {
+    m_Index = -1;
+
     m_bTEFlap = false;
 
     m_Length   = 0.0;

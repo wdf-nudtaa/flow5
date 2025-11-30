@@ -40,7 +40,7 @@
 
 #include <bldata.h>
 #include <blxfoil.h>
-
+#include <enums_objects.h>
 
 class Foil;
 class Polar;
@@ -75,6 +75,7 @@ class FL5LIB_EXPORT OpPoint : public XflObject
         std::string const &foilName()     const {return m_FoilName;}
         std::string const &polarName()    const {return m_PlrName;}
         std::string name()  const override;
+        std::string fullName() const;
 
         void setFoilName(std::string const &newFoilName) {m_FoilName = newFoilName;}
         void setPolarName(std::string const &plrName) {m_PlrName=plrName;}
@@ -99,10 +100,20 @@ class FL5LIB_EXPORT OpPoint : public XflObject
         BL::enumBLMethod BLMethod() const {return m_BLMethod;}
         void setBLMethod(BL::enumBLMethod blmethod) {m_BLMethod=blmethod;}
 
+        void setPolarType(xfl::enumPolarType type) {m_PolarType=type;}
+        xfl::enumPolarType polarType() const {return m_PolarType;}
+
+        bool isType1()           const {return m_PolarType==xfl::T1POLAR;}   /**< returns true if the polar is of the FIXEDSPEEDPOLAR type, false otherwise >*/
+        bool isType2()           const {return m_PolarType==xfl::T2POLAR;}    /**< returns true if the polar is of the FIXEDLIFTPOLAR type, false otherwise >*/
+        bool isType3()           const {return m_PolarType==xfl::T3POLAR;}        /**< returns true if the polar is of the GLIDEPOLAR type, false otherwise >*/
+        bool isType4()           const {return m_PolarType==xfl::T4POLAR;}     /**< returns true if the polar is of the FIXEDAOAPOLAR type, false otherwise >*/
+        bool isType6()           const {return m_PolarType==xfl::T6POLAR;}     /**< returns true if the polar is of the FIXEDAOAPOLAR type, false otherwise >*/
+
         bool serializeOppXFL(QDataStream &ar, bool bIsStoring, int ArchiveFormat=0);
         bool serializeOppFl5(QDataStream &ar, bool bIsStoring);
 
     public:
+        xfl::enumPolarType m_PolarType;   /**< defines the type of the parent PlanePolar */
 
         std::string m_FoilName;         /**< the name of the parent Foil */
         std::string m_PlrName;          /**< the name of the parent Polar */

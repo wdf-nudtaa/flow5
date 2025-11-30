@@ -30,7 +30,8 @@
 
 ObjectTreeModel::ObjectTreeModel(QObject *parent) : QAbstractItemModel(parent)
 {
-    LineStyle ls(true, Line::SOLID, 3, fl5Color(255,255,0), Line::LITTLECIRCLE, "The root item");
+    LineStyle ls;
+    ls.m_Tag = "the root item";
     m_pRootItem = new ObjectTreeItem("Root", ls, Qt::Unchecked, nullptr);
 }
 
@@ -47,6 +48,22 @@ int ObjectTreeModel::columnCount(const QModelIndex &) const
 }
 
 
+bool ObjectTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid()) return false;
+    if (role != Qt::DisplayRole) return false;
+
+    ObjectTreeItem *pItem = static_cast<ObjectTreeItem*>(index.internalPointer());
+    if(!pItem) return false;
+
+    pItem->setData(index.column(), value);
+
+    emit dataChanged(index, index);
+    return true;
+}
+
+
+
 QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
@@ -55,12 +72,12 @@ QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
     if (role != Qt::DisplayRole) return QVariant();
 
     ObjectTreeItem *pItem = static_cast<ObjectTreeItem*>(index.internalPointer());
+    if(!pItem) return QVariant();
 
     return pItem->data(index.column());
 }
 
 
-/// added TW
 ObjectTreeItem *ObjectTreeModel::item(int iRow)
 {
     QModelIndex ind = index(iRow, 0);
@@ -162,7 +179,7 @@ QModelIndex ObjectTreeModel::parent(const QModelIndex &index) const
 
 int ObjectTreeModel::rowCount(const QModelIndex &parent) const
 {
-    ObjectTreeItem *parentItem(nullptr);
+    ObjectTreeItem *parentItem=nullptr;
     if (parent.column()>0) return 0;
 
     if (!parent.isValid()) parentItem = m_pRootItem;
@@ -213,12 +230,7 @@ ObjectTreeItem* ObjectTreeModel::insertRow(ObjectTreeItem*pParentItem, int row,
 ObjectTreeItem* ObjectTreeModel::insertRow(ObjectTreeItem*pParentItem, int row,
                                            std::string const &name, LineStyle const &ls, Qt::CheckState state)
 {
-    if(!pParentItem) return nullptr;
-    QModelIndex parentindex = index(pParentItem->parentItem(), pParentItem);
-    beginInsertRows(parentindex, row, row);
-    ObjectTreeItem *pNewItem = pParentItem->insertRow(row, QString::fromStdString(name), ls, state);
-    endInsertRows();
-    return pNewItem;
+    return insertRow(pParentItem, row, QString::fromStdString(name), ls, state);
 }
 
 
@@ -234,38 +246,81 @@ ObjectTreeItem* ObjectTreeModel::appendRow(ObjectTreeItem*pParentItem, std::stri
 }
 
 
-/** custom method to update the ObjectTreeView if the underlying object has changed */
 void ObjectTreeModel::updateData()
 {
+    int nRows = rowCount();
+    int nCols = columnCount();
     QModelIndex idxTL = index(0,0, QModelIndex());
-    QModelIndex idxBR = index(rowCount()-1, columnCount()-1);
+    QModelIndex idxB1R1 = index(nRows-1, 0);
+//    qDebug()<<"vallls"<<idxBR.isValid()<<idxB1R.isValid()<<idxBR1.isValid()<<idxB1R1.isValid();
 
-//    qDebug()<<"update data"<<idxTL.isValid() << idxBR.isValid();
+//    ObjectTreeItem *pTLItem = itemFromIndex(idxTL);
+//    ObjectTreeItem *pBRItem = itemFromIndex(idxBR);
+
+   updateData(idxTL, idxB1R1);
+
+//    emit dataChanged(idxTL, idxBR);
+}
+
+
+void ObjectTreeModel::updateData(QModelIndex const &idxTL, QModelIndex const &idxBR)
+{
+    Q_ASSERT(idxBR.parent()==idxTL.parent());
+
+ //    qDebug()<<"update data"<<nRows<<nCols<<idxTL.isValid() << idxBR.isValid()<<"sameparents="<<(idxBR.parent()==idxTL.parent());
     if(idxTL.isValid() && idxBR.isValid())
     {
         emit dataChanged(idxTL, idxBR);
+
+        ObjectTreeItem *pTLItem = itemFromIndex(idxTL);
+        ObjectTreeItem *pBRItem = itemFromIndex(idxBR);
     }
+    else
+        qDebug()<<"invalid indexes";
 }
 
 
-/** custom method to update the ObjectTreeView if the underlying object has changed */
-void ObjectTreeModel::updateData(QModelIndex idx)
+void ObjectTreeModel::updateData(ObjectTreeItem *pItem)
 {
-    if(idx.isValid())
+    int nRows = pItem->rowCount();
+//    int nCols = pItem->columnCount();
+
+    for(int row=0; row<nRows; row++)
     {
-        emit dataChanged(idx, idx);
+        ObjectTreeItem *pChildItem = pItem->child(row);
+        if(!pChildItem) continue; // failsafe
+        QModelIndex idx = index(pItem, pChildItem);
+        if(idx.isValid())
+            emit dataChanged(idx, idx);
+
+        updateData(pChildItem);
     }
 }
 
 
+void ObjectTreeModel::updateDataFromRoot()
+{
+    ObjectTreeItem *pRootItem = rootItem();
 
+    updateData(pRootItem);
+/*
+    int nLevel0Objects = pRootItem->rowCount();
 
+    QModelIndex idx0 = index(0,0,pRootItem); // the index of the first plane object
 
+    if(nLevel0Objects>0)
+    {
+        QModelIndex idx1st  = idx0;
+        QModelIndex idxlast = idx0.siblingAtRow(nLevel0Objects-1);
+//qDebug() <<"updateDataFromRoot"       << idx1st.isValid()<<idxlast.isValid();
+        emit dataChanged(idx1st, idxlast);
+    }
 
+    for(int row=0; row<nLevel0Objects; row++)
+    {
+        ObjectTreeItem *pChildItem = pRootItem->child(row);
+        updateData(pChildItem);
 
-
-
-
-
-
+    }*/
+}
 

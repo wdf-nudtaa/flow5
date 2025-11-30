@@ -66,6 +66,7 @@ xfl::enumPolarType BatchXFoilDlg::s_PolarType = xfl::T1POLAR;
 double BatchXFoilDlg::s_XTop   = 1.0;
 double BatchXFoilDlg::s_XBot   = 1.0;
 
+bool BatchXFoilDlg::s_bTransAtHinge = false;
 
 QVector<bool> BatchXFoilDlg::s_ActiveList;
 QVector<double> BatchXFoilDlg::s_ReList;
@@ -152,30 +153,37 @@ void BatchXFoilDlg::setupLayout()
                 m_pFloatDelegate->setItemTypes({XflDelegate::CHECKBOX, XflDelegate::DOUBLE, XflDelegate::DOUBLE, XflDelegate::DOUBLE, XflDelegate::ACTION});
                 m_pcptReTable->setItemDelegate(m_pFloatDelegate);
 
-                m_pInsertBeforeAct    = new QAction("Insert before", this);
-                m_pInsertAfterAct    = new QAction("Insert after", this);
-                m_pDeleteAct        = new QAction("Delete", this);
+                m_pInsertBeforeAct  = new QAction("Insert before", this);
+                m_pInsertAfterAct   = new QAction("Insert after",  this);
+                m_pDeleteAct        = new QAction("Delete",        this);
             }
 
             QGroupBox *m_pgbTransVars = new QGroupBox("Forced Transitions");
             {
-                QGridLayout *pTransVars = new QGridLayout;
+                QGridLayout *pTransVarsLayout = new QGridLayout;
                 {
-                    pTransVars->setColumnStretch(0,4);
-                    pTransVars->setColumnStretch(1,1);
                     QLabel *plabTopTrans = new QLabel("Top transition location (x/c)");
                     QLabel *plabBotTrans = new QLabel("Bottom transition location (x/c)");
-                    plabTopTrans->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
-                    plabBotTrans->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
-                    m_pfeXTopTr = new FloatEdit(1.00);
-                    m_pfeXBotTr = new FloatEdit(1.00);
+                    m_pfeXTopTr = new FloatEdit(1.0f);
+                    m_pfeXBotTr = new FloatEdit(1.0f);
 
-                    pTransVars->addWidget(plabTopTrans, 2, 1);
-                    pTransVars->addWidget(m_pfeXTopTr  , 2, 2);
-                    pTransVars->addWidget(plabBotTrans, 3, 1);
-                    pTransVars->addWidget(m_pfeXBotTr,   3, 2);
+                    m_pchTransAtHinge = new QCheckBox("Force transition at hinge location");
+                    m_pchTransAtHinge->setToolTip("<p>"
+                                                  "Forces the laminar to turbulent transition at the hinge's location on both the top and bottom surfaces.<br>"
+                                                  "The transition location is set as the most upwind position between the hinge's location "
+                                                  "and the forced transition location.<br>"
+                                                  "Only used in the case of flapped surfaces.<br>"
+                                                  "This greatly increases the convergence success rate and the speed of XFoil calculations."
+                                                  "</p>");
+
+                    pTransVarsLayout->addWidget(plabTopTrans,      1, 1);
+                    pTransVarsLayout->addWidget(m_pfeXTopTr,       1, 2);
+                    pTransVarsLayout->addWidget(plabBotTrans,      2, 1);
+                    pTransVarsLayout->addWidget(m_pfeXBotTr,       2, 2);
+                    pTransVarsLayout->addWidget(m_pchTransAtHinge, 3,1,1,2);
+                    pTransVarsLayout->setColumnStretch(3, 1);
                 }
-                m_pgbTransVars->setLayout(pTransVars);
+                m_pgbTransVars->setLayout(pTransVarsLayout);
             }
 
 
@@ -247,6 +255,7 @@ void BatchXFoilDlg::initDialog()
 
     m_pfeXTopTr->setValue(s_XTop);
     m_pfeXBotTr->setValue(s_XBot);
+    m_pchTransAtHinge->setChecked(s_bTransAtHinge);
 
     fillReModel();
 }
@@ -269,6 +278,7 @@ void BatchXFoilDlg::readParams()
 
     s_XTop   = m_pfeXTopTr->value();
     s_XBot   = m_pfeXBotTr->value();
+    s_bTransAtHinge = m_pchTransAtHinge->isChecked();
 }
 
 
@@ -352,10 +362,10 @@ void BatchXFoilDlg::loadSettings(QSettings &settings)
         else if(iType==3)  s_PolarType = xfl::T3POLAR;
         else               s_PolarType = xfl::T1POLAR;
 
-        s_bAlpha    = settings.value("bAlpha",       s_bAlpha).toBool();
-
-        s_XTop      = settings.value("XTrTop",       s_XTop).toDouble();
-        s_XBot      = settings.value("XTrBot",       s_XBot).toDouble();
+        s_bAlpha        = settings.value("bAlpha",        s_bAlpha).toBool();
+        s_XTop          = settings.value("XTrTop",        s_XTop).toDouble();
+        s_XBot          = settings.value("XTrBot",        s_XBot).toDouble();
+        s_bTransAtHinge = settings.value("bTransAtHinge", s_bTransAtHinge).toBool();
 
         if(settings.contains("NReynolds"))
         {
@@ -391,15 +401,16 @@ void BatchXFoilDlg::saveSettings(QSettings &settings)
         switch (s_PolarType)
         {
             default:
-            case xfl::T1POLAR:            settings.setValue("PolarType", 1);   break;
-            case xfl::T2POLAR:            settings.setValue("PolarType", 2);   break;
+            case xfl::T1POLAR:   settings.setValue("PolarType", 1);   break;
+            case xfl::T2POLAR:   settings.setValue("PolarType", 2);   break;
             case xfl::T3POLAR:   settings.setValue("PolarType", 3);   break;
         }
 
-        settings.setValue("bAlpha",       s_bAlpha);
+        settings.setValue("bAlpha",         s_bAlpha);
 
-        settings.setValue("XTrTop",       s_XTop);
-        settings.setValue("XTrBot",       s_XBot);
+        settings.setValue("XTrTop",         s_XTop);
+        settings.setValue("XTrBot",         s_XBot);
+        settings.setValue("bTransAtHinge",  s_bTransAtHinge);
 
         settings.setValue("NReynolds", s_ReList.count());
         if(s_ActiveList.size()!=s_ReList.size()) s_ActiveList.resize(s_ReList.size());
@@ -683,7 +694,7 @@ void BatchXFoilDlg::onAnalyze()
     if(m_bIsRunning)
     {
         m_bCancel = true;
-        XFoilTask::cancelAnalyses();
+        XFoilTask::setCancelled(true);
         XFoil::setCancel(true);
         return;
     }
@@ -711,10 +722,18 @@ void BatchXFoilDlg::onAnalyze()
     if(foils.isEmpty())
     {
         strong ="No foil defined for analysis\n\n";
-        m_ppto->insertPlainText(strong);
+        m_ppto->onAppendQText(strong);
         cleanUp();
         return;
     }
+
+    if(s_bTransAtHinge) m_ppto->onAppendQText("\nForcing transition at hinge location\n");
+    strong = QString::asprintf("Forced top  transition = %7.1f%%\n", s_XTop*100.0);
+    m_ppto->onAppendQText(strong);
+    strong = QString::asprintf("Forced bot. transition = %7.1f%%\n", s_XBot*100.0);
+    m_ppto->onAppendQText(strong);
+
+
 
     m_ppbAnalyze->setText("Cancel");
 
@@ -728,6 +747,14 @@ void BatchXFoilDlg::onAnalyze()
         Foil *pFoil = foils.at(ifoil);
         if(pFoil)
         {
+            double XtrTop = s_XTop;
+            double XtrBot = s_XBot;
+            if(pFoil->hasTEFlap() && s_bTransAtHinge)
+            {
+                XtrTop = std::min(XtrTop, pFoil->TEXHinge());
+                XtrBot = std::min(XtrBot, pFoil->TEXHinge());
+            }
+
             for (int iRe=0; iRe<s_ActiveList.size(); iRe++)
             {
                 if(s_ActiveList.at(iRe))
@@ -737,8 +764,8 @@ void BatchXFoilDlg::onAnalyze()
                     analysis.pFoil = pFoil;
 
                     Polar *pNewPolar = Objects2d::createPolar(pFoil, s_PolarType,
-                                                             s_ReList.at(iRe), s_MachList.at(iRe), s_NCritList.at(iRe),
-                                                             s_XTop, s_XBot);
+                                                              s_ReList.at(iRe), s_MachList.at(iRe), s_NCritList.at(iRe),
+                                                              XtrTop, XtrBot);
 
                     pNewPolar->setName(PolarNameMaker::makeName(pNewPolar).toStdString());
 
@@ -764,7 +791,7 @@ void BatchXFoilDlg::onAnalyze()
 
 
     strong = QString::asprintf("\nFound %d foil/polar pairs to analyze\n", m_nAnalysis);
-    m_ppto->insertPlainText(strong);
+    m_ppto->onAppendQText(strong);
 
 
     XFoilTask::setCancelled(false);

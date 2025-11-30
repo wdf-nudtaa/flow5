@@ -45,6 +45,8 @@ void ObjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 {
     int col = index.column();
 
+//    qDebug("ObjectTreeDelegate::paint r=%2d c=%2d", index.row(), index.column());
+
     QColor linecolor;
 
     /*           QColor backcolor;
@@ -72,6 +74,7 @@ void ObjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     {
         QStyleOptionViewItem myOption = option;
         myOption.font = DisplayOptions::treeFontStruct().font();
+
         QStyledItemDelegate::paint(painter, myOption, index);
     }
     else if(col==1 && m_bShowStyle)
@@ -138,6 +141,9 @@ void ObjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         {
             crosscolor = option.palette.windowText().color();
         }
+
+//QModelIndex objindex = index.sibling(index.row(), 0);
+//qDebug()<<objindex.data().toString()<<index.row()<<index.column()<<checkstate;
 
         if(option.state & QStyle::State_Selected)
             wt::drawCheckBox(painter, checkstate, option.rect, fm.height(), true, false, crosscolor, backcolor, Qt::black);

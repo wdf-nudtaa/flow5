@@ -30,7 +30,7 @@
 
 
 #include <BRepBuilderAPI_Transform.hxx>
-#include <StdFail_NotDone.hxx>
+//#include <StdFail_NotDone.hxx>
 #include <Standard_NoSuchObject.hxx>
 
 

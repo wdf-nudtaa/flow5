@@ -42,9 +42,9 @@ class Polar;
 class OpPoint;
 class FoilAnalysisDlg;
 class XFoilAnalysisDlg;
-class FoilTreeView;
+class FoilExplorer;
 class DFoilWt;
-class FoilTableView;
+class FoilTable;
 class XDirectActions;
 class XDirectMenus;
 
@@ -54,8 +54,8 @@ class XDirect : public QObject
     friend class BLGraphCtrls;
     friend class BLGraphTiles;
     friend class DFoilLegendWt;
-    friend class FoilTableView;
-    friend class FoilTreeView;
+    friend class FoilTable;
+    friend class FoilExplorer;
     friend class MainFrame;
     friend class OpPointWt;
     friend class PlrGraphTiles;
@@ -270,9 +270,9 @@ class XDirect : public QObject
     private:
 
         XFoilAnalysisDlg* m_pXFADlg;
-        FoilTreeView *m_pFoilTreeView;
+        FoilExplorer *m_pFoilExplorer;
 
-        FoilTableView *m_pFoilTable;
+        FoilTable *m_pFoilTable;
 
         OpPointWt *m_pOpPointWt;
 

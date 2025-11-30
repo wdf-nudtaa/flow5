@@ -57,7 +57,7 @@ void XPlaneActions::makeActions()
     m_pWPolarAct->setShortcut(Qt::Key_F8);
     m_pWPolarAct->setCheckable(true);
     m_pWPolarAct->setStatusTip("Switch to the polar view");
-    connect(m_pWPolarAct, SIGNAL(triggered()), m_pXPlane, SLOT(onWPolarView()));
+    connect(m_pWPolarAct, SIGNAL(triggered()), m_pXPlane, SLOT(onPolarView()));
 
     m_pStabTimeAct = new QAction(QIcon(":/icons/OnStabView.png"), "Time response view", m_pXPlane);
     m_pStabTimeAct->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_F8));
@@ -499,7 +499,7 @@ void XPlaneActions::makeActions()
     m_pShowPolarProps = new QAction("Properties", m_pXPlane);
     m_pShowPolarProps->setStatusTip("Show the properties of the active polar");
     m_pShowPolarProps->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Return));
-    connect(m_pShowPolarProps, SIGNAL(triggered()), m_pXPlane, SLOT(onWPolarProperties()));
+    connect(m_pShowPolarProps, SIGNAL(triggered()), m_pXPlane, SLOT(onPolarProperties()));
 
     m_pShowWOppProps = new QAction("Properties", m_pXPlane);
     m_pShowWOppProps->setStatusTip("Show the properties of the active operating point");

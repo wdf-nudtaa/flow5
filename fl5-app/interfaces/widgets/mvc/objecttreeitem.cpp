@@ -47,9 +47,39 @@ ObjectTreeItem::~ObjectTreeItem()
 }
 
 
+void ObjectTreeItem::setData(int column, QVariant const &var)
+{
+    switch (column)
+    {
+        case 0:
+        {
+            m_Name = var.toString();
+            break;
+        }
+        case 1:
+        {
+            if (var.canConvert<LineStyle>())
+            {
+                m_LS = var.value<LineStyle>();
+            }
+            break;
+        }
+        case 2:
+        {
+            int n = var.toInt();
+
+            if     (n==1) m_CheckState = Qt::PartiallyChecked;
+            else if(n==2) m_CheckState = Qt::Checked;
+            else          m_CheckState = Qt::Unchecked;
+            break;
+        }
+        default: break;
+    }
+}
+
+
 QVariant ObjectTreeItem::data(int column) const
 {
-    if(column<0 || column>2) return QVariant();
     switch (column)
     {
         case 0: return m_Name;

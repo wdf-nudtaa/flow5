@@ -523,7 +523,7 @@ double PlanePolar::getVariable(int iVar, int index) const
         case 7:  return AF.CDi();
         case 8:  return AF.Cy();
         case 9:  return AF.Cm();
-        case 10:  return AF.Cmv();
+        case 10: return AF.Cmv();
         case 11: return AF.Cmi();
         case 12: return AF.Cli();
         case 13: return AF.Cn();

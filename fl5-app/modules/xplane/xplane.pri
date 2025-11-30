@@ -8,7 +8,7 @@ HEADERS += \
     $$PWD/analysis/streamlinemaker.h \
     $$PWD/analysis/wpolarnamemaker.h \
     $$PWD/controls/analysis3dctrls.h \
-    $$PWD/controls/planetreeview.h \
+    $$PWD/controls/planeexplorer.h \
     $$PWD/controls/popp3dctrls.h \
     $$PWD/controls/stab3dctrls.h \
     $$PWD/controls/stabtimectrls.h \
@@ -34,7 +34,7 @@ SOURCES += \
     $$PWD/analysis/streamlinemaker.cpp \
     $$PWD/analysis/wpolarnamemaker.cpp \
     $$PWD/controls/analysis3dctrls.cpp \
-    $$PWD/controls/planetreeview.cpp \
+    $$PWD/controls/planeexplorer.cpp \
     $$PWD/controls/popp3dctrls.cpp \
     $$PWD/controls/stab3dctrls.cpp \
     $$PWD/controls/stabtimectrls.cpp \

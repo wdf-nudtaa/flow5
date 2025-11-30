@@ -45,17 +45,17 @@ class ObjectTreeItem;
 class PlainTextOutput;
 class XSail;
 
-class BoatTreeView : public QWidget
+class BoatExplorer : public QWidget
 {
 	Q_OBJECT
 
     public:
-        /** @enum The different objects selectable in the BoatTreeView */
+        /** @enum The different objects selectable in the BoatExplorer */
         enum enumSelectionType {NOBOAT, BOAT, BTPOLAR, BOATOPP};
 
     public:
-        BoatTreeView(QWidget *pParent = nullptr);
-        ~BoatTreeView();
+        BoatExplorer(QWidget *pParent = nullptr);
+        ~BoatExplorer();
 
         void insertBoat(Boat* pBoat);
         void insertBtPolar(BoatPolar *pBtPolar);

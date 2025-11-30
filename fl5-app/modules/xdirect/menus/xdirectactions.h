@@ -35,7 +35,7 @@ class XDirectActions : QObject
     friend class XDirectMenus;
     friend class XDirect;
     friend class MainFrame;
-    friend class FoilTableView;
+    friend class FoilTable;
 
     public:
         XDirectActions(MainFrame *pMainFrame, XDirect *pXDirect);

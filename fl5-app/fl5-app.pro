@@ -148,8 +148,7 @@ win32-msvc {
 
 macx {
     QMAKE_MAC_SDK = macosx
-    QMAKE_APPLE_DEVICE_ARCHS = arm64
-
+    QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
 
     # Add variables that will be used to build the info.plist file
     QMAKE_TARGET_BUNDLE_PREFIX = cere-aero.tech
@@ -178,13 +177,11 @@ macx {
 
     #-------------OPENCASCADE -----------------
     # set the paths to the OpenCascade header and lib directories
-    INCLUDEPATH += /usr/local/include/opencascade/
-    LIBS += -L/usr/local/lib/    
-
+    INCLUDEPATH += /usr/local/include/opencascade
+    LIBS += -L/usr/local/lib
 
     #_____________GMSH__________________
-    INCLUDEPATH += /Users/techwinder/bin/gmsh-4.14.1-MacOSARM-sdk/include
-    LIBS += -L/usr/local/lib/
+    INCLUDEPATH += /usr/local/include
     LIBS += -lgmsh
 
     # deploy the libs

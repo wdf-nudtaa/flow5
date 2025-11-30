@@ -296,7 +296,7 @@ void BatchAltDlg::onAnalyze()
     if(m_bIsRunning)
     {
         m_bCancel = true;
-        XFoilTask::cancelAnalyses();
+        XFoilTask::setCancelled(true);
         XFoil::setCancel(true);
         return;
     }

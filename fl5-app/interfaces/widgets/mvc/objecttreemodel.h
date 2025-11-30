@@ -30,13 +30,16 @@
 class ObjectTreeItem;
 struct LineStyle;
 
+
 class ObjectTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
     public:
-        explicit ObjectTreeModel(QObject *parent = 0);
+        ObjectTreeModel(QObject *parent = 0);
         ~ObjectTreeModel();
+
+        bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
         QVariant data(const QModelIndex &index, int role) const override;
         Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -56,14 +59,16 @@ class ObjectTreeModel : public QAbstractItemModel
 
         ObjectTreeItem* insertRow(ObjectTreeItem*pParentItem, int row, QString const &name, LineStyle const &ls, Qt::CheckState state);
         ObjectTreeItem* insertRow(ObjectTreeItem*pParentItem, int row, std::string const &name, LineStyle const &ls, Qt::CheckState state);
+
         ObjectTreeItem* appendRow(ObjectTreeItem*pParentItem, QString const &name, LineStyle const &ls, Qt::CheckState state);
         ObjectTreeItem* appendRow(ObjectTreeItem*pParentItem, std::string const &name, LineStyle const &ls, Qt::CheckState state);
 
+
         void updateData();
-        void updateData(QModelIndex idx);
+        void updateDataFromRoot();
+        void updateData(QModelIndex const &idxTL, QModelIndex const &idxBR);
+        void updateData(ObjectTreeItem *pItem);
 
     private:
-
         ObjectTreeItem *m_pRootItem;
 };
-
