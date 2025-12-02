@@ -58,7 +58,6 @@
 #include <interfaces/graphs/globals/graph_globals.h>
 #include <interfaces/graphs/graph/curve.h>
 #include <interfaces/graphs/graph/graph.h>
-#include <interfaces/optim/optimfoildlg.h>
 #include <interfaces/view2d/foilsvgwriter.h>
 #include <interfaces/widgets/customdlg/doublevaluedlg.h>
 #include <interfaces/widgets/customdlg/objectpropsdlg.h>
@@ -1043,7 +1042,6 @@ void XDirect::loadSettings(QSettings &settings)
     BatchXFoilDlg::loadSettings(settings);
     XFoilAnalysisDlg::loadSettings(settings);
     FoilDlg::loadSettings(settings);
-    OptimFoilDlg::loadSettings(settings);
 
     m_pDFoilWt->loadSettings(settings);
 
@@ -1131,7 +1129,6 @@ void XDirect::saveSettings(QSettings &settings)
     XFoilAnalysisDlg::saveSettings(settings);
 
     FoilDlg::saveSettings(settings);
-    OptimFoilDlg::saveSettings(settings);
 
     m_pDFoilWt->saveSettings(settings);
 
@@ -1155,9 +1152,6 @@ void XDirect::onAnalyze()
         return;
     }
 
-//    testRun();
-//    return;
-
     m_pAnalysisControls->onReadAnalysisData();
     m_pAnalysisControls->enableAnalyze(false);
 
@@ -1174,7 +1168,7 @@ void XDirect::onAnalyze()
     if(pFoil->hasTEFlap())
     {
         double theta = pPolar->TEFlapAngle();
-        if(fabs(theta)>FLAPANGLEPRECISION)
+        if(s_pCurPolar->type()<xfl::T6POLAR && fabs(theta)>FLAPANGLEPRECISION)
         {
            pFoil->setTEFlapAngle(theta);
            pFoil->setFlaps();
@@ -4397,18 +4391,5 @@ bool XDirect::isAllGraphsView() const
 }
 
 
-void XDirect::onOptimFoil()
-{
-    if(!s_pCurFoil) return;
-    OptimFoilDlg o2d(s_pMainFrame);
-    o2d.setFoil(s_pCurFoil);
-    o2d.exec();
-    if(o2d.isModified())
-    {
-        m_pFoilExplorer->fillModelView();
-        emit projectModified();
-    }
-    updateView();
-}
 
 

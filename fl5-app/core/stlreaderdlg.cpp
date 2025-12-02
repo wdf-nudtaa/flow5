@@ -22,10 +22,13 @@
 
 *****************************************************************************/
 
+
 #include <QFileDialog>
 #include <QPushButton>
 #include <QLabel>
 #include <QHBoxLayout>
+#include <QtConcurrent/QtConcurrent>
+#include <QFuture>
 
 #include "stlreaderdlg.h"
 
@@ -34,11 +37,13 @@
 #include <interfaces/widgets/customwts/floatedit.h>
 #include <interfaces/widgets/customwts/plaintextoutput.h>
 
+#include <api/units.h>
+#include <api/flow5events.h>
 
 int StlReaderDlg::s_LengthUnitIndex = 0;
 QByteArray StlReaderDlg::s_Geometry;
 
-StlReaderDlg::StlReaderDlg(QWidget *pParent)  : QDialog(pParent)
+StlReaderDlg::StlReaderDlg(QWidget *pParent) : QDialog(pParent)
 {
     setWindowTitle("STL Reader");
     m_bCancel = false;
@@ -71,8 +76,9 @@ void StlReaderDlg::setupLayout()
     m_ppbImport = new QPushButton("Import file");
     connect(m_ppbImport, SIGNAL(clicked(bool)), SLOT(onImportFromStlFile()));
 
-    m_pptoTextOutput = new PlainTextOutput;
-    m_pptoTextOutput->setCharDimensions(25,17);
+    m_ppto = new PlainTextOutput;
+    m_ppto->setCharDimensions(25,17);
+    connect(this, SIGNAL(outputMsg(QString)), m_ppto, SLOT(onAppendQText(QString)));
 
     m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Discard);
     {
@@ -83,10 +89,48 @@ void StlReaderDlg::setupLayout()
     {
         pMainLayout->addLayout(pUnitLayout);
         pMainLayout->addWidget(m_ppbImport);
-        pMainLayout->addWidget(m_pptoTextOutput);
+        pMainLayout->addWidget(m_ppto);
         pMainLayout->addWidget(m_pButtonBox);
     }
     setLayout(pMainLayout);
+}
+
+
+void StlReaderDlg::loadSettings(QSettings &settings)
+{
+    settings.beginGroup("StlReaderDlg");
+    {
+        s_LengthUnitIndex =  settings.value("LengthUnitIndex", s_LengthUnitIndex).toInt();
+        s_Geometry = settings.value("WindowGeom", QByteArray()).toByteArray();
+    }
+    settings.endGroup();
+}
+
+
+void StlReaderDlg::saveSettings(QSettings &settings)
+{
+    settings.beginGroup("StlReaderDlg");
+    {
+        settings.setValue("LengthUnitIndex", s_LengthUnitIndex);
+
+        settings.setValue("WindowGeom", s_Geometry);
+    }
+    settings.endGroup();
+}
+
+
+void StlReaderDlg::showEvent(QShowEvent *pEvent)
+{
+    QDialog::showEvent(pEvent);
+    restoreGeometry(s_Geometry);
+}
+
+
+void StlReaderDlg::hideEvent(QHideEvent *pEvent)
+{
+    QDialog::hideEvent(pEvent);
+    s_Geometry = saveGeometry();
+    s_LengthUnitIndex = m_pcbLengthUnitSel->currentIndex();
 }
 
 
@@ -105,7 +149,13 @@ void StlReaderDlg::onButton(QAbstractButton *pButton)
 }
 
 
-QString StlReaderDlg::logMsg() const {return m_pptoTextOutput->toPlainText();}
+void StlReaderDlg::onMessage(QString const &msg)
+{
+    m_ppto->onAppendQText(msg);
+}
+
+
+QString StlReaderDlg::logMsg() const {return m_ppto->toPlainText();}
 
 
 void StlReaderDlg::onImportFromStlFile()
@@ -124,7 +174,7 @@ void StlReaderDlg::onImportFromStlFile()
         case 1: unitfactor=1.0/100.0;      break;
         case 2: unitfactor=1.0/10.0;       break;
         default:
-        case 3: unitfactor=1.0/1.0;           break;
+        case 3: unitfactor=1.0/1.0;        break;
         case 4: unitfactor=0.0254;         break;
         case 5: unitfactor=0.0254*12.0;    break;
     }
@@ -146,41 +196,40 @@ void StlReaderDlg::onImportFromStlFile()
     std::vector<Triangle3d> triangles;
     m_bCancel = false;
 
-    m_pptoTextOutput->onAppendQText("Starting import process\n");
+    m_ppto->onAppendQText("Starting import process\n");
     
 
-    QApplication::setOverrideCursor(Qt::BusyCursor);
-    bool bSuccess = importTrianglesFromStlFile(FileName, unitfactor, triangles);
-    QApplication::restoreOverrideCursor();
 
-    
-
-    if(!bSuccess || m_bCancel)
-    {
-        if(m_bCancel) m_pptoTextOutput->insertPlainText("   Operation cancelled... cleaning up\n\n");
-        else          m_pptoTextOutput->insertPlainText("   Error importing... cleaning up\n\n");
-        m_Triangle.clear();
-        m_bIsRunning = false;
-        m_ppbImport->setText("Import file");
-        return;
-    }
-
-    m_Triangle = triangles;
-
-    m_ppbImport->setText("Import file");
-    m_bIsRunning = false;
-    m_bCancel = false;
+    //running this function in a separate thread to keep the UI responsive
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+        QFuture<bool> future = QtConcurrent::run(&StlReaderDlg::importTrianglesFromStlFile, this, FileName, unitfactor);
+#else
+        QFuture<bool> future = QtConcurrent::run(this, &StlReaderDlg::importTrianglesFromStlFile, FileName, unitfactor);
+#endif
 }
 
 
-bool StlReaderDlg::importTrianglesFromStlFile(QString const &FileName, double unitfactor, std::vector<Triangle3d> &trianglelist) const
+void StlReaderDlg::postMessageEvent(QString const &msg)
+{
+    // both comm methods work; signals seem to arrive in sequence
+/*    MessageEvent *pMsgEvent = new MessageEvent(msg); // forward to the UI thread for user notification
+    qApp->postEvent(this, pMsgEvent);*/
+
+    emit outputMsg(msg);
+}
+
+
+bool StlReaderDlg::importTrianglesFromStlFile(QString const &FileName, double unitfactor)
 {
     QFile stlfile(FileName);
     if (!stlfile.open(QIODevice::ReadOnly))
     {
-        m_pptoTextOutput->onAppendQText("Unable to open the file:" + FileName + "\n");
+        postMessageEvent("Unable to open the file:" + FileName + "\n");
         return false;
     }
+    QApplication::setOverrideCursor(Qt::BusyCursor);
+
+    std::vector<Triangle3d> triangles;
 
     QString solidname;
 
@@ -211,27 +260,47 @@ bool StlReaderDlg::importTrianglesFromStlFile(QString const &FileName, double un
     bool bSuccess = false;
     if(bText)
     {
-        bSuccess = importStlTextFile(textstream, unitfactor, trianglelist, solidname);
+        postMessageEvent("\nImporting from a text file\n\n");
+        bSuccess = importStlTextFile(textstream, unitfactor, triangles, solidname);
     }
     else
     {
-        m_pptoTextOutput->onAppendQText("Not recognized as a Text file... Switching to binary\n");
+        postMessageEvent("\nImporting from a binary file\n\n");
         //Try the binary format
         QDataStream inStream(&stlfile);
         inStream.setByteOrder(QDataStream::LittleEndian);
         //    uint u = inStream.byteOrder();
 
-        bSuccess = importStlBinaryFile(inStream, unitfactor, trianglelist, solidname);
+        bSuccess = importStlBinaryFile(inStream, unitfactor, triangles, solidname);
     }
 
     stlfile.close();
 
+
+
+    if(!bSuccess || m_bCancel)
+    {
+        if(m_bCancel) m_ppto->insertPlainText("   Operation cancelled... cleaning up\n\n");
+        else          m_ppto->insertPlainText("   Error importing... cleaning up\n\n");
+        m_Triangle.clear();
+        m_bIsRunning = false;
+        m_ppbImport->setText("Import file");
+        return bSuccess;
+    }
+
+    m_Triangle = triangles;
+
+    m_ppbImport->setText("Import file");
+    m_bIsRunning = false;
+    m_bCancel = false;
+
+    QApplication::restoreOverrideCursor();
     return bSuccess;
 }
 
 
 bool StlReaderDlg::importStlBinaryFile(QDataStream &binstream, double unitfactor, std::vector<Triangle3d> &trianglelist,
-                                       QString &solidname) const
+                                       QString &solidname)
 {
     QString strong;
     qint8  ch=0;
@@ -252,9 +321,9 @@ bool StlReaderDlg::importStlBinaryFile(QDataStream &binstream, double unitfactor
     trianglelist.reserve(nTriangles);
 
     Vector3d N, v[3];
-    float xmin=1.e10, xmax=-1.0e10;
-    float ymin=1.e10, ymax=-1.0e10;
-    float zmin=1.e10, zmax=-1.0e10;
+    float xmin=LARGEVALUE, xmax=-LARGEVALUE;
+    float ymin=LARGEVALUE, ymax=-LARGEVALUE;
+    float zmin=LARGEVALUE, zmax=-LARGEVALUE;
     float x=0, y=0, z=0;
     float nx=0, ny=0, nz=0;
     char buffer[12];
@@ -313,7 +382,7 @@ bool StlReaderDlg::importStlBinaryFile(QDataStream &binstream, double unitfactor
         {
             QString strange;
             strange = QString::asprintf("   imported %d triangles\n", int(trianglelist.size()-1));
-            m_pptoTextOutput->onAppendQText(strange);
+            postMessageEvent(strange);
             
             if(m_bCancel)
                 return false;
@@ -327,33 +396,28 @@ bool StlReaderDlg::importStlBinaryFile(QDataStream &binstream, double unitfactor
     logmsg+=strong;
 
 
-    if(nTriangles>0)
-    {
-        strong = QString::asprintf("   xmin=%13g  xmax=%13g\n", double(xmin), double(xmax));
-        logmsg+=strong;
-        strong = QString::asprintf("   ymin=%13g  ymax=%13g\n", double(ymin), double(ymax));
-        logmsg+=strong;
-        strong = QString::asprintf("   zmin=%13g  zmax=%13g\n", double(zmin), double(zmax));
-        logmsg+=strong;
-    }
+    logmsg += "\nBounding box:\n";
 
-    double dimension = fabs(double(xmin));
-    dimension = std::max(dimension, fabs(double(xmax)));
-    dimension = std::max(dimension, fabs(double(ymin)));
-    dimension = std::max(dimension, fabs(double(ymax)));
-    dimension = std::max(dimension, fabs(double(zmin)));
-    dimension = std::max(dimension, fabs(double(zmax)));
-    //    dimension = sqrt((xmax-xmin)*(xmax-xmin) + (ymax-ymin)*(ymax-ymin) + (zmax-zmin)*(zmax-zmin));
-    strong = QString::asprintf("   Max. model size = %9.3g m\n", dimension);
-    logmsg+=strong;
+    strong  = QString::asprintf("   xmin=%13g ", xmin*Units::mtoUnit() ) + Units::lengthUnitQLabel();
+    strong += QString::asprintf("   xmax=%13g ", xmax*Units::mtoUnit() ) + Units::lengthUnitQLabel() + EOLch;
+    logmsg += strong;
 
-    m_pptoTextOutput->onAppendQText(logmsg+"\n");
+    strong  = QString::asprintf("   ymin=%13g ", ymin*Units::mtoUnit() ) + Units::lengthUnitQLabel();
+    strong += QString::asprintf("   ymax=%13g ", ymax*Units::mtoUnit() ) + Units::lengthUnitQLabel() + EOLch;
+    logmsg += strong;
+
+    strong  = QString::asprintf("   zmin=%13g ", zmin*Units::mtoUnit() ) + Units::lengthUnitQLabel();
+    strong += QString::asprintf("   zmax=%13g ", zmax*Units::mtoUnit() ) + Units::lengthUnitQLabel() + EOLch;
+    logmsg += strong + EOLch;
+
+
+    postMessageEvent(logmsg+"\n");
     return true;
 }
 
 
 bool StlReaderDlg::importStlTextFile(QTextStream &textstream, double unitfactor, std::vector<Triangle3d> &trianglelist,
-                                     QString &solidname) const
+                                     QString &solidname)
 {
     QString strong;
     int iLine=-1;
@@ -361,22 +425,22 @@ bool StlReaderDlg::importStlTextFile(QTextStream &textstream, double unitfactor,
     do
     {
         strong = textstream.readLine();
-        m_pptoTextOutput->onAppendQText(strong+"\n");
+        postMessageEvent(strong+"\n");
         iLine++;
     }
     while(!strong.length());
 
     if(!strong.contains("solid", Qt::CaseInsensitive))
     {
-        m_pptoTextOutput->onAppendQText("Error reading header: keyword \'solid\' not found");
+        postMessageEvent("Error reading header: keyword \'solid\' not found");
         return false;
     }
     
     solidname = strong.replace("solid", "").trimmed();
 
-    double xmin=1.e100, xmax=-1.0e100;
-    double ymin=1.e100, ymax=-1.0e100;
-    double zmin=1.e100, zmax=-1.0e100;
+    double xmin=LARGEVALUE, xmax=-LARGEVALUE;
+    double ymin=LARGEVALUE, ymax=-LARGEVALUE;
+    double zmin=LARGEVALUE, zmax=-LARGEVALUE;
     Vector3d v[3], N;
     double x=0,y=0,z=0;
     double nx=0, ny=0, nz=0;
@@ -391,7 +455,7 @@ bool StlReaderDlg::importStlTextFile(QTextStream &textstream, double unitfactor,
         if(textstream.status() != QTextStream::Ok)
         {
             log = QString::asprintf("Unknown error reading line %d", iLine);
-            m_pptoTextOutput->onAppendQText(log);
+            postMessageEvent(log);
             return false;
         }
 
@@ -492,7 +556,7 @@ bool StlReaderDlg::importStlTextFile(QTextStream &textstream, double unitfactor,
         {
             QString strange;
             strange = QString::asprintf("   imported %d triangles\n", int(trianglelist.size())-1);
-            m_pptoTextOutput->onAppendQText(strange);
+            postMessageEvent(strange);
             
             if(m_bCancel) return false;
         }
@@ -502,66 +566,24 @@ bool StlReaderDlg::importStlTextFile(QTextStream &textstream, double unitfactor,
     strong = QString::asprintf("Reordered vertices of %d inverted triangles\n", nNegTriangles);
     log+=strong;
 
-    strong = QString::asprintf("Final triangle count is %d\n", int(trianglelist.size()));
-    log += strong;
-    strong = QString::asprintf("   xmin=%13g  xmax=%13g\n", xmin, xmax);
-    log += strong;
-    strong = QString::asprintf("   ymin=%13g  ymax=%13g\n", ymin, ymax);
-    log += strong;
-    strong = QString::asprintf("   zmin=%13g  zmax=%13g\n", zmin, zmax);
+    strong = QString::asprintf("Final triangle count is %d\n\n", int(trianglelist.size()));
     log += strong;
 
+    log += "Bounding box:\n";
 
-    double dimension = fabs(xmin);
-    dimension = std::max(dimension, double(fabs(xmax)));
-    dimension = std::max(dimension, double(fabs(ymin)));
-    dimension = std::max(dimension, double(fabs(ymax)));
-    dimension = std::max(dimension, double(fabs(zmin)));
-    dimension = std::max(dimension, double(fabs(zmax)));
+    strong  = QString::asprintf("   xmin=%13g ", xmin*Units::mtoUnit() ) + Units::lengthUnitQLabel();
+    strong += QString::asprintf("   xmax=%13g ", xmax*Units::mtoUnit() ) + Units::lengthUnitQLabel() + EOLch;
+    log += strong;
 
-    //    dimension = sqrt((xmax-xmin)*(xmax-xmin) + (ymax-ymin)*(ymax-ymin) + (zmax-zmin)*(zmax-zmin));
-    strong = QString::asprintf("   Max. model size = %9.3g m\n", dimension);
-    log+=strong;
+    strong  = QString::asprintf("   ymin=%13g ", ymin*Units::mtoUnit() ) + Units::lengthUnitQLabel();
+    strong += QString::asprintf("   ymax=%13g ", ymax*Units::mtoUnit() ) + Units::lengthUnitQLabel() + EOLch;
+    log += strong;
 
-    m_pptoTextOutput->onAppendQText(log+"\n");
+    strong  = QString::asprintf("   zmin=%13g ", zmin*Units::mtoUnit() ) + Units::lengthUnitQLabel();
+    strong += QString::asprintf("   zmax=%13g ", zmax*Units::mtoUnit() ) + Units::lengthUnitQLabel() + EOLch;
+    log += strong + EOLch;
+
+    postMessageEvent(log+"\n");
     return true;
-}
-
-
-void StlReaderDlg::loadSettings(QSettings &settings)
-{
-    settings.beginGroup("StlReaderDlg");
-    {
-        s_LengthUnitIndex =  settings.value("LengthUnitIndex", s_LengthUnitIndex).toInt();
-        s_Geometry = settings.value("WindowGeom", QByteArray()).toByteArray();
-    }
-    settings.endGroup();
-}
-
-
-void StlReaderDlg::saveSettings(QSettings &settings)
-{
-    settings.beginGroup("StlReaderDlg");
-    {
-        settings.setValue("LengthUnitIndex", s_LengthUnitIndex);
-
-        settings.setValue("WindowGeom", s_Geometry);
-    }
-    settings.endGroup();
-}
-
-
-void StlReaderDlg::showEvent(QShowEvent *pEvent)
-{
-    QDialog::showEvent(pEvent);
-    restoreGeometry(s_Geometry);
-}
-
-
-void StlReaderDlg::hideEvent(QHideEvent *pEvent)
-{
-    QDialog::hideEvent(pEvent);
-    s_Geometry = saveGeometry();
-    s_LengthUnitIndex = m_pcbLengthUnitSel->currentIndex();
 }
 

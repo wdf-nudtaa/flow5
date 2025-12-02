@@ -49,8 +49,10 @@
 #include <interfaces/widgets/customwts/floatedit.h>
 #include <interfaces/widgets/customwts/intedit.h>
 #include <interfaces/widgets/customwts/plaintextoutput.h>
+
 #include <api/planestl.h>
 #include <api/units.h>
+#include <api/utils.h>
 
 bool PlaneSTLDlg::s_bGuessOpposite = false;
 QByteArray PlaneSTLDlg::s_VSplitterSizes;
@@ -456,8 +458,18 @@ void PlaneSTLDlg::onInitializePlane()
     m_pPlaneSTL->restoreMesh();
     updateStdOutput(log);
 
-    updateOutput("Computing surface properties\n\n");
+    updateOutput("\nComputing surface properties:\n");
     m_pPlaneSTL->computeSurfaceProperties();
+//    m_Triangulation.computeSurfaceProperties(m_Length, m_Span, m_Height, m_WettedArea);
+
+    QString strange;
+    strange  = QString::asprintf("   Length      = %13g ", m_pPlaneSTL->m_Length * Units::mtoUnit()) + Units::lengthUnitQLabel() + EOLch;
+    strange += QString::asprintf("   Span        = %13g ", m_pPlaneSTL->m_Span   * Units::mtoUnit()) + Units::lengthUnitQLabel() + EOLch;
+    strange += QString::asprintf("   Height      = %13g ", m_pPlaneSTL->m_Height * Units::mtoUnit()) + Units::lengthUnitQLabel() + EOLch;
+    strange += QString::asprintf("   Wetted area = %13g ", m_pPlaneSTL->m_WettedArea * Units::m2toUnit()) + Units::areaUnitQLabel() + EOLch + EOLch;
+
+    updateOutput(strange);
+
     m_pPlaneSTL->setLineWidth(Curve::defaultLineWidth());
     m_pPlaneSTL->setInitialized(true);
 
@@ -875,7 +887,7 @@ void PlaneSTLDlg::onSetColor()
     QColor clr = QColorDialog::getColor(xfl::fromfl5Clr(m_pPlaneSTL->lineColor()), this, "Panel colour", QColorDialog::ShowAlphaChannel);
     if(clr.isValid())
     {
-        m_pPlaneSTL->setLineColor(xfl::tofl5Clr(clr));
+        m_pPlaneSTL->setSurfaceColor(xfl::tofl5Clr(clr));
         m_pcbColor->setColor(clr);
     }
     update();

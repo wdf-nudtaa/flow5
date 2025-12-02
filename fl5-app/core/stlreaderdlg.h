@@ -47,9 +47,9 @@ class StlReaderDlg : public QDialog
 
         std::vector<Triangle3d> const & triangleList() const {return m_Triangle;}
 
-        bool importTrianglesFromStlFile(const QString &FileName, double unitfactor, std::vector<Triangle3d> &trianglelist) const;
-        bool importStlBinaryFile(QDataStream &binstream, double unitfactor, std::vector<Triangle3d> &trianglelist, QString &solidname) const;
-        bool importStlTextFile(QTextStream &textstream, double unitfactor, std::vector<Triangle3d> &trianglelist, QString &solidname) const;
+        bool importTrianglesFromStlFile(const QString &FileName, double unitfactor);
+        bool importStlBinaryFile(QDataStream &binstream, double unitfactor, std::vector<Triangle3d> &trianglelist, QString &solidname);
+        bool importStlTextFile(QTextStream &textstream, double unitfactor, std::vector<Triangle3d> &trianglelist, QString &solidname);
 
         static void loadSettings(QSettings &settings);
         static void saveSettings(QSettings &settings);
@@ -61,15 +61,20 @@ class StlReaderDlg : public QDialog
         void hideEvent(QHideEvent *pEvent) override;
         QSize sizeHint() const override {return QSize(750,500);}
 
+        void postMessageEvent(QString const &msg);
+
+    signals:
+        void outputMsg(QString);
 
     private slots:
         void onImportFromStlFile();
         void onButton(QAbstractButton *pButton);
+        void onMessage(QString const &msg);
 
     private:
         QDialogButtonBox *m_pButtonBox;
         QComboBox *m_pcbLengthUnitSel;
-        PlainTextOutput *m_pptoTextOutput;
+        PlainTextOutput *m_ppto;
         QPushButton *m_ppbImport;
 
         std::vector<Triangle3d> m_Triangle;

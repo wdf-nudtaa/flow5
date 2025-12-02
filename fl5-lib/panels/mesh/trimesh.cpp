@@ -1120,7 +1120,7 @@ void TriMesh::makeWakePanels(int nxWakePanels, double wakepanelfactor, double To
     makeWakePanels(m_Panel3, nxWakePanels, wakepanelfactor, TotalWakeLength, WindDir,
                    m_WakePanel3, m_nWakeColumns, bAlignWakeTE);
 
-    connectWakePanels();
+//    connectWakePanels();
 }
 
 

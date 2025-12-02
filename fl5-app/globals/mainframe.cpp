@@ -1230,6 +1230,7 @@ void MainFrame::deleteProject()
 
 void MainFrame::keyPressEvent(QKeyEvent *pEvent)
 {
+
     bool bCtrl = (pEvent->modifiers() & Qt::ControlModifier);
     bool bAlt = (pEvent->modifiers() & Qt::AltModifier);
     bool bShift = (pEvent->modifiers() & Qt::ShiftModifier);
@@ -1262,7 +1263,12 @@ void MainFrame::keyPressEvent(QKeyEvent *pEvent)
             {
                 if(bCtrl)
                 {
+                    resize(2560, 1440);
                     setGeometry(150,0,2560, 1440);
+                    qDebug()<<"ratio"<<devicePixelRatio();
+                    qDebug()<<"size="<<size();
+                    qDebug()<<"geometry="<<geometry();
+                    qDebug()<<"framegeom"<<frameGeometry();
                     pEvent->accept();
                 }
                 break;

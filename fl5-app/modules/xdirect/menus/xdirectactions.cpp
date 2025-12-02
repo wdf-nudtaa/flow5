@@ -141,12 +141,12 @@ void XDirectActions::makeActions()
     connect(m_pDefinePolarAct, SIGNAL(triggered()), m_pXDirect, SLOT(onDefineAnalysis()));
 
     m_pBatchXFoilAct = new QAction("Batch Analysis (legacy)", this);
-    m_pBatchXFoilAct->setShortcut(QKeySequence(Qt::Key_F7));
+    m_pBatchXFoilAct->setShortcut(QKeySequence(Qt::ALT | Qt::Key_F7));
     m_pBatchXFoilAct->setToolTip("<p>Launches a batch of analyses using all available computer CPU cores</p>");
     connect(m_pBatchXFoilAct, SIGNAL(triggered()), m_pXDirect, SLOT(onBatchAnalysis()));
 
     m_pBatchAltAct = new QAction("Batch Analysis (new)", this);
-    m_pBatchAltAct->setShortcut(QKeySequence(Qt::ALT | Qt::Key_F7));
+    m_pBatchAltAct->setShortcut(QKeySequence(Qt::Key_F7));
     m_pBatchAltAct->setToolTip("<p>Launches a batch of selected analyses</p>");
     connect(m_pBatchAltAct, SIGNAL(triggered()), m_pXDirect, SLOT(onBatchAltAnalysis()));
 
@@ -285,10 +285,6 @@ void XDirectActions::makeActions()
     m_pFoilFromCamber = new QAction("From camber and thickness", this);
     m_pFoilFromCamber->setShortcut(QKeySequence(Qt::ALT | Qt::Key_3));
     connect(m_pFoilFromCamber, SIGNAL(triggered()), m_pXDirect, SLOT(onFoilFromCamber()));
-
-    m_pOptimize = new QAction("Optimize", this);
-    m_pOptimize->setShortcut(Qt::Key_F11);
-    connect(m_pOptimize, SIGNAL(triggered()), m_pXDirect, SLOT(onOptimFoil()));
 
     m_pDuplicatePolars = new QAction("Duplicate existing analyses", m_pXDirect);
     m_pDuplicatePolars->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_D));

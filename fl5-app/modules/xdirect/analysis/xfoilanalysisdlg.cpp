@@ -146,7 +146,7 @@ void XFoilAnalysisDlg::initializeAnalysis(Foil *pFoil, Polar* pPolar, QVector<An
         m_pXFoilTask->appendRange(rg);
     }
 
-    m_pXFoilTask->initialize(m_pFoil, m_pPolar, XDirect::bStoreOpps());
+    m_pXFoilTask->initialize(*m_pFoil, m_pPolar, XDirect::bStoreOpps());
 
     m_ppto->clear();
 

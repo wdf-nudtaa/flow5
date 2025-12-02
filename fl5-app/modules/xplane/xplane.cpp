@@ -5182,7 +5182,6 @@ PlaneOpp* XPlane::setPlaneOpp(PlaneOpp *pPOpp)
         {
             m_pPOpp3dCtrls->m_pStab3dCtrls->setMode(m_pCurPOpp);
         }
-
     }
 
 
@@ -5262,7 +5261,6 @@ PlaneOpp* XPlane::setPlaneOpp(PlaneOpp *pPOpp)
     }
 
     updateVisiblePanels(m_pCurPlane, m_pCurPlPolar);
-
 
 //    if(is3dView())
     {

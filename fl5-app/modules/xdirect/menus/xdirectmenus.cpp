@@ -77,8 +77,6 @@ void XDirectMenus::createFoilMenus()
             m_pActiveFoilMenu->addAction(pActions->m_pSetLERadius);
             m_pActiveFoilMenu->addAction(pActions->m_pSetFlap);
             m_pActiveFoilMenu->addSeparator();
-            m_pActiveFoilMenu->addAction(pActions->m_pOptimize);
-            m_pActiveFoilMenu->addSeparator();
             QMenu *pExportMenu = m_pActiveFoilMenu->addMenu("Export");
             {
                 pExportMenu->addAction(pActions->m_pExportCurFoilDat);

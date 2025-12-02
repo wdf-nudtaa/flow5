@@ -2868,7 +2868,7 @@ bool PlaneTask::computeSurfaceDragOTF(Surface const &surf, int iStartStation, do
     LeftSidePolar.setXTripBot(XTrBot);
 
     XFoilTask *pLeftTask = new XFoilTask();
-    pLeftTask->initialize(&foilA, &LeftSidePolar, false);
+    pLeftTask->initialize(foilA, &LeftSidePolar, false);
 
     // Process right side foil
     Polar RightSidePolar;
@@ -2897,7 +2897,7 @@ bool PlaneTask::computeSurfaceDragOTF(Surface const &surf, int iStartStation, do
 
 
     XFoilTask *pRightTask = new XFoilTask();
-    pRightTask->initialize(&foilB, &RightSidePolar, false);
+    pRightTask->initialize(foilB, &RightSidePolar, false);
 
 /*    computeSectionDragOTF(pLeftTask);
     computeSectionDragOTF(pRightTask);*/

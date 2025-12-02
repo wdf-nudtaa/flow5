@@ -127,18 +127,18 @@ void XFoilTask::run()
 
 bool XFoilTask::initialize(FoilAnalysis *pFoilAnalysis, bool bKeepOpps)
 {
-    return initialize(pFoilAnalysis->pFoil, pFoilAnalysis->pPolar, bKeepOpps);
+    return initialize(pFoilAnalysis->m_Foil, pFoilAnalysis->m_pPolar, bKeepOpps);
 }
 
 
-bool XFoilTask::initialize(Foil *pFoil, Polar *pPolar, bool bKeepOpps)
+bool XFoilTask::initialize(Foil &foil, Polar *pPolar, bool bKeepOpps)
 {
     s_bCancel = false;
 
     m_bKeepOpps = bKeepOpps;
 
     m_bErrors = false;
-    m_pFoil = pFoil;
+    m_pFoil = &foil;
     m_pPolar = pPolar;
 
     m_AnalysisStatus = xfl::PENDING;
@@ -154,14 +154,6 @@ bool XFoilTask::initialize(Foil *pFoil, Polar *pPolar, bool bKeepOpps)
         ny[i] = m_pFoil->normal(i).y;
     }
 
-    if(!m_XFoilInstance.initXFoilGeometry(m_pFoil->nNodes(), x.data(), y.data(), nx.data(), ny.data()))
-        return false;
-
-    bool bViscous = true;
-    if(!m_XFoilInstance.initXFoilAnalysis(m_pPolar->Reynolds(), m_pPolar->aoaSpec(), m_pPolar->Mach(),
-                                          m_pPolar->NCrit(), m_pPolar->XTripTop(), m_pPolar->XTripBot(),
-                                          m_pPolar->ReType(), m_pPolar->MaType(), bViscous))
-        return false;
     return true;
 }
 
@@ -406,6 +398,29 @@ bool XFoilTask::alphaSequence(bool bAlpha)
 
     double SpMin(0), SpMax(0), SpInc(0);
 
+    m_pFoil->setTEFlapAngle(m_pPolar->TEFlapAngle());
+    m_pFoil->setFlaps();
+    int npts = m_pFoil->nNodes();
+
+    std::vector<double> x(npts), y(npts), nx(npts), ny(npts);
+    for(int i=0; i<npts; i++)
+    {
+        x[i] = m_pFoil->x(i);
+        y[i] = m_pFoil->y(i);
+        nx[i] = m_pFoil->normal(i).x;
+        ny[i] = m_pFoil->normal(i).y;
+    }
+
+    if(!m_XFoilInstance.initXFoilGeometry(npts, x.data(), y.data(), nx.data(), ny.data()))
+        return false;
+
+    bool bViscous = true;
+    if(!m_XFoilInstance.initXFoilAnalysis(m_pPolar->Reynolds(), m_pPolar->aoaSpec(), m_pPolar->Mach(),
+                                          m_pPolar->NCrit(), m_pPolar->XTripTop(), m_pPolar->XTripBot(),
+                                          m_pPolar->ReType(), m_pPolar->MaType(), bViscous))
+        return false;
+
+
     for (uint iSeries=0; iSeries<m_AnalysisRange.size(); iSeries++)
     {
         if(s_bCancel) break;
@@ -561,6 +576,12 @@ bool XFoilTask::thetaSequence()
         return false;
     }
 
+    bool bViscous = true;
+    if(!m_XFoilInstance.initXFoilAnalysis(m_pPolar->Reynolds(), m_pPolar->aoaSpec(), m_pPolar->Mach(),
+                                          m_pPolar->NCrit(), m_pPolar->XTripTop(), m_pPolar->XTripBot(),
+                                          m_pPolar->ReType(), m_pPolar->MaType(), bViscous))
+        return false;
+
 
     double SpMin(0), SpMax(0), SpInc(0);
     double alphadeg = m_pPolar->aoaSpec();
@@ -697,6 +718,30 @@ bool XFoilTask::thetaSequence()
 bool XFoilTask::ReSequence()
 {
     QString str, strange;
+
+
+    m_pFoil->setTEFlapAngle(m_pPolar->TEFlapAngle());
+    m_pFoil->setFlaps();
+    int npts = m_pFoil->nNodes();
+
+    std::vector<double> x(npts), y(npts), nx(npts), ny(npts);
+    for(int i=0; i<npts; i++)
+    {
+        x[i] = m_pFoil->x(i);
+        y[i] = m_pFoil->y(i);
+        nx[i] = m_pFoil->normal(i).x;
+        ny[i] = m_pFoil->normal(i).y;
+    }
+
+    if(!m_XFoilInstance.initXFoilGeometry(npts, x.data(), y.data(), nx.data(), ny.data()))
+        return false;
+
+    bool bViscous = true;
+    if(!m_XFoilInstance.initXFoilAnalysis(m_pPolar->Reynolds(), m_pPolar->aoaSpec(), m_pPolar->Mach(),
+                                          m_pPolar->NCrit(), m_pPolar->XTripTop(), m_pPolar->XTripBot(),
+                                          m_pPolar->ReType(), m_pPolar->MaType(), bViscous))
+        return false;
+
 
     for (uint iSeries=0; iSeries<m_AnalysisRange.size(); iSeries++)
     {

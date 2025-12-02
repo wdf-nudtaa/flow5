@@ -75,7 +75,6 @@ class XDirectActions : QObject
         QAction *m_pImportXMLFoilAnalysis, *m_pExportXMLFoilAnalysis;
         QAction *m_pXFoilSettings;
         QAction *m_pShowAnalysisWindow;
-        QAction *m_pOptimize;
 
         // dfoil view actions
 

@@ -490,15 +490,13 @@ void BatchDlg::batchLaunch()
         XFoilTask *pXFoilTask = new XFoilTask();
         m_Tasks.push_back(pXFoilTask);
 
-//        pXFoilTask->setEventDestination(this);
-
-        analysis.pPolar->setVisible(true);
+        analysis.m_pPolar->setVisible(true);
 
         pXFoilTask->setAoAAnalysis(s_bAlpha);
 
         pXFoilTask->clearRanges();
 
-        switch (analysis.pPolar->type())
+        switch (analysis.m_pPolar->type())
         {
             case xfl::T1POLAR:
             case xfl::T2POLAR:
@@ -533,13 +531,13 @@ void BatchDlg::batchLaunch()
         }
 
         bool bStoreOpp = m_pchStoreOpp->isChecked();
-        pXFoilTask->initialize(analysis.pFoil, analysis.pPolar, bStoreOpp);
+        pXFoilTask->initialize(analysis.m_Foil, analysis.m_pPolar, bStoreOpp);
 
         //launch it
         m_nTaskStarted++;
 
         strong = QString::asprintf("%3d/%3d/%3d  ", m_nTaskStarted, m_nTaskDone, m_nAnalysis);
-        strong += QString::fromStdString("Starting "+ analysis.pFoil->name()+'/'+analysis.pPolar->name() + "\n");
+        strong += QString::fromStdString("Starting "+ analysis.m_Foil.name()+'/'+analysis.m_pPolar->name() + "\n");
         qApp->postEvent(this, new MessageEvent(strong));
         threads.push_back(std::thread(&XFoilTask::run, pXFoilTask));
     }

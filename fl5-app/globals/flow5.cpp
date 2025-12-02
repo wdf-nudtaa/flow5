@@ -250,11 +250,6 @@ Flow5App::Flow5App(int &argc, char** argv) : QApplication(argc, argv)
 
     m_pMainFrame->setFocus();
 
-
-
-/*    qDebug()<<"ratio"<<devicePixelRatio();
-    m_pMainFrame->resize(2560, 1440);
-    qDebug()<<m_pMainFrame->size()<<m_pMainFrame->geometry(); */
 }
 
 

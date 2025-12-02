@@ -1480,6 +1480,7 @@ void PlaneExplorer::onItemClicked(const QModelIndex &index)
         if(pPOpp)
         {
             if(s_pXPlane->isPOppView())
+                emit s_pXPlane->projectModified();
             {
                 LineStyle ls(pPOpp->theStyle());
                 LineMenu *pLineMenu = new LineMenu(nullptr);
@@ -1492,6 +1493,7 @@ void PlaneExplorer::onItemClicked(const QModelIndex &index)
                 pPOpp->setPointStyle(ls.m_Symbol);
                 pItem->setTheStyle(ls);
                 s_pXPlane->resetCurves();
+                emit s_pXPlane->projectModified();
             }
         }
         else if(pWPolar)
@@ -1504,6 +1506,7 @@ void PlaneExplorer::onItemClicked(const QModelIndex &index)
 
             Objects3d::setPlPolarStyle(pWPolar, ls, pLineMenu->styleChanged(), pLineMenu->widthChanged(), pLineMenu->colorChanged(), pLineMenu->pointsChanged(), 100);
             updateLineStyles();
+            emit s_pXPlane->projectModified();
 
             if(pItem) pItem->setTheStyle(ls);
             s_pXPlane->resetCurves();
@@ -1520,6 +1523,7 @@ void PlaneExplorer::onItemClicked(const QModelIndex &index)
 
                 Objects3d::setPlaneStyle(pPlane, ls, pLineMenu->styleChanged(), pLineMenu->widthChanged(), pLineMenu->colorChanged(), pLineMenu->pointsChanged(), 100);
                 updateLineStyles();
+                emit s_pXPlane->projectModified();
 
                 if(pItem) pItem->setTheStyle(ls);
                 s_pXPlane->resetCurves();
@@ -1537,6 +1541,7 @@ void PlaneExplorer::onItemClicked(const QModelIndex &index)
                 {
                     pPOpp->setVisible(!pPOpp->isVisible());
                     updateVisibilityBoxes();
+                    emit s_pXPlane->projectModified();
                     s_pXPlane->resetCurves();
                 }
             }
@@ -1553,6 +1558,7 @@ void PlaneExplorer::onItemClicked(const QModelIndex &index)
                     Objects3d::setPlPolarVisible(pWPolar, false);
 
                 updateVisibilityBoxes();
+                emit s_pXPlane->projectModified();
                 s_pXPlane->resetCurves();
             }
         }
@@ -1570,6 +1576,7 @@ void PlaneExplorer::onItemClicked(const QModelIndex &index)
                         Objects3d::setPlaneVisible(pPlane, false, s_pXPlane->isStabPolarView());
 
                     updateVisibilityBoxes();
+                    emit s_pXPlane->projectModified();
                     s_pXPlane->resetCurves();
                 }
             }
@@ -1581,7 +1588,6 @@ void PlaneExplorer::onItemClicked(const QModelIndex &index)
     s_pXPlane->updateView();
 
     update();
-    emit s_pXPlane->projectModified();
 }
 
 

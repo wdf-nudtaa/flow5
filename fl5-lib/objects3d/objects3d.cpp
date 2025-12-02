@@ -755,12 +755,15 @@ void Objects3d::setPlPolarPOppStyle(PlanePolar const* pWPolar, bool bStipple, bo
 void Objects3d::insertPlane(Plane *pModPlane)
 {
     bool bInserted = false;
+
+    QString planename = QString::fromStdString(pModPlane->name());
+
     for (int l=0; l<nPlanes();l++)
     {
         Plane *pPlane = planeAt(l);
         if(pPlane == pModPlane)
         {
-            // remove the current Plane from the array
+            // remove the mod Plane from the array
             Objects3d::removePlaneAt(l);
             // but don't delete it !
             break;
@@ -770,7 +773,7 @@ void Objects3d::insertPlane(Plane *pModPlane)
     for (int l=0; l<nPlanes();l++)
     {
         Plane *pPlane = planeAt(l);
-        if(pPlane->name().compare(pModPlane->name()) >0)
+        if(QString::fromStdString(pPlane->name()).compare(planename, Qt::CaseInsensitive)>0)
         {
             //then insert before
             insertPlane(l, pModPlane);

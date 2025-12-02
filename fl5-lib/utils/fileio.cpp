@@ -33,25 +33,25 @@
 
 #include <fileio.h>
 
+#include <boat.h>
+#include <boat.h>
+#include <boatopp.h>
+#include <boatpolar.h>
 #include <flow5events.h>
-#include <units.h>
-#include <objects2d_globals.h>
 #include <foil.h>
 #include <objects2d.h>
+#include <objects2d_globals.h>
+#include <objects3d.h>
 #include <oppoint.h>
-#include <polar.h>
-#include <splinefoil.h>
 #include <planeopp.h>
 #include <planepolar.h>
 #include <planepolarext.h>
-#include <objects3d.h>
 #include <planestl.h>
 #include <planexfl.h>
+#include <polar.h>
 #include <sailobjects.h>
-#include <boat.h>
-#include <boatpolar.h>
-#include <boatopp.h>
-#include <boat.h>
+#include <splinefoil.h>
+#include <units.h>
 
 
 bool FileIO::s_bSaveOpps(false);
@@ -984,7 +984,7 @@ bool FileIO::serialize3dObjectsFl5(QDataStream &ar, bool bIsStoring, int Archive
 
         // load the planes...
         ar >> n;
-        std::vector<Plane*> planelist;
+
         if(n<=1) strange = QString::asprintf("   Reading %d plane\n", n);
         else     strange = QString::asprintf("   Reading %d planes\n", n);
         outputMessage(strange);
@@ -1005,23 +1005,7 @@ bool FileIO::serialize3dObjectsFl5(QDataStream &ar, bool bIsStoring, int Archive
                 strange = QString::asprintf("      finished reading plane %s\n", pPlane->name().c_str());
                 outputMessage(strange);
 
-                bool bInserted = false;
-                for(int k=0; k<Objects3d::nPlanes(); k++)
-                {
-                    Plane* pOldPlane = Objects3d::planeAt(k);
-                    if(pOldPlane->name().compare(pPlane->name())>0)
-                    {
-                        Objects3d::insertPlane(k, pPlane);
-                        planelist.push_back(pPlane);
-                        bInserted = true;
-                        break;
-                    }
-                }
-                if(!bInserted)
-                {
-                    Objects3d::appendPlane(pPlane);
-                    planelist.push_back(pPlane);
-                }
+                Objects3d::insertPlane(pPlane);
             }
             else
             {

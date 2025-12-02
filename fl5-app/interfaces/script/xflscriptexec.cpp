@@ -181,8 +181,8 @@ void XflScriptExec::makeFoilAnalysisList()
 
             pPolar->setTheStyle(pFoil->theStyle());
 
-            pFoilAnalysis->pFoil = pFoil;
-            pFoilAnalysis->pPolar = pPolar;
+            pFoilAnalysis->m_Foil.copy(pFoil);
+            pFoilAnalysis->m_pPolar = pPolar;
 
 
             pFoilAnalysis->range = m_pScriptReader->m_AlphaRange;
@@ -244,8 +244,8 @@ void XflScriptExec::makeFoilAnalysisList()
                     {
                         if(pFoil->name().compare(pPolar->foilName())==0)
                         {
-                            pFoilAnalysis->pFoil = pFoil;
-                            pFoilAnalysis->pPolar = pPolar;
+                            pFoilAnalysis->m_Foil.copy(pFoil);
+                            pFoilAnalysis->m_pPolar = pPolar;
                             if(pPolar->type()<xfl::T4POLAR)
                             {
                                 pFoilAnalysis->range = m_pScriptReader->m_AlphaRange;
@@ -910,15 +910,15 @@ void XflScriptExec::runFoilAnalyses()
         //take the last analysis in the array
         FoilAnalysis *pAnalysis = m_FoilExecList.at(i);
 
-        pAnalysis->pPolar->setVisible(true);
+        pAnalysis->m_pPolar->setVisible(true);
 
         //initiate the task
-        if(pAnalysis->pPolar->isType12())
+        if(pAnalysis->m_pPolar->isType12())
             pXFoilTask->setAnalysisRanges(pAnalysis->range);
         pXFoilTask->initialize(pAnalysis, false);
 
         m_nTaskStarted++;
-        std::string str = "Starting "+ pAnalysis->pFoil->name()+" / "+ pAnalysis->pPolar->name()+"\n";
+        std::string str = "Starting "+ pAnalysis->m_Foil.name()+" / "+ pAnalysis->m_pPolar->name()+"\n";
         traceStdLog(str);
 
 

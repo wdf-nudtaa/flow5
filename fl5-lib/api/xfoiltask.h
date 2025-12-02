@@ -34,20 +34,20 @@
 
 #include <fl5lib_global.h>
 
-
+#include <foil.h>
 #include <xfoil.h>
 #include <analysisrange.h>
 #include <utils.h>
 
-class Foil;
 class Polar;
 class OpPoint;
 
 
 struct FoilAnalysis
 {
-    Foil *pFoil{nullptr};            /**< a pointer to the Foil object to be analyzed by the thread */
-    Polar *pPolar{nullptr};          /**< a pointer to the Polar object to be analyzed by the thread */
+    Foil m_Foil;                       /**< the Foil object to be analyzed by the thread; each task must have
+                                            its own foil because the flap angle is variable */
+    Polar *m_pPolar{nullptr};          /**< a pointer to the Polar object to be analyzed by the thread */
     std::vector<AnalysisRange> range = std::vector<AnalysisRange>();
 };
 
@@ -86,7 +86,7 @@ class FL5LIB_EXPORT XFoilTask
         void appendRange(bool b, double vmin, double vmax, double vinc) {m_AnalysisRange.push_back({b, vmin, vmax, vinc});}
 
         bool initialize(FoilAnalysis *pFoilAnalysis, bool bKeepOpps);
-        bool initialize(Foil *pFoil, Polar *pPolar, bool bKeepOpps);
+        bool initialize(Foil &foil, Polar *pPolar, bool bKeepOpps);
 
         void initializeBL();
 

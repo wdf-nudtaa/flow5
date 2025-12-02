@@ -255,7 +255,7 @@ void ThreadTestDlg::testComm()
 
 void ThreadTestDlg::runComm()
 {
-    std::thread p(&ThreadTestDlg::producer, this);
+    std::thread thethread(&ThreadTestDlg::producer, this);
 //    std::thread c(&ThreadTestDlg::consumer, this); // no need - consume in this thread instead
 
     MessageEvent *pMsgEvent = new MessageEvent(QString("All threads started\n")); // notify the UI thread
@@ -278,7 +278,7 @@ void ThreadTestDlg::runComm()
     pMsgEvent = new MessageEvent(QString("Joining threads....\n"));
     qApp->postEvent(this, pMsgEvent);
 
-    p.join();
+    thethread.join();
 //    c.join();
 
     pMsgEvent = new MessageEvent(QString(" --- > joined\n"));

@@ -174,7 +174,6 @@ void BatchAltDlg::initDialog()
         Foil const *pFoil = Objects2d::foilAt(ifoil);
         if(!pFoil) continue;
 
-        LineStyle ls(pFoil->theStyle());
         ObjectTreeItem *pPlaneItem = m_pModel->appendRow(pRootItem, pFoil->name(), pFoil->theStyle(), Qt::Unchecked);
 
         for(int iPolar=0; iPolar<Objects2d::nPolars(); iPolar++)
@@ -320,8 +319,6 @@ void BatchAltDlg::onAnalyze()
 
 
     m_AnalysisPair.clear();
-    QList<Foil*> foils;
-    QList<Polar*> polars;
 
     QModelIndexList indexes = m_pStruct->selectionModel()->selectedIndexes();
     for(QModelIndex const &index : indexes)

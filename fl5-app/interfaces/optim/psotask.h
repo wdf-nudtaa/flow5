@@ -66,8 +66,6 @@ class PSOTask : public QObject
 
 //    friend class  Optim2d;
 //    friend class  Optim3d;
-//    friend class  OptimCp2d;
-//    friend class  OptimFoil;
 
     public:
         PSOTask();

@@ -116,7 +116,8 @@ gl3dFlightView::gl3dFlightView(QWidget *pParent) : gl3dTestGLView(pParent)
     }
 
     StlReaderDlg dlg(this);
-    dlg.importTrianglesFromStlFile(":/textfiles/stl_mesh.stl", 0.001, m_Triangles);
+    if(dlg.importTrianglesFromStlFile(":/textfiles/stl_mesh.stl", 0.001))
+        m_Triangles = dlg.triangleList();
 
     setReferenceLength(SIDE);
     reset3dScale();

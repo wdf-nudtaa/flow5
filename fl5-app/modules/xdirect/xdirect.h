@@ -236,7 +236,6 @@ class XDirect : public QObject
         void onOpPointProps();
         void onOpPointView();
         void onOppGraph();
-        void onOptimFoil();
         void onPolarProps();
         void onPolarView();
         void onRefineGlobally();

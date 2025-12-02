@@ -734,7 +734,6 @@ void BatchXFoilDlg::onAnalyze()
     m_ppto->onAppendQText(strong);
 
 
-
     m_ppbAnalyze->setText("Cancel");
 
     m_nAnalysis = 0;
@@ -761,7 +760,7 @@ void BatchXFoilDlg::onAnalyze()
                 {
                     m_AnalysisPair.push_back(FoilAnalysis());
                     FoilAnalysis &analysis = m_AnalysisPair.back();
-                    analysis.pFoil = pFoil;
+                    analysis.m_Foil.copy(pFoil);
 
                     Polar *pNewPolar = Objects2d::createPolar(pFoil, s_PolarType,
                                                               s_ReList.at(iRe), s_MachList.at(iRe), s_NCritList.at(iRe),
@@ -774,11 +773,11 @@ void BatchXFoilDlg::onAnalyze()
                     if(pOldPolar)
                     {
                         delete pNewPolar;
-                        analysis.pPolar = pOldPolar;
+                        analysis.m_pPolar = pOldPolar;
                     }
                     else
                     {
-                        analysis.pPolar = pNewPolar;
+                        analysis.m_pPolar = pNewPolar;
                         Objects2d::insertPolar(pNewPolar);
                     }
 
