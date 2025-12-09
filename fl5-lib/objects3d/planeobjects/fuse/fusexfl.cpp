@@ -22,9 +22,11 @@
 
 *****************************************************************************/
 
+
+#define _MATH_DEFINES_DEFINED
+
 #include <QString>
 #include <QDebug>
-
 
 
 #include <BRepBuilderAPI_Copy.hxx>
@@ -376,7 +378,7 @@ void FuseXfl::computeSurfaceProperties(std::string &msg, const std::string &pref
             // raises an execption if less than two points, i.e. for the leading and trailing frames
             HalfPolyMaker.Close();
         }
-        catch(StdFail_NotDone &e)
+        catch(StdFail_NotDone &)
         {
 //            qDebug()<<"FuseXfl::computeSurfaceProperties"<<e.GetMessageString();
         }

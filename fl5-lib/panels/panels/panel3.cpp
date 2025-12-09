@@ -218,15 +218,15 @@ void Panel3::setFrame()
 
     for(int i=0; i<gq.nPoints(); i++)
     {
-        double x = m_Sl[0].x*(1.0-gq.m_point.at(i).x-gq.m_point.at(i).y) + m_Sl[1].x*gq.m_point.at(i).x + m_Sl[2].x*gq.m_point.at(i).y;
-        double y = m_Sl[0].y*(1.0-gq.m_point.at(i).x-gq.m_point.at(i).y) + m_Sl[1].y*gq.m_point.at(i).x + m_Sl[2].y*gq.m_point.at(i).y;
+        double x = m_Sl[0].x*(1.0-gq.points().at(i).x-gq.points().at(i).y) + m_Sl[1].x*gq.points().at(i).x + m_Sl[2].x*gq.points().at(i).y;
+        double y = m_Sl[0].y*(1.0-gq.points().at(i).x-gq.points().at(i).y) + m_Sl[1].y*gq.points().at(i).x + m_Sl[2].y*gq.points().at(i).y;
 
         for(int l=0; l<3; l++)
         {
-            integrand_x = gq.m_weight.at(i) * x*basis(x,y,l);
+            integrand_x = gq.weights().at(i) * x*basis(x,y,l);
             sum_x[l] += integrand_x;
 
-            integrand_y = gq.m_weight.at(i) * y*basis(x,y,l);
+            integrand_y = gq.weights().at(i) * y*basis(x,y,l);
             sum_y[l] += integrand_y;
 
         }
@@ -317,14 +317,14 @@ void Panel3::sourceQuadraturePotential(Vector3d ptGlobal, double &phi) const
     Vector3d ptL = globalToLocalPosition(ptGlobal);
     double sumPhi = 0.0;
 
-    for(uint i=0; i<s_gq.m_point.size(); i++)
+    for(uint i=0; i<s_gq.points().size(); i++)
     {
-        double x = m_Sl[0].x*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].x*s_gq.m_point.at(i).x + m_Sl[2].x*s_gq.m_point.at(i).y;
-        double y = m_Sl[0].y*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].y*s_gq.m_point.at(i).x + m_Sl[2].y*s_gq.m_point.at(i).y;
+        double x = m_Sl[0].x*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].x*s_gq.points().at(i).x + m_Sl[2].x*s_gq.points().at(i).y;
+        double y = m_Sl[0].y*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].y*s_gq.points().at(i).x + m_Sl[2].y*s_gq.points().at(i).y;
 
         double r = sqrt((ptL.x-x)*(ptL.x-x) + (ptL.y-y)*(ptL.y-y) + ptL.z*ptL.z);
 
-        sumPhi +=   (-1.0 /r) * s_gq.m_weight.at(i);
+        sumPhi +=   (-1.0 /r) * s_gq.weights().at(i);
     }
     phi = sumPhi * fabs(m_SignedArea);
 }
@@ -342,17 +342,17 @@ void Panel3::sourceQuadratureVelocity(Vector3d ptGlobal, Vector3d &V) const
     Vector3d ptL = globalToLocalPosition(ptGlobal);
     Vector3d sumV(0.0,0,0);
 
-    for(uint i=0; i<s_gq.m_point.size(); i++)
+    for(uint i=0; i<s_gq.points().size(); i++)
     {
-        double x = m_Sl[0].x*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].x*s_gq.m_point.at(i).x + m_Sl[2].x*s_gq.m_point.at(i).y;
-        double y = m_Sl[0].y*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].y*s_gq.m_point.at(i).x + m_Sl[2].y*s_gq.m_point.at(i).y;
+        double x = m_Sl[0].x*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].x*s_gq.points().at(i).x + m_Sl[2].x*s_gq.points().at(i).y;
+        double y = m_Sl[0].y*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].y*s_gq.points().at(i).x + m_Sl[2].y*s_gq.points().at(i).y;
 
         double r = sqrt((ptL.x-x)*(ptL.x-x) + (ptL.y-y)*(ptL.y-y) + ptL.z*ptL.z);
 
         double r3 = r*r*r;
-        sumV.x +=   (ptL.x /r3) * s_gq.m_weight.at(i);
-        sumV.y +=   (ptL.y /r3) * s_gq.m_weight.at(i);
-        sumV.z +=   (ptL.z /r3) * s_gq.m_weight.at(i);
+        sumV.x +=   (ptL.x /r3) * s_gq.weights().at(i);
+        sumV.y +=   (ptL.y /r3) * s_gq.weights().at(i);
+        sumV.z +=   (ptL.z /r3) * s_gq.weights().at(i);
     }
     V = sumV * fabs(m_SignedArea);
 }
@@ -571,33 +571,33 @@ void Panel3::quadratureIntegrals(Vector3d Pt, double *I1, double *I3, double *I5
     I3[0]=I3[1]=I3[2]=I3[3]=I3[4]=I3[5]=0.0;
     I5[0]=I5[1]=I5[2]=I5[3]=I5[4]=I5[5]=0.0;
 
-    for(uint i=0; i<gq.m_point.size(); i++)
+    for(uint i=0; i<gq.points().size(); i++)
     {
-        double x = m_Sl[0].x*(1.0-gq.m_point.at(i).x-gq.m_point.at(i).y) + m_Sl[1].x*gq.m_point.at(i).x + m_Sl[2].x*gq.m_point.at(i).y;
-        double y = m_Sl[0].y*(1.0-gq.m_point.at(i).x-gq.m_point.at(i).y) + m_Sl[1].y*gq.m_point.at(i).x + m_Sl[2].y*gq.m_point.at(i).y;
+        double x = m_Sl[0].x*(1.0-gq.points().at(i).x-gq.points().at(i).y) + m_Sl[1].x*gq.points().at(i).x + m_Sl[2].x*gq.points().at(i).y;
+        double y = m_Sl[0].y*(1.0-gq.points().at(i).x-gq.points().at(i).y) + m_Sl[1].y*gq.points().at(i).x + m_Sl[2].y*gq.points().at(i).y;
         //qDebug(" %13.7f   %13.7f",x,y);
         R = Ptl - Vector3d(x,y,0.0);
         double r  = R.norm();
         double r3 = r*r*r;
         double r5 = r*r*r*r*r;
 
-        I1[0] +=  (1/r) * gq.m_weight.at(i);
-        I1[1] +=  (x/r) * gq.m_weight.at(i);
-        I1[2] +=  (y/r) * gq.m_weight.at(i);
+        I1[0] +=  (1/r) * gq.weights().at(i);
+        I1[1] +=  (x/r) * gq.weights().at(i);
+        I1[2] +=  (y/r) * gq.weights().at(i);
 
-        I3[0] +=  (1/r3)   * gq.m_weight.at(i);
-        I3[1] +=  (x/r3)   * gq.m_weight.at(i);
-        I3[2] +=  (y/r3)   * gq.m_weight.at(i);
-        I3[3] +=  (x*x/r3) * gq.m_weight.at(i);
-        I3[4] +=  (x*y/r3) * gq.m_weight.at(i);
-        I3[5] +=  (y*y/r3) * gq.m_weight.at(i);
+        I3[0] +=  (1/r3)   * gq.weights().at(i);
+        I3[1] +=  (x/r3)   * gq.weights().at(i);
+        I3[2] +=  (y/r3)   * gq.weights().at(i);
+        I3[3] +=  (x*x/r3) * gq.weights().at(i);
+        I3[4] +=  (x*y/r3) * gq.weights().at(i);
+        I3[5] +=  (y*y/r3) * gq.weights().at(i);
 
-        I5[0] +=  (1/r5)   * gq.m_weight.at(i);
-        I5[1] +=  (x/r5)   * gq.m_weight.at(i);
-        I5[2] +=  (y/r5)   * gq.m_weight.at(i);
-        I5[3] +=  (x*x/r5) * gq.m_weight.at(i);
-        I5[4] +=  (x*y/r5) * gq.m_weight.at(i);
-        I5[5] +=  (y*y/r5) * gq.m_weight.at(i);
+        I5[0] +=  (1/r5)   * gq.weights().at(i);
+        I5[1] +=  (x/r5)   * gq.weights().at(i);
+        I5[2] +=  (y/r5)   * gq.weights().at(i);
+        I5[3] +=  (x*x/r5) * gq.weights().at(i);
+        I5[4] +=  (x*y/r5) * gq.weights().at(i);
+        I5[5] +=  (y*y/r5) * gq.weights().at(i);
     }
 
     for(int i=0; i<3; i++) I1[i] *= fabs(m_SignedArea);
@@ -2179,10 +2179,10 @@ void Panel3::doubletQuadraturePotential(Vector3d Pt, double *phi) const
     double sumPotential[3];
     sumPotential[0] = sumPotential[1] = sumPotential[2] = 0.0;
 
-    for(uint i=0; i<s_gq.m_point.size(); i++)
+    for(uint i=0; i<s_gq.points().size(); i++)
     {
-        double x = m_Sl[0].x*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].x*s_gq.m_point.at(i).x + m_Sl[2].x*s_gq.m_point.at(i).y;
-        double y = m_Sl[0].y*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].y*s_gq.m_point.at(i).x + m_Sl[2].y*s_gq.m_point.at(i).y;
+        double x = m_Sl[0].x*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].x*s_gq.points().at(i).x + m_Sl[2].x*s_gq.points().at(i).y;
+        double y = m_Sl[0].y*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].y*s_gq.points().at(i).x + m_Sl[2].y*s_gq.points().at(i).y;
 
         r = Ptl - Vector3d(x,y,0.0);
         double dist = r.norm();
@@ -2192,9 +2192,9 @@ void Panel3::doubletQuadraturePotential(Vector3d Pt, double *phi) const
         double dist = sqrt(r.x*r.x+r.y*r.y+r.z*r.z);*/
         double r3 = dist*dist*dist;
 
-        sumPotential[0] +=  basis(x,y,0) * (-Ptl.z /r3) * s_gq.m_weight.at(i);
-        sumPotential[1] +=  basis(x,y,1) * (-Ptl.z /r3) * s_gq.m_weight.at(i);
-        sumPotential[2] +=  basis(x,y,2) * (-Ptl.z /r3) * s_gq.m_weight.at(i);
+        sumPotential[0] +=  basis(x,y,0) * (-Ptl.z /r3) * s_gq.weights().at(i);
+        sumPotential[1] +=  basis(x,y,1) * (-Ptl.z /r3) * s_gq.weights().at(i);
+        sumPotential[2] +=  basis(x,y,2) * (-Ptl.z /r3) * s_gq.weights().at(i);
     }
     phi[0] = sumPotential[0] * fabs(m_SignedArea);
     phi[1] = sumPotential[1] * fabs(m_SignedArea);
@@ -2217,10 +2217,10 @@ void Panel3::doubletQuadratureVelocity(Vector3d Pt, Vector3d *V) const
     double b[]{0,0,0};
     Vector3d sumvelocity[3];
 
-    for(uint i=0; i<s_gq.m_point.size(); i++)
+    for(uint i=0; i<s_gq.points().size(); i++)
     {
-        double x = m_Sl[0].x*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].x*s_gq.m_point.at(i).x + m_Sl[2].x*s_gq.m_point.at(i).y;
-        double y = m_Sl[0].y*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].y*s_gq.m_point.at(i).x + m_Sl[2].y*s_gq.m_point.at(i).y;
+        double x = m_Sl[0].x*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].x*s_gq.points().at(i).x + m_Sl[2].x*s_gq.points().at(i).y;
+        double y = m_Sl[0].y*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].y*s_gq.points().at(i).x + m_Sl[2].y*s_gq.points().at(i).y;
 
         r = Ptl - Vector3d(x,y,0.0);
         double dist = r.norm();
@@ -2236,9 +2236,9 @@ void Panel3::doubletQuadratureVelocity(Vector3d Pt, Vector3d *V) const
 
         for(int l=0; l<3; l++)
         {
-            sumvelocity[l].x  +=  3.0 * b[l] * (Ptl.x-x)* Ptl.z/r5       * s_gq.m_weight.at(i);
-            sumvelocity[l].y  +=  3.0 * b[l] * (Ptl.y-y)* Ptl.z/r5       * s_gq.m_weight.at(i);
-            sumvelocity[l].z  += b[l] *(-1.0/r3 + 3.0*Ptl.z*Ptl.z/r5 )   * s_gq.m_weight.at(i);
+            sumvelocity[l].x  +=  3.0 * b[l] * (Ptl.x-x)* Ptl.z/r5       * s_gq.weights().at(i);
+            sumvelocity[l].y  +=  3.0 * b[l] * (Ptl.y-y)* Ptl.z/r5       * s_gq.weights().at(i);
+            sumvelocity[l].z  += b[l] *(-1.0/r3 + 3.0*Ptl.z*Ptl.z/r5 )   * s_gq.weights().at(i);
         }
     }
     for(int l=0; l<3; l++)
@@ -2301,10 +2301,10 @@ void Panel3::scalarProductSourcePotential(const Panel3 &SourcePanel, bool bSelf,
     double sum[]{0,0,0};
     double x(0), y(0);
 
-    for(uint i=0; i<s_gq.m_point.size(); i++)
+    for(uint i=0; i<s_gq.points().size(); i++)
     {
-        x = m_Sl[0].x*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].x*s_gq.m_point.at(i).x + m_Sl[2].x*s_gq.m_point.at(i).y;
-        y = m_Sl[0].y*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].y*s_gq.m_point.at(i).x + m_Sl[2].y*s_gq.m_point.at(i).y;
+        x = m_Sl[0].x*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].x*s_gq.points().at(i).x + m_Sl[2].x*s_gq.points().at(i).y;
+        y = m_Sl[0].y*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].y*s_gq.points().at(i).x + m_Sl[2].y*s_gq.points().at(i).y;
 
         //convert the local panel point to global coordinates
         localToGlobalPosition(x,y,0.0, ptGlobal.x, ptGlobal.y, ptGlobal.z);
@@ -2316,7 +2316,7 @@ void Panel3::scalarProductSourcePotential(const Panel3 &SourcePanel, bool bSelf,
         //scalar product with basis function
         for(int l=0; l<3; l++)
         {
-            integrand = phiSource * basis(x,y,l) * s_gq.m_weight.at(i);
+            integrand = phiSource * basis(x,y,l) * s_gq.weights().at(i);
             sum[l] += integrand;
         }
     }
@@ -2339,10 +2339,10 @@ void Panel3::scalarProductSourceVelocity(Panel3 const &SourcePanel, bool bSelf, 
     double integrand(0);
     double sum[]{0,0,0};
 
-    for(uint i=0; i<s_gq.m_point.size(); i++)
+    for(uint i=0; i<s_gq.points().size(); i++)
     {
-        double x = m_Sl[0].x*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].x*s_gq.m_point.at(i).x + m_Sl[2].x*s_gq.m_point.at(i).y;
-        double y = m_Sl[0].y*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].y*s_gq.m_point.at(i).x + m_Sl[2].y*s_gq.m_point.at(i).y;
+        double x = m_Sl[0].x*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].x*s_gq.points().at(i).x + m_Sl[2].x*s_gq.points().at(i).y;
+        double y = m_Sl[0].y*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].y*s_gq.points().at(i).x + m_Sl[2].y*s_gq.points().at(i).y;
 
         //convert the local panel point to global coordinates
         localToGlobalPosition(x,y,0.0, ptGlobal.x, ptGlobal.y, ptGlobal.z);
@@ -2354,7 +2354,7 @@ void Panel3::scalarProductSourceVelocity(Panel3 const &SourcePanel, bool bSelf, 
         //scalar product with basis function
         for(int l=0; l<3; l++)
         {
-            integrand = -Vel.dot(m_Normal) * basis(x,y,l) * s_gq.m_weight.at(i);
+            integrand = -Vel.dot(m_Normal) * basis(x,y,l) * s_gq.weights().at(i);
             sum[l] += integrand;
         }
     }
@@ -2375,10 +2375,10 @@ void Panel3::scalarProductDoubletPotential(Panel3 const &DoubletPanel, bool bSel
     double sum[]{0,0,0,0,0,0,0,0,0};
     double phi[]{0,0,0};
 
-    for(uint i=0; i<s_gq.m_point.size(); i++)
+    for(uint i=0; i<s_gq.points().size(); i++)
     {
-        double x = m_Sl[0].x*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].x*s_gq.m_point.at(i).x + m_Sl[2].x*s_gq.m_point.at(i).y;
-        double y = m_Sl[0].y*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].y*s_gq.m_point.at(i).x + m_Sl[2].y*s_gq.m_point.at(i).y;
+        double x = m_Sl[0].x*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].x*s_gq.points().at(i).x + m_Sl[2].x*s_gq.points().at(i).y;
+        double y = m_Sl[0].y*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].y*s_gq.points().at(i).x + m_Sl[2].y*s_gq.points().at(i).y;
 
         localToGlobalPosition(x,y,0.0, ptGlobal.x, ptGlobal.y, ptGlobal.z);
         DoubletPanel.doubletBasisPotential(ptGlobal, bSelf, phi, true);
@@ -2387,7 +2387,7 @@ void Panel3::scalarProductDoubletPotential(Panel3 const &DoubletPanel, bool bSel
         {
             for(int l=0; l<3; l++)
             {
-                integrand = phi[l] * basis(x,y,k) * s_gq.m_weight.at(i);
+                integrand = phi[l] * basis(x,y,k) * s_gq.weights().at(i);
                 sum[3*k+l] += integrand;
             }
         }
@@ -2410,10 +2410,10 @@ void Panel3::scalarProductDoubletVelocity(const Panel3 &DoubletPanel, double *sp
     double integrand(0);
     double sum[]{0,0,0,0,0,0,0,0,0};
 
-    for(uint i=0; i<s_gq.m_point.size(); i++)
+    for(uint i=0; i<s_gq.points().size(); i++)
     {
-        double x = m_Sl[0].x*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].x*s_gq.m_point.at(i).x + m_Sl[2].x*s_gq.m_point.at(i).y;
-        double y = m_Sl[0].y*(1.0-s_gq.m_point.at(i).x-s_gq.m_point.at(i).y) + m_Sl[1].y*s_gq.m_point.at(i).x + m_Sl[2].y*s_gq.m_point.at(i).y;
+        double x = m_Sl[0].x*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].x*s_gq.points().at(i).x + m_Sl[2].x*s_gq.points().at(i).y;
+        double y = m_Sl[0].y*(1.0-s_gq.points().at(i).x-s_gq.points().at(i).y) + m_Sl[1].y*s_gq.points().at(i).x + m_Sl[2].y*s_gq.points().at(i).y;
 
         localToGlobalPosition(x,y,0.0, ptGlobal.x, ptGlobal.y, ptGlobal.z);
         DoubletPanel.doubletBasisVelocity(ptGlobal, V, true);
@@ -2422,7 +2422,7 @@ void Panel3::scalarProductDoubletVelocity(const Panel3 &DoubletPanel, double *sp
         {
             for(int l=0; l<3; l++)
             {
-                integrand = V[l].dot(m_Normal) * basis(x,y,k) * s_gq.m_weight.at(i);
+                integrand = V[l].dot(m_Normal) * basis(x,y,k) * s_gq.weights().at(i);
                 sum[3*k+l] += integrand;
             }
         }

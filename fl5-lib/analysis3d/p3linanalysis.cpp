@@ -292,10 +292,10 @@ bool P3LinAnalysis::scalarProductWake(Panel3 const &panel0, int iWake, double *s
 
     GQTriangle gq(Panel3::quadratureOrder());
 
-    for(uint igq=0; igq<gq.m_point.size(); igq++)
+    for(uint igq=0; igq<gq.points().size(); igq++)
     {
-        double x = panel0.m_Sl[0].x*(1.0-gq.m_point.at(igq).x-gq.m_point.at(igq).y) + panel0.m_Sl[1].x*gq.m_point.at(igq).x + panel0.m_Sl[2].x*gq.m_point.at(igq).y;
-        double y = panel0.m_Sl[0].y*(1.0-gq.m_point.at(igq).x-gq.m_point.at(igq).y) + panel0.m_Sl[1].y*gq.m_point.at(igq).x + panel0.m_Sl[2].y*gq.m_point.at(igq).y;
+        double x = panel0.m_Sl[0].x*(1.0-gq.points().at(igq).x-gq.points().at(igq).y) + panel0.m_Sl[1].x*gq.points().at(igq).x + panel0.m_Sl[2].x*gq.points().at(igq).y;
+        double y = panel0.m_Sl[0].y*(1.0-gq.points().at(igq).x-gq.points().at(igq).y) + panel0.m_Sl[1].y*gq.points().at(igq).x + panel0.m_Sl[2].y*gq.points().at(igq).y;
 
         panel0.localToGlobalPosition(x,y,0.0, ptGlobal.x, ptGlobal.y, ptGlobal.z);
 
@@ -371,10 +371,10 @@ bool P3LinAnalysis::scalarProductWake(Panel3 const &panel0, int iWake, double *s
 
         for(int ib=0; ib<3; ib++)
         {
-            integrandL = gq.m_weight.at(igq) * value_Left  * panel0.basis(x,y,ib);
+            integrandL = gq.weights().at(igq) * value_Left  * panel0.basis(x,y,ib);
             sum_Left[ib]  += integrandL;
             if(std::isnan(integrandL) || std::isinf(integrandL)) return false;
-            integrandR = gq.m_weight.at(igq) * value_Right  * panel0.basis(x,y,ib);
+            integrandR = gq.weights().at(igq) * value_Right  * panel0.basis(x,y,ib);
             if(std::isnan(integrandR) || std::isinf(integrandR)) return false;
             sum_Right[ib]  += integrandR;
         }
@@ -1113,10 +1113,10 @@ void P3LinAnalysis::testResults(double alpha, double beta, double QInf) const
         GQTriangle gq(Panel3::quadratureOrder());
 
         double average = 0;
-        for(uint igq=0; igq<gq.m_point.size(); igq++)
+        for(uint igq=0; igq<gq.points().size(); igq++)
         {
-            double x = p3.m_Sl[0].x*(1.0-gq.m_point.at(igq).x-gq.m_point.at(igq).y) + p3.m_Sl[1].x*gq.m_point.at(igq).x + p3.m_Sl[2].x*gq.m_point.at(igq).y;
-            double y = p3.m_Sl[0].y*(1.0-gq.m_point.at(igq).x-gq.m_point.at(igq).y) + p3.m_Sl[1].y*gq.m_point.at(igq).x + p3.m_Sl[2].y*gq.m_point.at(igq).y;
+            double x = p3.m_Sl[0].x*(1.0-gq.points().at(igq).x-gq.points().at(igq).y) + p3.m_Sl[1].x*gq.points().at(igq).x + p3.m_Sl[2].x*gq.points().at(igq).y;
+            double y = p3.m_Sl[0].y*(1.0-gq.points().at(igq).x-gq.points().at(igq).y) + p3.m_Sl[1].y*gq.points().at(igq).x + p3.m_Sl[2].y*gq.points().at(igq).y;
 
             p3.localToGlobalPosition(x,y,0.0, ptGlobal.x, ptGlobal.y, ptGlobal.z);
             ptGlobal += p3.normal()*0.0001;
@@ -1130,7 +1130,7 @@ void P3LinAnalysis::testResults(double alpha, double beta, double QInf) const
 //                qDebug(" pt_%d: %13g", igq, Vel.dot(p3.normal()));
             }
         }
-        qDebug(" average[%d]=%13g", i3, average/gq.m_point.size());
+        qDebug(" average[%d]=%13g", i3, average/gq.points().size());
     }
 
 }

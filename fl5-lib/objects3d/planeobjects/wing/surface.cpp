@@ -22,6 +22,9 @@
 
 *****************************************************************************/
 
+
+#define _MATH_DEFINES_DEFINED
+
 #include <chrono>
 #include <thread>
 

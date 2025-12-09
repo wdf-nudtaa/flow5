@@ -22,10 +22,9 @@
 
 *****************************************************************************/
 
+#define _MATH_DEFINES_DEFINED
 
 #include <QString>
-
-
 
 #include <boattask.h>
 

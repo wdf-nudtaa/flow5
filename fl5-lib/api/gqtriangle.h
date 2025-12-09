@@ -36,11 +36,14 @@ class FL5LIB_EXPORT GQTriangle
         double testIntegral();
         int nPoints() {return int(m_point.size());}
 
-    public:
         void makeCoeffs(int order);
 
-        int m_iOrder;
+        std::vector<Vector2d> const &points() const {return m_point;}
+        std::vector<double> const &weights() const {return m_weight;}
 
+    private:
+
+        int m_iOrder;
         std::vector<Vector2d> m_point;
         std::vector<double> m_weight;
 };

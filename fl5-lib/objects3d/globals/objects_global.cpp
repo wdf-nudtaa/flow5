@@ -22,8 +22,8 @@
 
 *****************************************************************************/
 
-
-
+#define _MATH_DEFINES_DEFINED
+#define _MATH_DEFINES_DEFINED
 
 
 #include <utils.h>
