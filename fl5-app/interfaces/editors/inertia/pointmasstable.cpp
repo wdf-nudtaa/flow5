@@ -220,7 +220,6 @@ void PointMassTable::onDuplicateMassRow()
     m_pInertia->insertPointMass(sel+1, m_pInertia->pointMass(sel));
 
     fillMassModel();
-//    closePersistentEditor(currentIndex());
 
     QModelIndex index = m_pMassModel->index(sel+1, 0, QModelIndex());
     setCurrentIndex(index);

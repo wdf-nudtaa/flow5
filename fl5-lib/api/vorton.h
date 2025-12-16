@@ -66,7 +66,7 @@ class FL5LIB_EXPORT Vorton
         double circulation() const {return m_Omega.norm();}
         void setCirculation(double gamma);
 
-        void vorticity(Vector3d const &pos, Vector3d &omega) const;
+        Vector3d vorticity(Vector3d const &pos) const;
         inline void inducedVelocity(Vector3d const &R, double CoreSize, Vector3d &V) const;
         void velocityGradient(Vector3d const &R, double CoreSize, double *G) const;
 
@@ -96,7 +96,7 @@ class FL5LIB_EXPORT Vorton
         Vector3d m_Omega;         /**< the vorton's vorticity */
         double m_Volume;        /**< the volume associated to this vorton */
 
-        bool m_bActive;         /**< false if the vorton is further way from the plane than the max distance defined in the WPolar */
+        bool m_bActive;         /**< false if the vorton is further away from the plane than the max distance defined in the WPolar */
 
 
     public:

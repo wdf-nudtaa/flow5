@@ -2,7 +2,7 @@
 
     flow5 application
     Copyright © 2025 André Deperrois
-    
+
     This file is part of flow5.
 
     flow5 is free software: you can redistribute it and/or modify it
@@ -86,7 +86,7 @@ void FileIO::onLoadProject(const QString &filename)
 
     QString end = pathname.right(4).toLower();
 
-    pathname.replace(QDir::separator(), "/"); // Qt sometimes uses the windows \ separator
+    pathname.replace(QDir::separator(), "/");
 
     if(end==".xfl" || end==".fl5")
     {

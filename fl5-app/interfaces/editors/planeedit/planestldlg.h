@@ -107,9 +107,9 @@ class PlaneSTLDlg : public PlaneDlg
 
         QAction *m_pConvertTriangles;
 
-        FloatEdit *m_pdeRefArea, *m_pdeRefChord, *m_pdeRefSpan;
+        FloatEdit *m_pfeRefArea, *m_pfeRefChord, *m_pfeRefSpan;
 
-        FloatEdit *m_pdeRotate, *m_pdeTranslate, *m_pdeScale;
+        FloatEdit *m_pfeRotate, *m_pfeTranslate, *m_pfeScale;
         QPushButton *m_ppbTranslateX, *m_ppbTranslateY, *m_ppbTranslateZ;
         QPushButton *m_ppbRotateX, *m_ppbRotateY, *m_ppbRotateZ;
         QPushButton *m_ppbScale;
@@ -117,7 +117,7 @@ class PlaneSTLDlg : public PlaneDlg
         QPushButton *m_ppbTopTEPanels, *m_ppbBotTEPanels, *m_ppbGuessTE;
         QPushButton *m_ppbCheckTE;
         QCheckBox *m_pchGuessOpposite;
-        FloatEdit *m_pdeTEAngle;
+        FloatEdit *m_pfeTEAngle;
 
         ColorBtn *m_pcbColor;
 

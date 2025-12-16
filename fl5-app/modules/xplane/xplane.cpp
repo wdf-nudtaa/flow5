@@ -3814,7 +3814,7 @@ void XPlane::onEditExtraDrag()
 
 void XPlane::onEditCurPlPolar()
 {
-    stopAnimate();
+//    stopAnimate();
 
     if(!m_pCurPlane || !m_pCurPlPolar || m_pCurPlPolar->isExternalPolar()) return;
     if(m_pCurPlPolar->isLocked())
@@ -4631,8 +4631,8 @@ Plane *XPlane::setPlane(Plane* pPlane)
 
     Surface::s_DebugPts.clear();
     Surface::s_DebugVecs.clear();
-    PanelAnalysis::s_DebugPts.clear();
-    PanelAnalysis::s_DebugVecs.clear();
+//    PanelAnalysis::s_DebugPts.clear();
+//    PanelAnalysis::s_DebugVecs.clear();
 
     onClearHighlightSelection();
 
@@ -4842,20 +4842,9 @@ void XPlane::setPolar(PlanePolar *pPlPolar)
 
     if(m_pCurPlPolar)
     {
-        if(m_pCurPlPolar->isQuadMethod() && m_pCurPlane->isXflType())
+        if(pPlaneXfl && m_pCurPlPolar->isQuadMethod())
         {
-
             pPlaneXfl->makeQuadMesh(m_pCurPlPolar->bThickSurfaces(), m_pCurPlPolar->bIgnoreBodyPanels());
-
-            if(!m_pCurPlPolar->bVortonWake())
-            {
-                pPlaneXfl->refQuadMesh().makeWakePanels(m_pCurPlPolar->NXWakePanel4(), m_pCurPlPolar->wakePanelFactor(), m_pCurPlPolar->wakeLength(),
-                                                        Vector3d(1.0,0,0), true);
-            }
-            else
-            {
-                pPlaneXfl->refQuadMesh().makeWakePanels(3, 1.0, m_pCurPlPolar->bufferWakeLength(), Vector3d(1.0,0,0), false);
-            }
         }
 
         if(m_pCurPlPolar->isTriangleMethod())
@@ -4863,6 +4852,7 @@ void XPlane::setPolar(PlanePolar *pPlPolar)
             if(m_pCurPlane->isXflType())
                 m_pCurPlane->makeTriMesh(m_pCurPlPolar->bThickSurfaces());
         }
+
         m_pCurPlane->restoreMesh();
 
         switch(m_pCurPlPolar->type())
@@ -4881,16 +4871,15 @@ void XPlane::setPolar(PlanePolar *pPlPolar)
                 }
                 if(fabs(m_pCurPlPolar->phi())>AOAPRECISION)
                 {
-                    if(m_pCurPlPolar->isQuadMethod())                pPlaneXfl->quadMesh().rotate(0,0,m_pCurPlPolar->phi());
+                    if(pPlaneXfl && m_pCurPlPolar->isQuadMethod())                pPlaneXfl->quadMesh().rotate(0,0,m_pCurPlPolar->phi());
                     else if(m_pCurPlPolar->isTriangleMethod())       m_pCurPlane->triMesh().rotate(0,0,m_pCurPlPolar->phi());
                 }
                 break;
             }
             case xfl::T6POLAR:
             {
-                if(m_pCurPlane->isXflType())
+                if(pPlaneXfl)
                 {
-                    PlaneXfl const * pPlaneXfl = dynamic_cast<PlaneXfl const*>(m_pCurPlane);
                     //check that the size of the Angle Range controls still matches the plane's control size
                     int nctrls = 0;
                     for(int iw=0; iw<pPlaneXfl->nWings(); iw++)
@@ -4908,6 +4897,34 @@ void XPlane::setPolar(PlanePolar *pPlPolar)
             }
             default: break;
         }
+
+
+        if(pPlaneXfl && m_pCurPlPolar->isQuadMethod())
+        {
+            if(!m_pCurPlPolar->bVortonWake())
+            {
+                pPlaneXfl->refQuadMesh().makeWakePanels(m_pCurPlPolar->NXWakePanel4(), m_pCurPlPolar->wakePanelFactor(), m_pCurPlPolar->wakeLength(),
+                                                        Vector3d(1.0,0,0), true);
+            }
+            else
+            {
+                pPlaneXfl->refQuadMesh().makeWakePanels(3, 1.0, m_pCurPlPolar->bufferWakeLength(), Vector3d(1.0,0,0), false);
+            }
+        }
+
+        if(m_pCurPlPolar->isTriangleMethod())
+        {
+            if(!m_pCurPlPolar->bVortonWake())
+            {
+                m_pCurPlane->triMesh().makeWakePanels(m_pCurPlPolar->NXWakePanel4(), m_pCurPlPolar->wakePanelFactor(), m_pCurPlPolar->wakeLength(),
+                                                        Vector3d(1.0,0,0), true);
+            }
+            else
+            {
+                m_pCurPlane->triMesh().makeWakePanels(3, 1.0, m_pCurPlPolar->bufferWakeLength(), Vector3d(1.0,0,0), false);
+            }
+        }
+
     }
 
     QString props = QString::fromStdString(m_pCurPlane->planeData(pPlPolar->bIncludeOtherWingAreas()));
@@ -5224,32 +5241,36 @@ PlaneOpp* XPlane::setPlaneOpp(PlaneOpp *pPOpp)
 
     Vector3d WindDir(1,0,0);
     // extend the wake behind the plane's last trailing point;
-    if(pPlaneXfl && m_pCurPOpp->isQuadMethod())
+
+    if(m_pCurPOpp->isType6())
     {
-        if(!m_pCurPlPolar->bVortonWake())
+        if(pPlaneXfl && m_pCurPOpp->isQuadMethod())
         {
-            Vector3d pt;
-            pPlaneXfl->quadMesh().getLastTrailingPoint(pt);
-            pPlaneXfl->quadMesh().makeWakePanels(m_pCurPlPolar->NXWakePanel4(), m_pCurPlPolar->wakePanelFactor(),
-                                                 pt.x + m_pCurPlPolar->wakeLength(), WindDir, true);
+            if(!m_pCurPlPolar->bVortonWake())
+            {
+                Vector3d pt;
+                pPlaneXfl->quadMesh().getLastTrailingPoint(pt);
+                pPlaneXfl->quadMesh().makeWakePanels(m_pCurPlPolar->NXWakePanel4(), m_pCurPlPolar->wakePanelFactor(),
+                                                     pt.x + m_pCurPlPolar->wakeLength(), WindDir, true);
+            }
+            else
+            {
+                pPlaneXfl->quadMesh().makeWakePanels(3, 1.0, m_pCurPlPolar->bufferWakeLength(), WindDir, false);
+            }
         }
-        else
+        else if(m_pCurPOpp->isTriangleMethod())
         {
-            pPlaneXfl->quadMesh().makeWakePanels(3, 1.0, m_pCurPlPolar->bufferWakeLength(), WindDir, false);
-        }
-    }
-    else if(m_pCurPOpp->isTriangleMethod())
-    {
-        if(!m_pCurPlPolar->bVortonWake())
-        {
-            Vector3d pt;
-            m_pCurPlane->triMesh().getLastTrailingPoint(pt);
-            m_pCurPlane->triMesh().makeWakePanels(m_pCurPlPolar->NXWakePanel4(), m_pCurPlPolar->wakePanelFactor(),
-                                                  pt.x + m_pCurPlPolar->wakeLength(), WindDir, true);
-        }
-        else
-        {
-            m_pCurPlane->triMesh().makeWakePanels(m_pCurPlPolar->NXBufferWakePanels(), 1, m_pCurPlPolar->bufferWakeLength(), WindDir, false);
+            if(!m_pCurPlPolar->bVortonWake())
+            {
+                Vector3d pt;
+                m_pCurPlane->triMesh().getLastTrailingPoint(pt);
+                m_pCurPlane->triMesh().makeWakePanels(m_pCurPlPolar->NXWakePanel4(), m_pCurPlPolar->wakePanelFactor(),
+                                                      pt.x + m_pCurPlPolar->wakeLength(), WindDir, true);
+            }
+            else
+            {
+                m_pCurPlane->triMesh().makeWakePanels(m_pCurPlPolar->NXBufferWakePanels(), 1, m_pCurPlPolar->bufferWakeLength(), WindDir, false);
+            }
         }
     }
 
@@ -6444,16 +6465,7 @@ void XPlane::onConnectTriangles()
     QApplication::setOverrideCursor(Qt::WaitCursor);
     onClearHighlightSelection();
 
-    if(m_pCurPlane->isSTLType())
-    {
-        m_pCurPlane->refTriMesh().makeConnectionsFromNodePosition(false, xfl::isMultiThreaded());
-        m_pCurPlane->refTriMesh().connectNodes();
-    }
-    else
-    {
-        PlaneXfl *pPlaneXfl = dynamic_cast<PlaneXfl*>(m_pCurPlane);
-        pPlaneXfl->connectTriMesh(false, false, xfl::isMultiThreaded());
-    }
+    m_pCurPlane->connectTriMesh(false, false, xfl::isMultiThreaded());
 
     QString log("\nTriangle connections done\n\n");
     displayMessage(log, false, true);

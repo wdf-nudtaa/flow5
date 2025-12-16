@@ -199,6 +199,7 @@ class FL5LIB_EXPORT Polar3d : public XflObject
         bool isType8()           const {return m_Type==xfl::T8POLAR;}     /**< returns true if the polar is of the FIXEDAOAPOLAR type, false otherwise >*/
         bool isType123()         const {return isType1() || isType2() || isType3();}
         bool isType123458()      const {return isType123() || isType4() || isType5() || isType8();}
+        bool isLinearPolar()     const {return isType123458() || isType7();}
         bool isFixedSpeedPolar() const {return m_Type==xfl::T1POLAR;}   /**< returns true if the polar is of the FIXEDSPEEDPOLAR type, false otherwise >*/
         bool isFixedLiftPolar()  const {return m_Type==xfl::T2POLAR;}    /**< returns true if the polar is of the FIXEDLIFTPOLAR type, false otherwise >*/
         bool isGlidePolar()      const {return m_Type==xfl::T3POLAR;}        /**< returns true if the polar is of the GLIDEPOLAR type, false otherwise >*/

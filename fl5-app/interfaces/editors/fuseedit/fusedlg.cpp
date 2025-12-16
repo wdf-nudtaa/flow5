@@ -122,7 +122,7 @@ void FuseDlg::connectBaseSignals()
 void FuseDlg::onNodeDistance()
 {
     m_pglFuseView->setHighlighting(false);
-    m_pglControls->checkHighlight(false);
+    m_pglControls->setHighlighting(false);
     m_pglFuseView->setPicking(m_pglControls->getDistance() ? xfl::MESHNODE : xfl::NOPICK);
     if(!m_pglControls->getDistance()) m_pglFuseView->clearMeasure();
     m_pglFuseView->setSurfacePick(xfl::NOSURFACE);

@@ -78,7 +78,8 @@ class gl3dGeomControls : public gl3dControls
 
         void enableCtrlPts(bool bEnabled) {m_pchCtrlPts->setEnabled(bEnabled);}
 
-        void checkHighlight(bool b) {m_pchHighlight->setChecked(b);}
+        void setHighlighting(bool b) {m_pchHighlight->setChecked(b);}
+        bool isHighlighting() {return m_pchHighlight->isChecked();}
 
     private:
         void hideControls();

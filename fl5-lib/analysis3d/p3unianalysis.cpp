@@ -730,13 +730,13 @@ void P3UniAnalysis::computeOnBodyCp(std::vector<Vector3d> const &VInf,
 
 /**
  * For a tri-uniform analysis, builds a row of vortons located at the wake panels streamwise edges.
- * The vorticity at the edges is the jump in doublet density between two adajcent panels x4.PI
+ * The vorticity at the edges is the jump in doublet density between two adjacent panels x4.PI
  * The vorticity at the two tips is equal to the panel's doublet strength, i.e. zero vorticity
  * outside the wake.*/
 void P3UniAnalysis::makeVortons(double dl, double const *mu3Vertex, int pos3, int nPanel3, int nStations, int nVtn0,
                                 std::vector<Vorton> &vortons, std::vector<Vortex> &vortexneg) const
 {
-    double const *Mu3   = mu3Vertex;
+    double const *Mu3 = mu3Vertex;
 
     vortons.resize(2*nStations);
     vortexneg.resize(nStations);

@@ -351,7 +351,7 @@ void PlaneXflDlg::setupLayout()
                         {
                             QVBoxLayout *pGMesherLayout = new QVBoxLayout;
                             {
-                                QLabel *plabGmsh = new QLabel("<p><b>Gmsh</b></p>");
+                                QLabel *plabGmsh = new QLabel("<b>Gmsh</b>");
 
                                 QLabel *plabGmshLink = new QLabel;
                                 plabGmshLink->setText("<a href=https://gmsh.info>https://gmsh.info</a>");
@@ -370,16 +370,16 @@ void PlaneXflDlg::setupLayout()
 
                         m_pMeshCorrectionsFrame = new QFrame;
                         {
-                            QLabel *plabInfo = new QLabel("<p>Use the actions below to modify the fuselage's mesh<br>"
-                                                          "and to connect it to the wing's mesh.</p>");
+                            QLabel *plabInfo = new QLabel("Use the actions below to modify the fuselage's mesh<br>"
+                                                          "and to connect it to the wing's mesh.");
                             QVBoxLayout *pCorrectLayout = new QVBoxLayout;
                             {
                                 QGridLayout *pModLayout = new QGridLayout;
                                 {
                                     QLabel *plabTrans = new QLabel("Node translation:");
                                     m_ppbMoveNode = new QPushButton("Move node");
-                                    QString tip = "<p>Use this option to move a fuselage node and to merge it with another."
-                                                     "Select first the source node to move, then the destination node.</p>";
+                                    QString tip = "<p>Use this option to move a fuselage node and to merge it with another. "
+                                                     "Select first the source node to move, then the destination node.</p<";
                                     m_ppbMoveNode->setToolTip(tip);
                                     m_ppbMoveNode->setCheckable(true);
 
@@ -1029,8 +1029,8 @@ void PlaneXflDlg::onInsertFuseXml()
     QFile XFile(PathName);
     if (!XFile.open(QIODevice::ReadOnly))
     {
-        QString strange =  "Could not open the file\n" +PathName;
-        QMessageBox::warning(this, "Warning", strange);
+        QString strange =  "<br><font color=red>Could not open the file:</font>" +PathName + "<br>";
+        m_ppto->appendHtmlText(strange);
         return;
     }
 
@@ -1040,9 +1040,11 @@ void PlaneXflDlg::onInsertFuseXml()
 
     if(fusereader.hasError())
     {
-        QString errorMsg = fusereader.errorString() + QString("\nline %1 column %2").arg(fusereader.lineNumber()).arg(fusereader.columnNumber());
-        QMessageBox::warning(this, "XML read", errorMsg, QMessageBox::Ok);
-        //        m_pBody->duplicate(&memBody);
+        QString errorMsg = "<br><font color=red>Error reading file</font><br>"+ fusereader.errorString() +
+                QString::asprintf(" at line %d column %d<br><br>", int(fusereader.lineNumber()), int(fusereader.columnNumber()));
+
+        m_ppto->appendHtmlText(errorMsg);
+
         return;
     }
 
@@ -1133,25 +1135,28 @@ void PlaneXflDlg::onInsertFuseOcc()
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     bool bImport = occ::importCADShapes(filename.toStdString(), pFuseOcc->shapes(), dimension, str);
-    updateStdOutput(str+"\n");
 
     if(!bImport)
     {
         delete pFuseOcc;
+
+        m_ppto->appendHtmlText("<font color=red>Error importing CAD file:</font> <br>"+QString::fromStdString(str)+"<br>");
+
         QApplication::restoreOverrideCursor();
         return;
     }
+    updateStdOutput(str+"\n");
 
     m_pPlaneXfl->addFuse(pFuseOcc);
 
-    m_ppto->appendPlainText("---Making shells from shapes-----\n");
+    m_ppto->appendPlainText("---Making shells from shapes-----\n\n");
 
     pFuseOcc->makeShellsFromShapes();
 
     if(pFuseOcc->shellCount()==0)
     {
-        QString strange  = "Imported SHAPE does not contain any SHELL: use the fuselage editor to fix the shapes.\n";
-        updateOutput(strange);
+        QString strange  = "<font color=red>Warning: </font>Imported SHAPE does not contain any SHELL: use the fuselage editor to fix the shapes.<br><br>";
+        m_ppto->appendHtmlText(strange);
     }
     else
     {
@@ -1429,8 +1434,37 @@ void PlaneXflDlg::onInsertSTLSphereFuse()
 
 void PlaneXflDlg::onInsertWingFromXml()
 {
-    WingXfl *pNewWing = importWingFromXML();
-    if(!pNewWing) return;
+    QString path_to_file;
+    path_to_file = QFileDialog::getOpenFileName(this,
+                                                QString("Open XML File"),
+                                                SaveOptions::xmlPlaneDirName(),
+                                                "Plane XML file (*.xml)");
+    QFile xmlfile(path_to_file);
+
+    if (!xmlfile.open(QIODevice::ReadOnly))
+    {
+        QString strange = "<br><font color=red>Could not open the file:</font>"+xmlfile.fileName()+"<br><br>";
+        m_ppto->appendHtmlText(strange);
+        return ;
+    }
+
+    XmlWingReader wingreader(xmlfile);
+    if(!wingreader.readXMLWingFile())
+    {
+        QString strong;
+        QString errorMsg;
+        errorMsg = "<br><font color=red>Failed to read the file "+xmlfile.fileName()+"</font><br>";
+        strong = QString::asprintf(" at line %d column %d", int(wingreader.lineNumber()), int(wingreader.columnNumber()));
+        errorMsg += wingreader.errorString() + strong +"<br>";
+        m_ppto->appendHtmlText(errorMsg);
+        return;
+    }
+
+    m_bChanged = true;
+
+    WingXfl *pNewWing = wingreader.wing();
+
+    if(!pNewWing) return;  //failsafe
 
     m_pPlaneXfl->addWing(pNewWing);
 
@@ -2067,9 +2101,9 @@ void PlaneXflDlg::onThinListClick()
             {
                 if(wing.isClosedInnerSide())
                 {
-                    QString strange = "<p><font color=red>Warning:</font> The wing <i>"+
+                    QString strange = "<font color=red>Warning:</font><i>"+
                              QString::fromStdString(wing.name()) +
-                            "</i> is one sided and closed at its inner section<br></p>";
+                            "</i> is one-sided and closed at its inner section<br>";
                     m_ppto->appendHtmlText(strange);
                 }
             }
@@ -2629,39 +2663,6 @@ void PlaneXflDlg::saveSettings(QSettings &settings)
     settings.endGroup();
 }
 
-
-WingXfl* PlaneXflDlg::importWingFromXML()
-{
-    QString path_to_file;
-    path_to_file = QFileDialog::getOpenFileName(this,
-                                                QString("Open XML File"),
-                                                SaveOptions::xmlPlaneDirName(),
-                                                "Plane XML file (*.xml)");
-    QFile xmlfile(path_to_file);
-
-    if (!xmlfile.open(QIODevice::ReadOnly))
-    {
-        QString strange = "Could not open the file\n"+xmlfile.fileName();
-        QMessageBox::warning(this, "Warning", strange);
-        return nullptr;
-    }
-
-    XmlWingReader wingreader(xmlfile);
-    if(!wingreader.readXMLWingFile())
-    {
-        QString strong;
-        QString errorMsg;
-        errorMsg = "Failed to read the file "+path_to_file+"\n";
-        strong = QString::asprintf("error on line %d column %d", int(wingreader.lineNumber()), int(wingreader.columnNumber()));
-        errorMsg += wingreader.errorString() + " at " + strong;
-        QMessageBox::warning(this, "XML read", errorMsg, QMessageBox::Ok);
-        return nullptr;
-    }
-
-    m_bChanged = true;
-
-    return wingreader.wing();
-}
 
 
 void PlaneXflDlg::onInsertFuseXfl()
@@ -3324,7 +3325,7 @@ void PlaneXflDlg::onInsertCADShape()
         if(!maker.IsDone() || maker.Shape().IsNull())
         {
             delete pFuseOcc;
-            m_ppto->onAppendQText("Error making cylinder");
+            m_ppto->appendHtmlText("<font color=red>Error making cylinder</font><br><br>");
             return;
         }
         pFuseOcc->appendShape(maker.Shape());
@@ -3341,7 +3342,7 @@ void PlaneXflDlg::onInsertCADShape()
         if(!maker.IsDone() || maker.Shape().IsNull())
         {
             delete pFuseOcc;
-            m_ppto->onAppendQText("Error making sphere");
+            m_ppto->appendHtmlText("<font color=red>Error making sphere</font><br><br>");
             return;
         }
         pFuseOcc->appendShape(maker.Shape());
@@ -3361,7 +3362,7 @@ void PlaneXflDlg::onInsertCADShape()
         if(!maker.IsDone() || maker.Shape().IsNull())
         {
             delete pFuseOcc;
-            m_ppto->onAppendQText("Error making box");
+            m_ppto->appendHtmlText("<font color=red>Error making box</font><br><br>");
             return;
         }
         pFuseOcc->appendShape(maker.Shape());

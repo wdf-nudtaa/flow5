@@ -1726,6 +1726,8 @@ void PlaneTask::computeInducedDrag(double alpha, double beta, double QInf)
 {
     Vector3d FFForceBodyAxes;
 
+    PanelAnalysis::clearDebugPts();
+
     if(m_pPlane->isXflType())
     {
         int nWings = m_pPlane->nWings();

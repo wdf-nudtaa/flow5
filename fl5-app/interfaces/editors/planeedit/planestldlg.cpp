@@ -83,29 +83,29 @@ void PlaneSTLDlg::setupLayout()
                     {
                         QGridLayout *pMetaLayout = new QGridLayout;
                         {
-                            QLabel *pLabArea = new QLabel("Ref. area:");
-                            QLabel *pLabSpan = new QLabel("Ref. span:");
-                            QLabel *pLabChord = new QLabel("Ref. chord:");
-                            m_pdeRefArea = new FloatEdit;
-                            m_pdeRefSpan = new FloatEdit;
-                            m_pdeRefChord = new FloatEdit;
-                            QLabel *pLabAreaUnit = new QLabel(Units::areaUnitQLabel());
-                            QLabel *pLabLen1 = new QLabel(Units::lengthUnitQLabel());
-                            QLabel *pLabLen2 = new QLabel(Units::lengthUnitQLabel());
+                            QLabel *plabArea = new QLabel("Ref. area:");
+                            QLabel *plabSpan = new QLabel("Ref. span:");
+                            QLabel *plabChord = new QLabel("Ref. chord:");
+                            m_pfeRefArea = new FloatEdit;
+                            m_pfeRefSpan = new FloatEdit;
+                            m_pfeRefChord = new FloatEdit;
+                            QLabel *plabAreaUnit = new QLabel(Units::areaUnitQLabel());
+                            QLabel *plabLen1 = new QLabel(Units::lengthUnitQLabel());
+                            QLabel *plabLen2 = new QLabel(Units::lengthUnitQLabel());
                             m_pcbColor = new ColorBtn;
 
                             pMetaLayout->addWidget(m_pleName,         2,1,1,2);
                             pMetaLayout->addWidget(m_pcbColor,        2,3);
                             pMetaLayout->addWidget(m_pleDescription,  3,1,1,3);
-                            pMetaLayout->addWidget(pLabArea,          4,1,Qt::AlignVCenter |Qt::AlignRight);
-                            pMetaLayout->addWidget(m_pdeRefArea,      4,2);
-                            pMetaLayout->addWidget(pLabAreaUnit,      4,3);
-                            pMetaLayout->addWidget(pLabChord,         5,1,Qt::AlignVCenter |Qt::AlignRight);
-                            pMetaLayout->addWidget(m_pdeRefChord,     5,2);
-                            pMetaLayout->addWidget(pLabLen1,          5,3);
-                            pMetaLayout->addWidget(pLabSpan,          6,1,Qt::AlignVCenter |Qt::AlignRight);
-                            pMetaLayout->addWidget(m_pdeRefSpan,      6,2);
-                            pMetaLayout->addWidget(pLabLen2,          6,3);
+                            pMetaLayout->addWidget(plabArea,          4,1,Qt::AlignVCenter |Qt::AlignRight);
+                            pMetaLayout->addWidget(m_pfeRefArea,      4,2);
+                            pMetaLayout->addWidget(plabAreaUnit,      4,3);
+                            pMetaLayout->addWidget(plabChord,         5,1,Qt::AlignVCenter |Qt::AlignRight);
+                            pMetaLayout->addWidget(m_pfeRefChord,     5,2);
+                            pMetaLayout->addWidget(plabLen1,          5,3);
+                            pMetaLayout->addWidget(plabSpan,          6,1,Qt::AlignVCenter |Qt::AlignRight);
+                            pMetaLayout->addWidget(m_pfeRefSpan,      6,2);
+                            pMetaLayout->addWidget(plabLen2,          6,3);
                         }
                         pMetaFrame->setLayout(pMetaLayout);
                     }
@@ -114,34 +114,34 @@ void PlaneSTLDlg::setupLayout()
                     {
                         QGridLayout *pTransformLayout = new QGridLayout;
                         {
-                            QLabel *pLabRotateUnit = new QLabel("<p>&deg;</p>");
+                            QLabel *plabRotateUnit = new QLabel("<p>&deg;</p>");
                             QLabel *plabLength4 = new QLabel(Units::lengthUnitQLabel());
 
-                            m_pdeRotate = new FloatEdit(90.0);
-                            m_pdeScale = new FloatEdit(1.0);
-                            m_pdeTranslate = new FloatEdit(0.0);
+                            m_pfeRotate     = new FloatEdit(90.0);
+                            m_pfeScale      = new FloatEdit(1.0);
+                            m_pfeTranslate  = new FloatEdit(0.0);
                             m_ppbTranslateX = new QPushButton("Translate X");
                             m_ppbTranslateY = new QPushButton("Translate Y");
                             m_ppbTranslateZ = new QPushButton("Translate Z");
-                            m_ppbRotateX = new QPushButton("Rotate X");
-                            m_ppbRotateY = new QPushButton("Rotate Y");
-                            m_ppbRotateZ = new QPushButton("Rotate Z");
-                            m_ppbScale = new QPushButton("Scale");
+                            m_ppbRotateX    = new QPushButton("Rotate X");
+                            m_ppbRotateY    = new QPushButton("Rotate Y");
+                            m_ppbRotateZ    = new QPushButton("Rotate Z");
+                            m_ppbScale      = new QPushButton("Scale");
 
                             pTransformLayout->addWidget(m_ppbRotateX,    2,1);
                             pTransformLayout->addWidget(m_ppbRotateY,    2,2);
                             pTransformLayout->addWidget(m_ppbRotateZ,    2,3);
-                            pTransformLayout->addWidget(m_pdeRotate,     2,4);
-                            pTransformLayout->addWidget(pLabRotateUnit,  2,5);
+                            pTransformLayout->addWidget(m_pfeRotate,     2,4);
+                            pTransformLayout->addWidget(plabRotateUnit,  2,5);
 
                             pTransformLayout->addWidget(m_ppbTranslateX, 3,1);
                             pTransformLayout->addWidget(m_ppbTranslateY, 3,2);
                             pTransformLayout->addWidget(m_ppbTranslateZ, 3,3);
-                            pTransformLayout->addWidget(m_pdeTranslate,  3,4);
+                            pTransformLayout->addWidget(m_pfeTranslate,  3,4);
                             pTransformLayout->addWidget(plabLength4,     3,5);
 
                             pTransformLayout->addWidget(m_ppbScale,      4,3);
-                            pTransformLayout->addWidget(m_pdeScale,      4,4);
+                            pTransformLayout->addWidget(m_pfeScale,      4,4);
 
                             pTransformLayout->setRowStretch(             5,1);
                         }
@@ -177,9 +177,9 @@ void PlaneSTLDlg::setupLayout()
                                     }
 
 
-                                    QLabel *pMaxTELab = new QLabel("Max. T.E. angle for guesses:");
+                                    QLabel *plabMaxTE = new QLabel("Max. T.E. angle for guesses:");
                                     m_ppbGuessTE = new QPushButton("Guess T.E.");
-                                    m_pdeTEAngle = new FloatEdit(s_TEMaxAngle);
+                                    m_pfeTEAngle = new FloatEdit(s_TEMaxAngle);
                                     QLabel *plabDegree = new QLabel("<p>&deg;</p>");
 
                                     m_ppbTopTEPanels = new QPushButton("Top panels");
@@ -192,8 +192,8 @@ void PlaneSTLDlg::setupLayout()
                                     m_ppbCheckTE = new QPushButton("Check T.E.");
 
                                     pTEBoxLayout->addWidget(ppbMesh,           1, 1);
-                                    pTEBoxLayout->addWidget(pMaxTELab,         2, 1);
-                                    pTEBoxLayout->addWidget(m_pdeTEAngle,      2, 2);
+                                    pTEBoxLayout->addWidget(plabMaxTE,         2, 1);
+                                    pTEBoxLayout->addWidget(m_pfeTEAngle,      2, 2);
                                     pTEBoxLayout->addWidget(plabDegree,        2, 3);
 
                                     pTEBoxLayout->addWidget(new QLabel("Automatic detection:"),3,1);
@@ -348,7 +348,9 @@ bool PlaneSTLDlg::deselectButtons()
     m_ppbTopTEPanels->setChecked(false);
     gl3dPlaneSTLView *pglPlaneSTLView = dynamic_cast<gl3dPlaneSTLView*>(m_pglPlaneView);
     pglPlaneSTLView->selectPanels(false);
-    pglPlaneSTLView->stopPicking();
+
+    if(!m_pglControls->isHighlighting())
+        pglPlaneSTLView->stopPicking();
     return bChecked;
 }
 
@@ -369,9 +371,9 @@ void PlaneSTLDlg::connectSignals()
 {
     connectBaseSignals();
 
-    connect(m_pdeRefArea,     SIGNAL(floatChanged(float)),    SLOT(onReferenceDims()));
-    connect(m_pdeRefChord,    SIGNAL(floatChanged(float)),    SLOT(onReferenceDims()));
-    connect(m_pdeRefSpan,     SIGNAL(floatChanged(float)),    SLOT(onReferenceDims()));
+    connect(m_pfeRefArea,     SIGNAL(floatChanged(float)),    SLOT(onReferenceDims()));
+    connect(m_pfeRefChord,    SIGNAL(floatChanged(float)),    SLOT(onReferenceDims()));
+    connect(m_pfeRefSpan,     SIGNAL(floatChanged(float)),    SLOT(onReferenceDims()));
 
     connect(m_ppbTranslateX,  SIGNAL(clicked(bool)),     SLOT(onTranslate()));
     connect(m_ppbTranslateY,  SIGNAL(clicked(bool)),     SLOT(onTranslate()));
@@ -414,9 +416,9 @@ void PlaneSTLDlg::initDialog(Plane *pPlane, bool bAcceptName)
     m_pglPlaneView->reset3dScale();
     m_pglPlaneView->update();
 
-    m_pdeRefChord->setValue(m_pPlaneSTL->refChord()*Units::mtoUnit());
-    m_pdeRefSpan->setValue(m_pPlaneSTL->refSpan()*Units::mtoUnit());
-    m_pdeRefArea->setValue(m_pPlaneSTL->refArea()*Units::m2toUnit());
+    m_pfeRefChord->setValue(m_pPlaneSTL->refChord()*Units::mtoUnit());
+    m_pfeRefSpan->setValue(m_pPlaneSTL->refSpan()*Units::mtoUnit());
+    m_pfeRefArea->setValue(m_pPlaneSTL->refArea()*Units::m2toUnit());
 
     onUpdatePlaneProps();
     setControls();
@@ -439,7 +441,7 @@ void PlaneSTLDlg::hideEvent(QHideEvent *pEvent)
     s_STLGeometry = saveGeometry();
     s_VSplitterSizes  = m_pVSplitter->saveState();
 
-    s_TEMaxAngle = m_pdeTEAngle->value();
+    s_TEMaxAngle = m_pfeTEAngle->value();
     s_bGuessOpposite = m_pchGuessOpposite->isChecked();
 }
 
@@ -487,9 +489,9 @@ void PlaneSTLDlg::onInitializePlane()
 
 void PlaneSTLDlg::onOK(int iExitCode)
 {
-    double chord = m_pdeRefChord->value()/Units::mtoUnit();
-    double span = m_pdeRefSpan->value()/Units::mtoUnit();
-    double area = m_pdeRefArea->value()/Units::m2toUnit();
+    double chord = m_pfeRefChord->value()/Units::mtoUnit();
+    double span = m_pfeRefSpan->value()/Units::mtoUnit();
+    double area = m_pfeRefArea->value()/Units::m2toUnit();
 
     if(fabs(chord)<1.0e-4 || fabs(span)<1.0e-4 || fabs(area)<1.e-6)
     {
@@ -533,7 +535,7 @@ void PlaneSTLDlg::onScale()
 {
     deselectButtons();
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    double scalefactor = m_pdeScale->value();
+    double scalefactor = m_pfeScale->value();
     m_pPlaneSTL->scale(scalefactor);
 
     m_pPlaneSTL->computeSurfaceProperties();
@@ -549,7 +551,7 @@ void PlaneSTLDlg::onTranslate()
 {
     deselectButtons();
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    double t = m_pdeTranslate->value()/Units::mtoUnit();
+    double t = m_pfeTranslate->value()/Units::mtoUnit();
     QPushButton *pButton = static_cast<QPushButton *>(sender());
     Vector3d trans;
     if     (pButton==m_ppbTranslateX) trans.set(t,0.0,0.0);
@@ -570,7 +572,7 @@ void PlaneSTLDlg::onRotate()
 {
     deselectButtons();
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    double r = m_pdeRotate->value();
+    double r = m_pfeRotate->value();
     QPushButton *pButton = static_cast<QPushButton *>(sender());
     Vector3d O, axis;
     if      (pButton==m_ppbRotateX) axis.set(1.0,0.0,0.0);
@@ -604,9 +606,9 @@ void PlaneSTLDlg::onFlipNormals()
 
 void PlaneSTLDlg::onReferenceDims()
 {
-    m_pPlaneSTL->setRefArea(m_pdeRefArea->value()/Units::m2toUnit());
-    m_pPlaneSTL->setRefChord(m_pdeRefChord->value()/Units::mtoUnit());
-    m_pPlaneSTL->setRefSpan(m_pdeRefSpan->value()/Units::mtoUnit());
+    m_pPlaneSTL->setRefArea(m_pfeRefArea->value()/Units::m2toUnit());
+    m_pPlaneSTL->setRefChord(m_pfeRefChord->value()/Units::mtoUnit());
+    m_pPlaneSTL->setRefSpan(m_pfeRefSpan->value()/Units::mtoUnit());
 
     onUpdatePlaneProps();
     m_bChanged = true;
@@ -675,7 +677,7 @@ void PlaneSTLDlg::onBotTEPanels()
 void PlaneSTLDlg::onPanelSelected(int i3)
 {
     if(i3<0 || i3>=m_pPlaneSTL->refTriMesh().nPanels()) return;
-    s_TEMaxAngle = m_pdeTEAngle->value();
+    s_TEMaxAngle = m_pfeTEAngle->value();
     s_bGuessOpposite = m_pchGuessOpposite->isChecked();
     double ccrit = cos((180.0-s_TEMaxAngle)*PI/180.0);
 
@@ -757,7 +759,7 @@ void PlaneSTLDlg::onGuessTEPanels()
     }
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    s_TEMaxAngle = m_pdeTEAngle->value();
+    s_TEMaxAngle = m_pfeTEAngle->value();
     double ccrit = cos((180.0-s_TEMaxAngle)*PI/180.0);
 
     int iTE=0;
@@ -774,6 +776,7 @@ void PlaneSTLDlg::onGuessTEPanels()
     for(int i3t=0; i3t<m_pPlaneSTL->refTriMesh().nPanels(); i3t++)
     {
         Panel3 &p3t = m_pPlaneSTL->refTriMesh().panel(i3t);
+
         for(int i3b=0; i3b<p3t.neighbourCount(); i3b++)
         {
             int idx = p3t.neighbour(i3b);
@@ -822,7 +825,16 @@ void PlaneSTLDlg::onGuessTEPanels()
         }
     }
 
+    std::vector<int> errorlist;
+    m_pPlaneSTL->refTriMesh().connectTrailingEdges(errorlist); // re-orders vertices
+
     m_ppto->onAppendQText(QString::asprintf("Found %d pairs of TE panels.\n", iTE));
+    QString strange;
+    for(int idx : errorlist)
+    {
+        strange = QString::asprintf("   TE error at index = %d\n", idx);
+        m_ppto->onAppendQText(strange);
+    }
 
     m_pglPlaneView->resetgl3dMesh();
     m_pglPlaneView->update();
@@ -953,6 +965,8 @@ void PlaneSTLDlg::onPickedNodePair(QPair<int, int> nodepair)
 
     m_pglPlaneView->resetPickedNodes();
     m_pglPlaneView->update();
+
+    m_bChanged = true;
 }
 
 

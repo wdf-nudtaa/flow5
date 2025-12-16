@@ -263,7 +263,7 @@ void gl3dXPlaneView::setPlane(Plane const *pPlane)
 void gl3dXPlaneView::glRenderPanelBasedBuffers()
 {
     Plane    const *pPlane    = s_pXPlane->curPlane();
-    PlanePolar   const *pWPolar   = s_pXPlane->curPlPolar();
+    PlanePolar   const *pPlPolar   = s_pXPlane->curPlPolar();
     PlaneOpp const *pPOpp     = s_pXPlane->curPOpp();
 
     bool bBackGround = !m_bSurfaces;
@@ -301,9 +301,9 @@ void gl3dXPlaneView::glRenderPanelBasedBuffers()
         }
     }
 
-    if(m_bMeshPanels && pWPolar)
+    if(m_bMeshPanels && pPlPolar)
     {
-        if(pPlane->isXflType() && pWPolar->isQuadMethod())
+        if(pPlane->isXflType() && pPlPolar->isQuadMethod())
         {
             PlaneXfl const *pPlaneXfl = dynamic_cast<PlaneXfl const*>(s_pXPlane->curPlane());
 
@@ -312,21 +312,21 @@ void gl3dXPlaneView::glRenderPanelBasedBuffers()
 
             if(m_bPanelNormals)
                 paintNormals(m_pglXPlaneBuffers->m_vboPanelNormals);
-            if(pWPolar->isVLM() && m_bVortices)
+            if(pPlPolar->isVLM() && m_bVortices)
             {
                 paintSegments(m_pglXPlaneBuffers->m_vboVortices, QColor(25, 195,135), 3.0f, Line::SOLID, false);
                 for(uint i4=0; i4<pPlaneXfl->quadpanels().size(); i4++)
                 {
-                    Vector3d const &p = pPlaneXfl->panel4(i4).ctrlPt(pWPolar->isVLM());
+                    Vector3d const &p = pPlaneXfl->panel4(i4).ctrlPt(pPlPolar->isVLM());
                     paintCube(p.x, p.y, p.z, 0.015/m_glScalef, QColor(25, 195,135), true);
                 }
             }
         }
-        else if(pWPolar->isTriangleMethod())
+        else if(pPlPolar->isTriangleMethod())
         {
             if(bBackGround)
             {
-                bool bFrontAndBack = pWPolar && pWPolar->bThinSurfaces();
+                bool bFrontAndBack = pPlPolar && pPlPolar->bThinSurfaces();
                 paintTriPanels(m_pglXPlaneBuffers->m_vboMesh, bFrontAndBack);
             }
             paintSegments(m_pglXPlaneBuffers->m_vboMeshEdges, W3dPrefs::s_PanelStyle);
@@ -354,19 +354,34 @@ void gl3dXPlaneView::glRenderPanelBasedBuffers()
 
     if(m_pPOpp3dControls->m_bWakePanels)
     {
-        if(pWPolar && pWPolar->isType6())
-//        if(pWPolar)
+        if(pPlPolar)
         {
-            // wake panels should be aligned with the x-axis for other polar types
-            if(pWPolar->isQuadMethod())
+            if(pPlPolar->isLinearPolar()/* && !pPOpp*/)
             {
-                paintTriPanels(m_pglXPlaneBuffers->m_vboWakePanels, true);
-                paintSegments(m_pglXPlaneBuffers->m_vboWakeEdges, W3dPrefs::s_PanelStyle);
+                if(pPlPolar->isQuadMethod())
+                {
+                    paintTriPanels(m_pglXPlaneBuffers->m_vboWakePanels, true);
+                    paintSegments(m_pglXPlaneBuffers->m_vboWakeEdges, W3dPrefs::s_PanelStyle);
+                }
+                else if(pPlPolar->isTriangleMethod())
+                {
+                    paintTriPanels(m_pglXPlaneBuffers->m_vboWakePanels, true);
+                    paintSegments(m_pglXPlaneBuffers->m_vboWakeEdges, W3dPrefs::s_PanelStyle);
+                }
             }
-            else if(pWPolar->isTriangleMethod())
+            else if(pPlPolar->isType6())
             {
-                paintTriPanels(m_pglXPlaneBuffers->m_vboWakePanels, true);
-                paintSegments(m_pglXPlaneBuffers->m_vboWakeEdges, W3dPrefs::s_PanelStyle);
+                // wake panels should be aligned with the x-axis for other polar types
+                if(pPlPolar->isQuadMethod())
+                {
+                    paintTriPanels(m_pglXPlaneBuffers->m_vboWakePanels, true);
+                    paintSegments(m_pglXPlaneBuffers->m_vboWakeEdges, W3dPrefs::s_PanelStyle);
+                }
+                else if(pPlPolar->isTriangleMethod())
+                {
+                    paintTriPanels(m_pglXPlaneBuffers->m_vboWakePanels, true);
+                    paintSegments(m_pglXPlaneBuffers->m_vboWakeEdges, W3dPrefs::s_PanelStyle);
+                }
             }
         }
     }
@@ -403,13 +418,13 @@ void gl3dXPlaneView::glRenderPanelBasedBuffers()
 
     if(isPicking() && m_PickedPanelIndex>=0)
     {
-        if(pWPolar && pWPolar->isTriangleMethod())
+        if(pPlPolar && pPlPolar->isTriangleMethod())
         {
-            if(pWPolar->isTriUniformMethod())
+            if(pPlPolar->isTriUniformMethod())
             {
                 paintTriangle(m_vboTriangle, true, false, Qt::black);
             }
-            else if (pWPolar->isTriLinearMethod())
+            else if (pPlPolar->isTriLinearMethod())
             {
                 if(pPOpp && (m_pPOpp3dControls->m_b3dCp || m_pPOpp3dControls->m_bGamma || m_pPOpp3dControls->m_bPanelForce))
                     paintSphere(m_PickedPoint, 0.0075/double(m_glScalef), Qt::red, true);
@@ -426,13 +441,13 @@ void gl3dXPlaneView::glRenderPanelBasedBuffers()
             else if(pPOpp->isTriLinearMethod())  strong = QString::asprintf("N%d: %g", m_PickedNodeIndex,  m_PickedVal);
             else if(pPOpp->isQuadMethod())       strong = QString::asprintf("Q%d: %g", m_PickedPanelIndex, m_PickedVal);
         }
-        else if(pWPolar)
+        else if(pPlPolar)
         {
-            if(pWPolar->isTriangleMethod())  strong = QString::asprintf("T%d", m_PickedPanelIndex);
+            if(pPlPolar->isTriangleMethod())  strong = QString::asprintf("T%d", m_PickedPanelIndex);
             //            else if(pWPolar->isTriLinearMethod()) strong = QString::asprintf("N%d", m_PickedIndex);
-            else if(pWPolar->isQuadMethod()) strong = QString::asprintf("Q%d", m_PickedPanelIndex);
+            else if(pPlPolar->isQuadMethod()) strong = QString::asprintf("Q%d", m_PickedPanelIndex);
         }
-        if(pWPolar || pPOpp)
+        if(pPlPolar || pPOpp)
             glRenderText(m_PickedPoint.x+0.03/double(m_glScalef), m_PickedPoint.y+0.03/double(m_glScalef), m_PickedPoint.z+0.03/double(m_glScalef),
                          strong, DisplayOptions::textColor(), true);
     }
@@ -688,35 +703,6 @@ void gl3dXPlaneView::glRenderView()
     vmMat = m_matView*m_matModel;
     pvmMat = m_matProj*vmMat;
 
-#ifdef QT_DEBUG
-    m_shadSurf.bind();
-    {
-        m_shadSurf.setUniformValue(m_locSurf.m_vmMatrix,  vmMat);
-        m_shadSurf.setUniformValue(m_locSurf.m_pvmMatrix, pvmMat);
-    }
-    m_shadSurf.release();
-
-    for(uint i=0; i<PanelAnalysis::s_DebugPts.size(); i++)
-        paintIcosahedron(PanelAnalysis::s_DebugPts.at(i), 0.0075/m_glScalef, Qt::darkCyan, W3dPrefs::s_OutlineStyle, true, true);
-
-    for(uint i=0; i<PanelAnalysis::s_DebugVecs.size(); i++)
-    {
-        if(i<PanelAnalysis::s_DebugPts.size())
-            paintThinArrow(PanelAnalysis::s_DebugPts.at(i), PanelAnalysis::s_DebugVecs.at(i)*gl3dXflView::s_VelocityScale,
-                           QColor(135,195,95).darker(), 2, Line::SOLID, m_matModel);
-    }
-
-    for(uint i=0; i<Surface::s_DebugPts.size(); i++)
-        paintIcosahedron(Surface::s_DebugPts.at(i), 0.0075/m_glScalef, Qt::darkRed, W3dPrefs::s_OutlineStyle, true, true);
-    for(uint i=0; i<Surface::s_DebugVecs.size(); i++)
-    {
-        if(i<Surface::s_DebugPts.size())
-            paintThinArrow(Surface::s_DebugPts.at(i), Surface::s_DebugVecs.at(i)*gl3dXflView::s_VelocityScale,
-                           QColor(135,195,95).darker(), 2, Line::SOLID, m_matModel);
-    }
-    for(uint i=0; i<TriMesh::s_DebugPts.size(); i++)
-        paintIcosahedron(TriMesh::s_DebugPts.at(i), 0.0075/m_glScalef, Qt::darkYellow, W3dPrefs::s_OutlineStyle, true, true);
-#endif
 
     glRenderGeometryBasedBuffers();
 
@@ -781,6 +767,43 @@ void gl3dXPlaneView::glRenderView()
     m_stackInterval.pop_front();
 #endif
 */
+
+    m_matModel.setToIdentity();
+#ifdef QT_DEBUG
+    m_shadSurf.bind();
+    {
+        m_shadSurf.setUniformValue(m_locSurf.m_vmMatrix,  m_matView);
+        m_shadSurf.setUniformValue(m_locSurf.m_pvmMatrix, m_matProj*m_matView);
+    }
+    m_shadSurf.release();
+    m_shadLine.bind();
+    {
+        m_shadLine.setUniformValue(m_locLine.m_vmMatrix,  m_matView);
+        m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, m_matProj*m_matView);
+    }
+    m_shadLine.release();
+
+    for(uint i=0; i<PanelAnalysis::s_DebugPts.size(); i++)
+        paintIcosahedron(PanelAnalysis::s_DebugPts.at(i), 0.0075/m_glScalef, Qt::darkCyan, W3dPrefs::s_OutlineStyle, true, true);
+
+    for(uint i=0; i<PanelAnalysis::s_DebugVecs.size(); i++)
+    {
+        if(i<PanelAnalysis::s_DebugPts.size())
+            paintThinArrow(PanelAnalysis::s_DebugPts.at(i), PanelAnalysis::s_DebugVecs.at(i)*gl3dXflView::s_VelocityScale,
+                           QColor(135,195,95).darker(), 2, Line::SOLID, m_matModel);
+    }
+
+    for(uint i=0; i<Surface::s_DebugPts.size(); i++)
+        paintIcosahedron(Surface::s_DebugPts.at(i), 0.0075/m_glScalef, Qt::darkRed, W3dPrefs::s_OutlineStyle, true, true);
+    for(uint i=0; i<Surface::s_DebugVecs.size(); i++)
+    {
+        if(i<Surface::s_DebugPts.size())
+            paintThinArrow(Surface::s_DebugPts.at(i), Surface::s_DebugVecs.at(i)*gl3dXflView::s_VelocityScale,
+                           QColor(135,195,95).darker(), 2, Line::SOLID, m_matModel);
+    }
+    for(uint i=0; i<TriMesh::s_DebugPts.size(); i++)
+        paintIcosahedron(TriMesh::s_DebugPts.at(i), 0.0075/m_glScalef, Qt::darkYellow, W3dPrefs::s_OutlineStyle, true, true);
+#endif
 }
 
 

@@ -284,6 +284,8 @@ void PlaneDlg::onConnectPanels()
         QString log(" ... done\n\n");
         updateOutput(log);
     }
+
+    m_bChanged = true;
     QApplication::restoreOverrideCursor();
 }
 

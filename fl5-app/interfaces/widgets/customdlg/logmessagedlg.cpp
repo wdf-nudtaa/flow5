@@ -32,7 +32,7 @@
 
 #include "logmessagedlg.h"
 
-#include <interfaces/widgets/customwts/plaintextoutput.h>
+#include <interfaces/widgets/customwts/formattextoutput.h>
 
 
 LogMessageDlg::LogMessageDlg(QWidget *pParent) : QWidget(pParent)
@@ -100,7 +100,7 @@ void LogMessageDlg::setupLayout()
 
     QVBoxLayout * pMainLayout = new QVBoxLayout(this);
     {
-        m_ppto = new PlainTextOutput;
+        m_ppto = new FormatTextOutput;
         m_ppto->setReadOnly(true);
 //        m_ppto->setLineWrapMode(QPlainTextEdit::NoWrap);
 //        m_ppto->setWordWrapMode(QTextOption::NoWrap);
@@ -127,7 +127,7 @@ void LogMessageDlg::setOutputFont(QFont const &fnt)
 }
 
 
-void LogMessageDlg::onAppendMessage(QString const &msg)
+void LogMessageDlg::onAppendPlainText(QString const &msg)
 {
     m_ppto->onAppendQText(msg);
     m_ppto->viewport()->update();
@@ -135,5 +135,13 @@ void LogMessageDlg::onAppendMessage(QString const &msg)
     update();
 }
 
+
+void LogMessageDlg::onAppendHtmlText(QString const &msg)
+{
+    m_ppto->appendHtmlText(msg);
+    m_ppto->viewport()->update();
+    m_ppto->update();
+    update();
+}
 
 

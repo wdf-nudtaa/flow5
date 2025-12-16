@@ -123,6 +123,7 @@ class FL5LIB_EXPORT PanelAnalysis
         void getVortonRowVelocity(int iRow, Vector3d const &C, double vtncorelength, Vector3d *VelVtn) const;
         void getVortonVelocityGradient(Vector3d const &C, double *G) const;
 
+
         virtual void testResults(double alpha, double beta, double QInf) const = 0;
 
         static void setMultiThread(bool bMulti) {s_bMultiThread=bMulti;}

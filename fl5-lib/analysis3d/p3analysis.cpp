@@ -800,6 +800,8 @@ void P3Analysis::trefftzDrag(int nPanel3, double QInf, double alpha, double beta
     double const *mu3    = m_Mu.data();
     double const *sigma3 = m_Sigma.data();
 
+    clearDebugPts();
+
     // Note: parallelization fails, incompatibility with std::vectors of SpanDistribs
     int m=0;
     for(int i3=0; i3<nPanel3; i3++)
@@ -829,8 +831,8 @@ void P3Analysis::trefftzDrag(int nPanel3, double QInf, double alpha, double beta
             Wg_m *= 0.5;
 //            Wg_r *= 0.5;
 
-//s_DebugPts.push_back(mid);
-//s_DebugVecs.push_back(Wg_m);
+s_DebugPts.push_back(mid);
+s_DebugVecs.push_back(Wg_m);
 
 
             if(p3.isMidPanel())
@@ -873,8 +875,11 @@ void P3Analysis::trefftzDrag(int nPanel3, double QInf, double alpha, double beta
             SpanResFF.m_Ai[m]  = atan2(Wg_m.dot(surfacenormal), QInf)*180.0/PI;
             SpanResFF.m_ICd[m] = StripForce.dot(winddir) /SpanResFF.stripArea(m);
 
-//            qDebug("Cdi[%2d]  %11f  %11f", m, SpanResFF.m_ICd[m], SpanResFF.m_Ai[m]);
+#ifdef QT_DEBUG
+//qDebug("Wg[%d]  %11g  %11g  %11g", m, SpanResFF.m_Vd[m].x, SpanResFF.m_Vd[m].y, SpanResFF.m_Vd[m].z);
+//qDebug("Wg[%d]  %11g  %11g", m, p3.trailingVortex().norm(), Wg_m.norm());
 
+#endif
             m++;
         }
     }

@@ -2360,7 +2360,7 @@ void gl3dView::paintThinArrow(Vector3d const &origin, const Vector3d& arrow,
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
     float length = arrow.normf();
-    if(fabsf(length)<1.0e-6f) return; // zero length arrow to draw
+    if(fabsf(length)<LENGTHPRECISION) return; // zero length arrow to draw
 
     QVector3D N(0,0,1);// this is the vector used to define m_vboArrow
     QVector3D A(arrow.xf(), arrow.yf(), arrow.zf());

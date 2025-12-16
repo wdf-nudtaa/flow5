@@ -610,7 +610,7 @@ void CrossFlowCtrls::makeVorticityRow(int irow, double x, double z, Opp3d const 
             for(uint jc=0; jc<pOpp3d->m_Vorton.at(ir).size(); jc++)
             {
                 Vorton const &vtn = pOpp3d->m_Vorton.at(ir).at(jc);
-                vtn.vorticity(pt, omp);
+                omp = vtn.vorticity(pt);
                 omega += omp;
             }
         }

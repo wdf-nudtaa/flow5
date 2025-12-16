@@ -115,10 +115,14 @@ void Vorton::velocityGradient(Vector3d const &R, double CoreSize, double *G) con
     G[7] = -alpha.x/r3 + 3*z/r5*(z*alpha.x-x*alpha.z);  //  dVy/dz
     G[8] =       0     + 3*z/r5*(x*alpha.y-y*alpha.x);  //  dVz/dz
 
-    double lambda = r/CoreSize;
-    double f = mollifiedInt(lambda);
+    double f = 1.0;
+    if(s_bMollify)
+    {
+        double lambda = r/CoreSize;
+        f = mollifiedInt(lambda);
+    }
 //qDebug("core=%13g, r=%13g f=%13g",s_CoreSize,r,f);
-    if(!s_bMollify) f=1.0;
+
     for(int i=0; i<9; i++) G[i] *= 1.0/4.0/PI*f;
 }
 
@@ -131,10 +135,10 @@ double Vorton::zeta(double lambda) const
 }
 
 
-void Vorton::vorticity(Vector3d const &pos, Vector3d &omega) const
+Vector3d Vorton::vorticity(Vector3d const &pos) const
 {
     double r = (pos-m_Position).norm();
-    omega = m_Omega * zeta(r);
+    return m_Omega * zeta(r);
 }
 
 

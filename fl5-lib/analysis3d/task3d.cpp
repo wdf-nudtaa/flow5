@@ -169,10 +169,6 @@ void Task3d::advectVortons(double alpha, double beta, double QInf, int qrhs)
     tmp_VInf = objects::windDirection(alpha, beta)*QInf;
     tmp_vortonwakelength = m_pPolar3d->VPWMaxLength()*m_pPolar3d->referenceChordLength();
 
-/*    double domx=0, domy=0, domz=0;
-    double G[9];
-    memset(G, 0, 9*sizeof(double));
-    Vector3d omega;*/
 
     if(PanelAnalysis::s_bMultiThread)
     {
@@ -180,7 +176,6 @@ void Task3d::advectVortons(double alpha, double beta, double QInf, int qrhs)
 
         for(uint irow=0; irow<newvortons.size(); irow++)
         {
-//            futureSync.addFuture(QtConcurrent::run(&Task3d::advectVortonRow, this, &newvortons[irow]));
             threads.push_back(std::thread(&Task3d::advectVortonRow, this, &newvortons[irow]));
         }
 
@@ -208,7 +203,7 @@ void Task3d::advectVortons(double alpha, double beta, double QInf, int qrhs)
 
 void Task3d::advectVortonRow(std::vector<Vorton> *thisrow)
 {
-    Vector3d VT1, VT2, trans, P1;
+    Vector3d VT1, VT2, translation, P1;
 
     for(uint iv=0; iv<thisrow->size(); iv++)
     {
@@ -220,12 +215,12 @@ void Task3d::advectVortonRow(std::vector<Vorton> *thisrow)
 
             //RK2
             if(m_pPA)  m_pPA->getVelocityVector(P0, tmp_Mu, tmp_Sigma, VT1, Vortex::coreRadius(), false, false);
-            trans.set((tmp_VInf + VT1)*tmp_dt);
-            P1.set(P0 + trans*tmp_dt/2.0);
+            translation.set((tmp_VInf + VT1)*tmp_dt);
+            P1.set(P0 + translation*tmp_dt/2.0);
 
             if(m_pPA)  m_pPA->getVelocityVector(P1, tmp_Mu, tmp_Sigma, VT2, Vortex::coreRadius(), false, false);
-            trans.set((tmp_VInf+VT2)*tmp_dt);
-            vtn.translate(trans);
+            translation.set((tmp_VInf+VT2)*tmp_dt);
+            vtn.translate(translation);
 
             if(vtn.position().norm()>tmp_vortonwakelength)
                 vtn.setActive(false);

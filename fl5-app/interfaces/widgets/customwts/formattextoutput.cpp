@@ -182,12 +182,10 @@ void FormatTextOutput::onAppendQText(QString const &sometext)
 }
 
 
+// For compatibility with PlainTextOutput
 void FormatTextOutput::appendPlainText(QString const &sometext)
 {
-    moveCursor(QTextCursor::End);
-    insertPlainText(sometext);
-    moveCursor(QTextCursor::End);
-    ensureCursorVisible();
+    onAppendQText(sometext);
 }
 
 

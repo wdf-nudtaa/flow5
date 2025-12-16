@@ -2251,20 +2251,30 @@ void gl::makeVortons_spheres(std::vector<std::vector<Vorton>> const &Vortons, QO
 
 
 /** For instance rendering*/
-void gl::makeVortons(std::vector<std::vector<Vorton>> const & vortons, QOpenGLBuffer &vbo)
+void gl::makeVortons(std::vector<std::vector<Vorton>> const &vortons, QOpenGLBuffer &vbo)
 {
     if(!vortons.size() || !vortons.front().size())
     {
         vbo.destroy();
         return;
     }
-    int nVortons = int(vortons.size()*vortons.front().size());
+
+    bool bMidRowOnly = false;
+    int nVortons = 0;
+    if(bMidRowOnly) nVortons = int(vortons.front().size());
+    else            nVortons = int(vortons.size()*vortons.front().size());
     int buffersize = nVortons*3;
+
     QVector<float> pts(buffersize);
     int iv =0;
     for(uint i=0; i<vortons.size(); i++)
     {
         std::vector<Vorton> const& vortonrow = vortons.at(i);
+        if(bMidRowOnly)
+        {
+            if(i!=vortons.size()/2) continue;
+        }
+
         for(uint j=0; j<vortonrow.size(); j++)
         {
             Vorton const &vorton = vortonrow.at(j);

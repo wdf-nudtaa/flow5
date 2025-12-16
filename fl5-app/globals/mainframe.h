@@ -96,6 +96,7 @@ class MainFrame : public QMainWindow
 
 
         void displayMessage(QString const & msg, bool bShowWindow, bool bStatusBar=true, int duration=5000);
+        void displayHtmlMessage(QString const & msg, bool bShowWindow);
         void setSavedState(bool bSaved);
         void testOpenGL();
 

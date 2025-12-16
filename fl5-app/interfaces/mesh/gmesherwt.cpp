@@ -87,7 +87,7 @@ GMesherWt::GMesherWt(QWidget *pParent) : QFrame{pParent}
     m_pWorker->moveToThread(&m_MeshThread);
     connect(&m_MeshThread, &QThread::finished,          m_pWorker,  &QObject::deleteLater);
     connect(this,          &GMesherWt::meshCurrent,     m_pWorker,  &GMesher::onMeshCurrentModel);
-    connect(m_pWorker,     &GMesher::displayMessage,    m_pptoGmsh, &PlainTextOutput::onAppendQText, Qt::BlockingQueuedConnection);
+    connect(m_pWorker,     &GMesher::displayMessage,    m_ppto, &PlainTextOutput::onAppendQText, Qt::BlockingQueuedConnection);
     connect(m_pWorker,     &GMesher::meshDone,          this,       &GMesherWt::onHandleMeshResults);
 
     m_MeshThread.start();
@@ -99,8 +99,8 @@ GMesherWt::GMesherWt(QWidget *pParent) : QFrame{pParent}
 
     std::string list;
     gmesh::listMainOptions(list);
-    m_pptoGmsh->onAppendStdText(list);
-    m_pptoGmsh->appendEOL();
+    m_ppto->onAppendStdText(list);
+    m_ppto->appendEOL();
 }
 
 
@@ -215,11 +215,11 @@ void GMesherWt::setupLayout()
         }
 
         QLabel *plabGmshOutput = new QLabel("Gmsh:");
-        m_pptoGmsh = new PlainTextOutput;
+        m_ppto = new PlainTextOutput;
 
         pMainLayout->addLayout(pMeshOptionLayout);
         pMainLayout->addWidget(plabGmshOutput);
-        pMainLayout->addWidget(m_pptoGmsh);
+        pMainLayout->addWidget(m_ppto);
     }
     setLayout(pMainLayout);
 }
@@ -340,7 +340,7 @@ void GMesherWt::onCheckLogger()
 
     for(uint i=m_iLoggerStack; i<log.size(); i++)
     {
-        m_pptoGmsh->onAppendQText(QString::fromStdString(log.at(i))+EOLch);
+        m_ppto->onAppendQText(QString::fromStdString(log.at(i))+EOLch);
     }
 
     m_iLoggerStack = int(log.size());
@@ -916,7 +916,7 @@ void GMesherWt::meshFuseShellsThickSurfaces()
             }
 
             gmsh::vectorpair surfDimTags;
-//            gmsh::model::occ::addThruSections(wiretags, surfDimTags, -1, true, true, -1, "C0");
+//            gmsh::model::occ::addThruSections(wiretags, surfDimTags, -1, true, true, -1, "C1", "ChordLength", true);
             gmsh::model::occ::addThruSections(wiretags, surfDimTags, -1, true, true);
 
             for(std::pair<int,int> pair : surfDimTags)
@@ -963,6 +963,8 @@ void GMesherWt::meshFuseShellsThickSurfaces()
 void GMesherWt::onMesh()
 {
     if(!readMeshSize()) return;
+
+    m_ppto->clear();
 
     setEnabled(false);
     if(m_pFuse)

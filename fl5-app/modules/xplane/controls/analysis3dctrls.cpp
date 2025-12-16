@@ -128,6 +128,8 @@ void Analysis3dCtrls::showEvent(QShowEvent *pEvent)
     setAnalysisRange();
     m_pchStorePOpps->setChecked(XPlane::bStoreOpps3d());
     m_pchStabDerivatives->setChecked(Analysis3dSettings::bStabDerivatives());
+    PlanePolar const *pCurPlPolar = s_pXPlane->curPlPolar();
+    m_pchStabDerivatives->setEnabled(pCurPlPolar && pCurPlPolar->isLinearPolar() && XPlane::bStoreOpps3d());
 }
 
 
@@ -229,9 +231,9 @@ std::vector<double> Analysis3dCtrls::oppList() const
 
 void Analysis3dCtrls::setAnalysisRange()
 {
-    PlanePolar const *pCurWPolar = s_pXPlane->curPlPolar();
+    PlanePolar const *pCurPlPolar = s_pXPlane->curPlPolar();
 
-    if (!pCurWPolar)
+    if (!pCurPlPolar)
     {
         m_pchStorePOpps->setEnabled(false);
         m_pchStabDerivatives->setEnabled(false);
@@ -242,9 +244,9 @@ void Analysis3dCtrls::setAnalysisRange()
     }
 
     m_pchStorePOpps->setEnabled(true);
-    m_pchStabDerivatives->setEnabled(true);
+    m_pchStabDerivatives->setEnabled(pCurPlPolar && pCurPlPolar->isLinearPolar() && XPlane::bStoreOpps3d());
 
-    if(pCurWPolar->isType8())
+    if(pCurPlPolar->isType8())
     {
         m_pswTables->setCurrentWidget(m_pXRangeTable);
         m_pXRangeTable->fillRangeTable();
@@ -253,7 +255,7 @@ void Analysis3dCtrls::setAnalysisRange()
     else
     {
         m_pswTables->setCurrentWidget(m_pAnalysisRangeTable);
-        m_pAnalysisRangeTable->setPolarType(pCurWPolar->type());
+        m_pAnalysisRangeTable->setPolarType(pCurPlPolar->type());
         m_pAnalysisRangeTable->fillTable();
         setParameterLabels();
     }
@@ -264,39 +266,41 @@ void Analysis3dCtrls::onOption()
 {
     XPlane::setStoreOpps3d(m_pchStorePOpps->isChecked());
     Analysis3dSettings::setStabDerivatives(m_pchStabDerivatives->isChecked());
+    PlanePolar const *pCurPlPolar = s_pXPlane->curPlPolar();
+    m_pchStabDerivatives->setEnabled(pCurPlPolar && pCurPlPolar->isLinearPolar() && XPlane::bStoreOpps3d());
 }
 
 
 void Analysis3dCtrls::onSetControls()
 {
-    PlanePolar const *pCurWPolar = s_pXPlane->curPlPolar();
+    PlanePolar const *pCurPlPolar = s_pXPlane->curPlPolar();
 
-    m_ppbAnalyze->setEnabled(pCurWPolar);
-    m_pchStorePOpps->setEnabled(pCurWPolar);
-    m_pchStabDerivatives->setEnabled(pCurWPolar);
+    m_ppbAnalyze->setEnabled(pCurPlPolar);
+    m_pchStorePOpps->setEnabled(pCurPlPolar);
+    m_pchStabDerivatives->setEnabled(pCurPlPolar && pCurPlPolar->isLinearPolar() && XPlane::bStoreOpps3d());
 
-    if(!pCurWPolar)
+    if(!pCurPlPolar)
     {
         m_pAnalysisRangeTable->setControls(xfl::EXTERNALPOLAR); // disable
         return;
     }
 
-    if(pCurWPolar->isType7())
+    if(pCurPlPolar->isType7())
     {
         // no range needed
         m_ppbAnalyze->setEnabled(true);
     }
-    else if(pCurWPolar->isType8())
+    else if(pCurPlPolar->isType8())
     {
         m_ppbAnalyze->setEnabled(m_pXRangeTable->hasActiveAnalysis());
     }
     else
     {
-        m_pAnalysisRangeTable->setControls(pCurWPolar->type());
+        m_pAnalysisRangeTable->setControls(pCurPlPolar->type());
         m_ppbAnalyze->setEnabled(m_pAnalysisRangeTable->hasActiveAnalysis());
     }
 
-    if(pCurWPolar && pCurWPolar->isExternalPolar())
+    if(pCurPlPolar && pCurPlPolar->isExternalPolar())
     {
         m_ppbAnalyze->setEnabled(false);
 

@@ -523,7 +523,7 @@ void gl3dVortonField::makeVorticityColorRow(double z, double t, int ir, int iPla
         omega.set(0,0,0);
         for(uint ip=0; ip<m_pVortons->size(); ip++)
         {
-            m_pVortons->at(ip).vorticity(pt, omp);
+            omp = m_pVortons->at(ip).vorticity(pt);
             omega += omp;
         }
 

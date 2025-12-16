@@ -180,6 +180,8 @@ void T1234578PolarDlg::initPolar3dDlg(const Plane *pPlane, const PlanePolar *pWP
     if(pWPolar && pWPolar->isType6())
         s_WPolar.setType(xfl::T1POLAR);
 
+    if(s_WPolar.isType6()) s_WPolar.setType(xfl::T1POLAR);
+
     switch(s_WPolar.type())
     {
         default:
@@ -221,6 +223,9 @@ void T1234578PolarDlg::initPolar3dDlg(const Plane *pPlane, const PlanePolar *pWP
 
 
     m_pfePlaneMass->setValue(s_WPolar.mass()*Units::kgtoUnit());
+
+    s_WPolar.setViscousLoop(false);
+    m_pchViscousLoop->setChecked(false);
 
     disableVortonWake(s_WPolar);
 

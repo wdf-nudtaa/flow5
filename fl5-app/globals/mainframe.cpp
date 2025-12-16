@@ -237,7 +237,7 @@ MainFrame::MainFrame(QWidget *parent) : QMainWindow(parent)
     worker->moveToThread(&m_FileIOThread);
     connect(&m_FileIOThread, &QThread::finished, worker, &QObject::deleteLater);
     connect(this, &MainFrame::loadFile, worker, &FileIO::onLoadProject);
-    connect(worker, &FileIO::displayMessage, m_pLogMessageDlg, &LogMessageDlg::onAppendMessage, Qt::BlockingQueuedConnection);
+    connect(worker, &FileIO::displayMessage, m_pLogMessageDlg, &LogMessageDlg::onAppendPlainText, Qt::BlockingQueuedConnection);
     connect(worker, &FileIO::fileLoaded, this, &MainFrame::handleIOResults);
     m_FileIOThread.start();
 
@@ -1562,7 +1562,15 @@ void MainFrame::displayMessage(QString const &msg, bool bShowWindow, bool bStatu
 {
     if(bStatusBar) statusBar()->showMessage(msg, duration);
     if(bShowWindow) m_pLogMessageDlg->show();
-    m_pLogMessageDlg->onAppendMessage(msg);
+    m_pLogMessageDlg->onAppendPlainText(msg);
+    if(g_bTrace) trace(msg);
+}
+
+
+void MainFrame::displayHtmlMessage(QString const &msg, bool bShowWindow)
+{
+    if(bShowWindow) m_pLogMessageDlg->show();
+    m_pLogMessageDlg->onAppendHtmlText(msg);
     if(g_bTrace) trace(msg);
 }
 
@@ -1594,8 +1602,8 @@ void MainFrame::onLoadFoilFile()
             QFileInfo fi(PathName);
             if (!fi.exists() || !fi.isReadable())
             {
-                QString strange = "   ...Could not open the file "+ PathName + EOLch;
-                displayMessage(strange, true);
+                QString strange = "<p><font color=red>Error:</font>   ...Could not open the file "+ PathName +"<br></p>";
+                displayHtmlMessage(strange, true);
                 continue;
             }
 
@@ -1609,14 +1617,14 @@ void MainFrame::onLoadFoilFile()
                 pFoil->setLineWidth(Curve::defaultLineWidth());
                 Objects2d::insertThisFoil(pFoil);
 
-                displayMessage("Successfully loaded " + QString::fromStdString(pFoil->name())+EOLch, false);
+                displayHtmlMessage("<p><font color=green>Successfully loaded</font> " + QString::fromStdString(pFoil->name())+"<br></p>", false);
             }
             else
             {
                 delete pFoil;
-                QString strange = "Error reading the file "+ PathName + QString::asprintf(" at line %d\n", iLineError);
+                QString strange = "<p><font color=red>Error reading the file: </font>"+ PathName + QString::asprintf(" at line %d<br></p>", iLineError);
 
-                displayMessage(strange, true, false);
+                displayHtmlMessage(strange, true);
             }
         }
     }
@@ -1702,7 +1710,6 @@ void MainFrame::onLoadPlrFile()
 void MainFrame::onLoadProjectFile()
 {
     QString PathName;
-    xfl::enumApp App  = xfl::NOAPP;
 
     if(xfl::dontUseNativeMacDlg())
     {
@@ -1723,37 +1730,9 @@ void MainFrame::onLoadProjectFile()
 
     if(!onCloseProject()) return;
 
-
     onShowLogWindow(true);
-    App = loadXflFile(PathName);
 
-    switch(App)
-    {
-        case xfl::NOAPP:
-        {
-            s_iApp = App;
-            break;
-        }
-        case xfl::XDIRECT:
-        {
-            onXDirect();
-            onShowLogWindow(false);
-            break;
-        }
-        case xfl::XPLANE:
-        {
-            onXPlane();
-            onShowLogWindow(false);
-            break;
-        }
-        case xfl::XSAIL:
-        {
-            onXSail();
-            onShowLogWindow(false);
-            break;
-        }
-    }
-
+    loadXflFile(PathName);
 }
 
 
@@ -2115,7 +2094,7 @@ void MainFrame::onInsertProject()
         }
         else
         {
-            displayMessage("The file "+pathname+" has been read successfully\n\n", false);
+            displayHtmlMessage("<p><font color=green>The file "+pathname+" has been read successfully<br><br></p>", false);
         }
     }
     XFile.close();
@@ -2520,7 +2499,7 @@ bool MainFrame::saveProject(const QString &filepath)
     displayMessage(EOLch + "Saving project "+filepath + EOLch, false);
     QDataStream ar(&fpb);
     FileIO saver;
-    connect(&saver, SIGNAL(displayMessage(QString)), m_pLogMessageDlg, SLOT(onAppendMessage(QString)));
+    connect(&saver, SIGNAL(displayMessage(QString)), m_pLogMessageDlg, SLOT(onAppendPlainText(QString)));
 
     bool bSaved = saver.serializeProjectFl5(ar, true);
 

@@ -102,7 +102,7 @@ class GMesherWt : public QFrame
 
         QPushButton *m_ppbMesh;
 
-        PlainTextOutput *m_pptoGmsh;
+        PlainTextOutput *m_ppto;
         QTimer m_LogTimer;
 
 

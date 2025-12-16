@@ -3064,7 +3064,7 @@ void WingXfl::makeMidWires(std::vector<std::vector<Node>> &midwires) const
 }
 
 
-void WingXfl::makeTopBotWires(std::vector<std::vector<Node>> &midwires) const
+void WingXfl::makeTopBotWires(std::vector<std::vector<Node>> &topbotwires) const
 {
     for(int jsurf=0; jsurf<nSurfaces(); jsurf++)
     {
@@ -3084,8 +3084,8 @@ void WingXfl::makeTopBotWires(std::vector<std::vector<Node>> &midwires) const
                 midwire.push_back(surf.m_SideB_Top.at(k));
 
 
-            midwires.push_back(leftwire);
-            midwires.push_back(midwire);
+            topbotwires.push_back(leftwire);
+            topbotwires.push_back(midwire);
 
 /*            for(uint i=0; i<leftwire.size(); i++)
             {
@@ -3102,10 +3102,18 @@ void WingXfl::makeTopBotWires(std::vector<std::vector<Node>> &midwires) const
             for(int k=surf.m_SideB_Top.size()-1; k>=0; k--)
                 rightwire.push_back(surf.m_SideB_Top.at(k));
 
-            midwires.push_back(rightwire);
+            topbotwires.push_back(rightwire);
         }
     }
 
+    // close the wires
+    for(uint i=0; i<topbotwires.size(); i++)
+    {
+        std::vector<Node> &wire = topbotwires[i];
+        Node midnode = (wire.front() + wire.back())*0.5;
+        wire.front() = midnode;
+        wire.back() = midnode;
+    }
 }
 
 

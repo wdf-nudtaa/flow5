@@ -1184,10 +1184,6 @@ void PanelAnalysis::getVortonVelocityGradient(Vector3d const &C, double *G) cons
     }
 }
 
-
-/**
- * Estimate the induced drag from the downwash half-way down the vorton rows
- */
 void PanelAnalysis::vortonDrag(double alpha, double beta, double QInf, int n0, int nStations,
                                Vector3d &Drag, SpanDistribs &SpanResFF) const
 {
@@ -1201,15 +1197,15 @@ void PanelAnalysis::vortonDrag(double alpha, double beta, double QInf, int n0, i
 
     //   Define wind axes
     Vector3d winddir = objects::windDirection(alpha, beta);
-//    Vector3d windN = windNormal(alpha, beta);
 
     int iRow = nVortonRows() / 2;
 //    int iRow = nVortonRows() -1;
     Drag.reset();
 
     double vtncorelength = m_pPolar3d->vortonCoreSize()*m_pPolar3d->referenceChordLength();
-//    double vtncorelength = 0.3*m_pPolar3d->referenceChordLength();
 
+    vtncorelength = Vortex::coreRadius();
+    vtncorelength = 1.0e-4;
 
     std::vector<Vorton> const &vorton = m_Vorton.at(iRow);
     int m=0;
@@ -1236,11 +1232,13 @@ void PanelAnalysis::vortonDrag(double alpha, double beta, double QInf, int n0, i
         P.set(P0 *(1.0-s) + P1*s);
         getVortonVelocity(P, vtncorelength, Wg);
 
-//        if(iRow!=nVortonRows() -1)
-        Wg *= 1.0/2.0;
-
-//        s_DebugPts.append(P);
-//        s_DebugVecs.append(Wg);
+        if(iRow!=nVortonRows() -1)  Wg *= 1.0/2.0;
+#ifdef QT_DEBUG
+        s_DebugPts.push_back(P);
+        s_DebugVecs.push_back(Wg*1.0/QInf);
+#endif
+//        s_DebugPts.push_back(P0);
+//        s_DebugVecs.push_back(P1-P0);
 
         stripforce = Wg * vortex * SpanResFF.m_Gamma.at(m);   // N/rho
 
@@ -1254,7 +1252,21 @@ void PanelAnalysis::vortonDrag(double alpha, double beta, double QInf, int n0, i
         SpanResFF.m_Vd[m] = Wg;
         SpanResFF.m_Ai[m] = atan2(Wg.dot(vortexN), QInf)*180.0/PI;
 
+#ifdef QT_DEBUG
+//        qDebug("Vg[%d]  %11g  %11g", m, vortex.norm(), Wg.norm());
+
+/*        for(int k=0; k<5; k++)
+        {
+            s = double(k)/5.0;
+            P.set(P0 *(1.0-s) + P1*s);
+            getVortonVelocity(P, vtncorelength, Wg);
+            qDebug(" %13g  %13g  %13g", Wg.x, Wg.y, Wg.z);
+        }*/
+#endif
+
         m++;
+
     }
 }
+
 

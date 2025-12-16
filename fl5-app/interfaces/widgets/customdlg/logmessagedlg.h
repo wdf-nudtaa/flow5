@@ -33,7 +33,7 @@
 
 
 
-class PlainTextOutput;
+class FormatTextOutput;
 
 
 class LogMessageDlg : public QWidget
@@ -49,6 +49,7 @@ class LogMessageDlg : public QWidget
 
         QSize sizeHint() const override {return QSize(750,550);}
 
+
     signals:
         void closeLog();
 
@@ -56,7 +57,8 @@ class LogMessageDlg : public QWidget
         void keyPressEvent(QKeyEvent *pEvent) override;
 
     public slots:
-        void onAppendMessage(QString const &msg);
+        void onAppendHtmlText(QString const &msg);
+        void onAppendPlainText(QString const &msg);
         void onClose();
         void clearText();
         void onButton(QAbstractButton *pButton);
@@ -65,7 +67,7 @@ class LogMessageDlg : public QWidget
         void setupLayout();
 
     private:
-        PlainTextOutput *m_ppto;
+        FormatTextOutput *m_ppto;
         QPushButton *m_ppbClearButton;
         QDialogButtonBox *m_pButtonBox;
 };
