@@ -41,6 +41,7 @@
 #include <api/panel2d.h>
 #include <api/panel3.h>
 #include <api/panel4.h>
+#include <api/vorton.h>
 #include <interfaces/widgets/customwts/floatedit.h>
 #include <interfaces/widgets/customwts/intedit.h>
 

@@ -847,7 +847,7 @@ void gl3dXPlaneView::initializeGL()
     {
         QString strange = QString::asprintf("OpenGL context version is %d.%d.\n"
                                             "Set an OpenGL context version >=4.3 to enable flow animations.\n\n", oglMajor(), oglMinor());
-        trace(strange);
+        xfl::trace(strange);
         s_pXPlane->displayMessage(strange, true, false);
         return;
     }
@@ -858,7 +858,7 @@ void gl3dXPlaneView::initializeGL()
     if(m_shadFlow.log().length())
     {
         QString strange = QString::asprintf("%s", QString("Compute shader log:"+m_shadFlow.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
         qDebug()<<"ComputeShader log:";
         qDebug()<<strange;
     }
@@ -866,7 +866,7 @@ void gl3dXPlaneView::initializeGL()
     if(!m_shadFlow.link())
     {
         QString strange("Compute shader for flow animations is not linked.\nSet an OpenGL context version >=4.3 to enable compute shaders.\n\n");
-        trace(strange);
+        xfl::trace(strange);
 //        qDebug()<<strange;
         s_pXPlane->displayMessage(strange, true, false);
     }

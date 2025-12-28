@@ -190,7 +190,7 @@ void gl2dNewton::initializeGL()
     if(m_shadNewton.log().length())
     {
         strange = QString::asprintf("%s", QString("Newton vertex shader log:"+m_shadNewton.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     fsrc = ":/shaders/shaders2d/newton_FS.glsl";
@@ -198,7 +198,7 @@ void gl2dNewton::initializeGL()
     if(m_shadNewton.log().length())
     {
         strange = QString::asprintf("%s", QString("Newton fragment shader log:"+m_shadNewton.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadNewton.link();

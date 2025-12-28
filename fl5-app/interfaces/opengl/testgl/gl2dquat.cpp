@@ -33,7 +33,6 @@
 #include <core/xflcore.h>
 #include <api/utils.h>
 #include <core/displayoptions.h>
-#include <api/trace.h>
 #include <interfaces/opengl/views/gl3dview.h> // for the static variables
 #include <interfaces/widgets/customwts/intedit.h>
 #include <interfaces/widgets/customwts/floatedit.h>
@@ -263,7 +262,7 @@ void gl2dQuat::initializeGL()
     if(m_shadQuat.log().length())
     {
         strange = QString::asprintf("%s", QString("Frac. vertex shader log:"+m_shadQuat.log()).toStdString().c_str());
-        trace(strange);
+        qDebug()<<strange;
     }
 
     fsrc = ":/shaders/shaders2d/quat_FS.glsl";
@@ -271,7 +270,7 @@ void gl2dQuat::initializeGL()
     if(m_shadQuat.log().length())
     {
         strange = QString::asprintf("%s", QString("Quat. fragment shader log:"+m_shadQuat.log()).toStdString().c_str());
-        trace(strange);
+        qDebug()<<strange;
     }
 
     m_shadQuat.link();

@@ -1,6 +1,5 @@
 
 #include <iostream>
-#include <format>
 
 #include <api.h>
 #include <constants.h>
@@ -219,7 +218,7 @@ int main()
         // This should be done after the polar has been given a name
         // since objects are referenced by their name and are stored
         // in alphabetical order
-        Objects3d::insertPPolar(pPlPolar);
+        Objects3d::insertPlPolar(pPlPolar);
 
         pPlPolar->setTheStyle({true, Line::SOLID, 2, {239, 51, 153}, Line::NOSYMBOL});
 

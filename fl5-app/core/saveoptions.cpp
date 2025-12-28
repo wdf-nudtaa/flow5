@@ -26,6 +26,7 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QTime>
+#include <QVariant>
 
 #include "saveoptions.h"
 
@@ -163,7 +164,7 @@ void SaveOptions::cleanLogFiles()
             bool bOwnerWrite = fi.permission(QFileDevice::WriteOwner);
             if(bOwnerWrite)
             {
-                trace ("   Removing "+fileName + " with owner write permission");
+                xfl::trace ("   Removing "+fileName + " with owner write permission");
                 QFile logFile(fileName);
                 logFile.remove();
             }

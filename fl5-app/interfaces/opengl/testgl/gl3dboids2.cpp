@@ -359,12 +359,12 @@ void gl3dBoids2::initializeGL()
     if(m_shadBoids.log().length())
     {
         strange = QString::asprintf("%s", QString("Compute shader log:"+m_shadBoids.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     if(!m_shadBoids.link())
     {
-        trace("Compute shader is not linked");
+        xfl::trace("Compute shader is not linked");
     }
     m_shadBoids.bind();
     {

@@ -129,7 +129,7 @@ void gl2dComplex::initializeGL()
     if(m_shadComplex.log().length())
     {
         strange = QString::asprintf("%s", QString("Frac. vertex shader log:"+m_shadComplex.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     fsrc = ":/shaders/shaders2d/complex_FS.glsl";
@@ -137,7 +137,7 @@ void gl2dComplex::initializeGL()
     if(m_shadComplex.log().length())
     {
         strange = QString::asprintf("%s", QString("Complex fragment shader log:"+m_shadComplex.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadComplex.link();

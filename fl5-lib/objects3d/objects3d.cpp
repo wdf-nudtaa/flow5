@@ -45,9 +45,9 @@
 
 
 int Objects3d::s_Index=0;
-std::vector<Plane*>    Objects3d::s_oaPlane;
+std::vector<Plane*>        Objects3d::s_oaPlane;
 std::vector<PlanePolar*>   Objects3d::s_oaPlanePolar;
-std::vector<PlaneOpp*> Objects3d::s_oaPlaneOpp;
+std::vector<PlaneOpp*>     Objects3d::s_oaPlaneOpp;
 
 
 int Objects3d::newUniquePartIndex()

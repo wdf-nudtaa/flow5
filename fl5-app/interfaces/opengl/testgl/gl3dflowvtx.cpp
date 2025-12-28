@@ -262,12 +262,12 @@ void gl3dFlowVtx::initializeGL()
     if(m_shadCompute.log().length())
     {
         strange = QString::asprintf("%s", QString("Compute shader log:"+m_shadCompute.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     if(!m_shadCompute.link())
     {
-        trace("Compute shader is not linked");
+        xfl::trace("Compute shader is not linked");
     }
     m_shadCompute.bind();
     {

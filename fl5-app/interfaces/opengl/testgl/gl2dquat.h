@@ -29,6 +29,8 @@
 #include <QCheckBox>
 #include <QSlider>
 #include <QSettings>
+#include <QVector2D>
+#include <QVector4D>
 
 #include <interfaces/opengl/views/gl2dview.h>
 

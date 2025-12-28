@@ -1556,7 +1556,7 @@ int matrix::solveLinearSystem(int rank, float *M, int nrhs, float *rhs, int nThr
 
     if(info>0 || info <0)
     {
-//        trace("dgetrf_ error:",info);
+//        xfl::trace("dgetrf_ error:",info);
         return int(info);
     }
 
@@ -1576,7 +1576,7 @@ int matrix::solveLinearSystem(int rank, float *M, int nrhs, float *rhs, int nThr
 
         if(info!=0)
         {
-//            trace("dgetrs_ error:",info);
+//            xfl::trace("dgetrs_ error:",info);
             return int(info);
         }
     }
@@ -1608,7 +1608,7 @@ int matrix::solveLinearSystem(int rank, double *M, int nrhs, double *rhs, int nT
 
     if(info>0 || info <0)
     {
-//        trace("dgetrf_ error:",info);
+//        xfl::trace("dgetrf_ error:",info);
         return int(info);
     }
 
@@ -1628,7 +1628,7 @@ int matrix::solveLinearSystem(int rank, double *M, int nrhs, double *rhs, int nT
 
         if(info!=0)
         {
-//            trace("dgetrs_ error:",info);
+//            xfl::trace("dgetrs_ error:",info);
             return int(info);
         }
     }

@@ -726,7 +726,7 @@ void gl3dXSailView::initializeGL()
     {
         QString strange = QString::asprintf("OpenGL context version is %d.%d.\n"
                                             "Set an OpenGL context version >=4.3 to enable flow animations.\n\n", oglMajor(), oglMinor());
-        trace(strange);
+        xfl::trace(strange);
         s_pXSail->displayMessage(strange, true);
         return;
     }
@@ -737,12 +737,12 @@ void gl3dXSailView::initializeGL()
     if(m_shadFlow.log().length())
     {
         QString strange = QString::asprintf("%s", QString("Compute shader log:"+m_shadFlow.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     if(!m_shadFlow.link())
     {
-        trace("Flow compute shader is not linked");
+        xfl::trace("Flow compute shader is not linked");
     }
     else
     {

@@ -421,7 +421,7 @@ MainFrame::~MainFrame()
 {
     gmsh::finalize();
 
-    if(g_pTraceFile) g_pTraceFile->close();
+    if(xfl::g_pTraceFile) xfl::g_pTraceFile->close();
 
     Objects2d::deleteObjects();
 
@@ -1562,7 +1562,7 @@ void MainFrame::displayMessage(QString const &msg, bool bShowWindow, bool bStatu
     if(bStatusBar) statusBar()->showMessage(msg, duration);
     if(bShowWindow) m_pLogMessageDlg->show();
     m_pLogMessageDlg->onAppendPlainText(msg);
-    if(g_bTrace) trace(msg);
+    xfl::trace(msg);
 }
 
 
@@ -1570,7 +1570,7 @@ void MainFrame::displayHtmlMessage(QString const &msg, bool bShowWindow)
 {
     if(bShowWindow) m_pLogMessageDlg->show();
     m_pLogMessageDlg->onAppendHtmlText(msg);
-    if(g_bTrace) trace(msg);
+    xfl::trace(msg);
 }
 
 
@@ -1824,8 +1824,8 @@ void MainFrame::onLogFile()
 
 void MainFrame::onTraceFile()
 {
-    if(!g_pTraceFile) return;
-    QFileInfo fi(*g_pTraceFile);
+    if(!xfl::g_pTraceFile) return;
+    QFileInfo fi(*xfl::g_pTraceFile);
     QDesktopServices::openUrl(QUrl::fromLocalFile(fi.filePath()));
 }
 
@@ -2759,7 +2759,7 @@ bool MainFrame::loadSettings()
         SettingsFormat = settings.value("SettingsFormat").toInt();
         if(SettingsFormat != SETTINGSFORMAT) return false;
 
-        PrefsDlg::setStyleName(settings.value("Style",PrefsDlg::styleName()).toString());
+        PrefsDlg::setStyleName(settings.value("Style", PrefsDlg::styleName()).toString());
 
         DisplayOptions::setStyleSheetOverride(settings.value("bStyleSheet", DisplayOptions::bStyleSheetOverride()).toBool());
 

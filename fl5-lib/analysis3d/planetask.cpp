@@ -2802,7 +2802,7 @@ bool PlaneTask::computeSurfaceDragOTF(Surface const &surf, int iStartStation, do
         {
             QString strong = "                     ";
             strong +=  QString::asprintf("span pos. %9.3f ", spandist.m_StripPos.at(iStation)*Units::mtoUnit());
-            strong += Units::lengthUnitLabel();
+            strong += Units::lengthUnitQLabel();
             strong += QString::asprintf(", Cl=%9.5f, Re=%7.0f", spandist.m_Cl.at(iStation), spandist.m_Re.at(iStation));
 
             logg += strong + EOLch;

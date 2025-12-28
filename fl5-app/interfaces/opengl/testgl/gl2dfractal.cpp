@@ -206,7 +206,7 @@ void gl2dFractal::initializeGL()
     if(m_shadFrac.log().length())
     {
         strange = QString::asprintf("%s", QString("Frac vertex shader log:"+m_shadFrac.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     fsrc = ":/shaders/shaders2d/julia_FS.glsl";
@@ -214,7 +214,7 @@ void gl2dFractal::initializeGL()
     if(m_shadFrac.log().length())
     {
         strange = QString::asprintf("%s", QString("Frac fragment shader log:"+m_shadFrac.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadFrac.link();

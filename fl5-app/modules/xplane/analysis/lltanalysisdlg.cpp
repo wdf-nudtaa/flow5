@@ -435,7 +435,7 @@ void LLTAnalysisDlg::analyze()
 
 void LLTAnalysisDlg::runAsync()
 {
-    trace("running LLT ASync\n");
+    xfl::trace("running LLT ASync\n");
 
     m_pLLTTask->setAnalysisStatus(xfl::RUNNING);
 
@@ -465,7 +465,7 @@ void LLTAnalysisDlg::runAsync()
 
     p.join();
 
-    trace("LLT thread joined\n");
+    xfl::trace("LLT thread joined\n");
 
     qApp->postEvent(this, new QEvent(TASK3D_END_EVENT)); // done and clean
 }

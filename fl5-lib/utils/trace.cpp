@@ -30,8 +30,8 @@
 
 #include <api/trace.h>
 
-bool g_bTrace = false;
-QFile *g_pTraceFile = nullptr;
+bool xfl::g_bTrace = false;
+QFile *xfl::g_pTraceFile = nullptr;
 
 /**
 * Outputs in a debug file the current time and the value of the integer passed as an input parameter.
@@ -39,7 +39,7 @@ QFile *g_pTraceFile = nullptr;
 * Used for debugging.
 *@param n the integer to output
 */
-void trace(int n)
+void xfl::trace(int n)
 {
     if(!g_bTrace) return;
 
@@ -53,7 +53,7 @@ void trace(int n)
 }
 
 
-void trace(const QString &msg, bool b)
+void xfl::trace(const QString &msg, bool b)
 {
     if(!g_bTrace) return;
     QString str;
@@ -76,7 +76,7 @@ void trace(const QString &msg, bool b)
 * Used for debugging.
 *@param msg the message to output
 */
-void trace(const QString &msg)
+void xfl::trace(const QString &msg)
 {
 #ifdef QT_DEBUG
 //    qDebug()<<msg;
@@ -102,7 +102,7 @@ void trace(const QString &msg)
 *@param msg the message to output
 *@param n the integer to output
 */
-void trace(QString const &msg, int n)
+void xfl::trace(QString const &msg, int n)
 {
     if(!g_bTrace) return;
 
@@ -127,7 +127,7 @@ void trace(QString const &msg, int n)
 *@param msg the message to output
 *@param f the float number to output
 */
-void trace(const QString &msg, double f)
+void xfl::trace(const QString &msg, double f)
 {
     if(!g_bTrace) return;
 
@@ -145,7 +145,7 @@ void trace(const QString &msg, double f)
 }
 
 
-void trace(const QString &msg, QString const &txt)
+void xfl::trace(const QString &msg, QString const &txt)
 {
     if(!g_bTrace) return;
 

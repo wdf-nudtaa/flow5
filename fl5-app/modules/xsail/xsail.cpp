@@ -889,7 +889,7 @@ BoatPolar* XSail::insertNewBtPolar(BoatPolar *pNewPolar, Boat *pCurBoat)
         pOldBtPolar = SailObjects::btPolar(ip);
         if(pOldBtPolar==pNewPolar)
         {
-//            Trace("this WPolar is already in the array, nothing inserted");
+//            xfl::trace("this WPolar is already in the array, nothing inserted");
             return pOldBtPolar;
         }
     }

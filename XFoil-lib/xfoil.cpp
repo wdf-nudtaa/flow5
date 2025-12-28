@@ -11989,7 +11989,7 @@ void XFoil::InitMDES()
     //---- set initial q for current alpha
     algam = alfa;
     mapgam(1,algam,clgam,cmgam);
-    //    TRACE("Current Q Operating conditions : %4  %4\n", algam/dtor, clgam);
+    //    xfl::trace("Current Q Operating conditions : %4  %4\n", algam/dtor, clgam);
 
     if(!lqspec) {
         //------ set cn coefficients from current q
@@ -12334,7 +12334,7 @@ bool XFoil::mixed(int kqsp)
         &       /' dqf3  =',e10.3,4x,'   dqf4  =',e10.3)*/
         dnTrace[iter] = fabs(dnmax);
         dgTrace[iter] = fabs(dgmax);
-        //        TRACE("%d  dNMax = %.3e  dGMax = %.3e\n",iter, dnmax, dgmax);
+        //        xfl::trace("%d  dNMax = %.3e  dGMax = %.3e\n",iter, dnmax, dgmax);
         if(fabs(dnmax)<5.0e-5 && fabs(dgmax)<5.0e-4) {
             //       write(*,*)
             //       write(*,*) 'new current airfoil generated'
@@ -12345,8 +12345,8 @@ bool XFoil::mixed(int kqsp)
 
     }
     QMax = niterq;
-    //    TRACE("Unconverged - shit/Schei�e/merde !\n");
-    //    TRACE("not quite converged.  can exec again if necessary.\n");
+    //    xfl::trace("Unconverged - shit/Schei�e/merde !\n");
+    //    xfl::trace("not quite converged.  can exec again if necessary.\n");
     return false;
 }
 

@@ -230,12 +230,12 @@ void gl3dLorenz2::initializeGL()
     if(m_shadLorenz2.log().length())
     {
         strange = QString::asprintf("%s", QString("Compute shader log:"+m_shadLorenz2.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     if(!m_shadLorenz2.link())
     {
-        trace("Compute shader is not linked");
+        xfl::trace("Compute shader is not linked");
     }
     m_shadLorenz2.bind();
     {

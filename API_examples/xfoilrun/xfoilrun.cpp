@@ -1,6 +1,5 @@
 
 #include <iostream>
-#include <format>
 
 
 #include <api.h>
@@ -49,7 +48,7 @@ int main()
 
     std::cout << "Initializing XFoil task" << std::endl;
 
-    task.initialize(pFoil, pPolar, bKeepOpps);
+    task.initialize(*pFoil, pPolar, bKeepOpps);
     task.appendRange({true, 0.0, 11.0, 1.0});
     task.appendRange({true, 0.0, -7.0, 1.0});
 

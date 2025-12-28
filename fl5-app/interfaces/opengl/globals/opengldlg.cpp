@@ -150,11 +150,11 @@ QMessageBox::StandardButton OpenGlDlg::applyChanges()
             readFormat(fmt);
             gl3dView::setXflSurfaceFormat(fmt);
 //qDebug()            << gl3dView::defaultXflSurfaceFormat();
-            if(g_bTrace)
+            if(xfl::g_bTrace)
             {
-                trace("OpenGLDlg - new default OpenGL context specified:\n");
+                xfl::trace("OpenGLDlg - new default OpenGL context specified:\n");
                 printFormat(fmt, strange);
-                trace(strange+"\n");
+                xfl::trace(strange+"\n");
             }
             m_bChanged = false;
         }
@@ -498,7 +498,7 @@ void OpenGlDlg::onCreateContext()
     QString log = "Context creation request with format:\n";
     printFormat(fmt, log, true);
 
-    trace(log+"\n\n");
+    xfl::trace(log+"\n\n");
 
     m_pptglOutput->clear();
     m_pStackWt->removeWidget(m_pglTestView);
@@ -520,7 +520,7 @@ void OpenGlDlg::onCreateContext()
 
     if (!m_pglTestView->context())
     {
-        trace("Context creation error.................\n");
+        xfl::trace("Context creation error.................\n");
         m_pptglOutput->appendPlainText("Failed to create context");
         return;
     }
@@ -676,7 +676,7 @@ void OpenGlDlg::initDialog()
 
 void OpenGlDlg::onRenderWindowReady()
 {
-    trace("OpenGlDlg::onRenderWindowReady\n");
+    xfl::trace("OpenGlDlg::onRenderWindowReady\n");
 
     QString vendor, renderer, version, glslVersion;
     const GLubyte *p=nullptr;

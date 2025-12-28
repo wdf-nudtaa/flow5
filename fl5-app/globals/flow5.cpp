@@ -98,13 +98,13 @@ Flow5App::Flow5App(int &argc, char** argv) : QApplication(argc, argv)
     parseCmdLine(*this, scriptPathName, tracefilename, bScript, bShowProgress, OGLversion);
 
 
-    if(g_bTrace)
+    if(xfl::g_bTrace)
     {
         startTrace(tracefilename);
-        trace("Initializing trace file in "+tracefilename+"\n\n");
+        xfl::trace("Initializing trace file in "+tracefilename+"\n\n");
     }
 
-    if(!bScript && !g_bTrace)
+    if(!bScript && !xfl::g_bTrace)
     {
 #ifdef Q_OS_WIN
 #ifdef QT_NO_DEBUG
@@ -172,13 +172,13 @@ Flow5App::Flow5App(int &argc, char** argv) : QApplication(argc, argv)
 
     m_pMainFrame->show();
 
-    if(g_bTrace)
+    if(xfl::g_bTrace)
     {
         QString strange = "Trace enabled in "+ tracefilename +"\n\n";
         m_pMainFrame->displayMessage(strange, false);
     }
 
-    gl3dView::setDebugContext(g_bTrace);
+    gl3dView::setDebugContext(xfl::g_bTrace);
 
     m_pMainFrame->testOpenGL();
 
@@ -264,7 +264,7 @@ bool Flow5App::event(QEvent *pEvent)
             QFileOpenEvent *pFOEvent = dynamic_cast<QFileOpenEvent *>(pEvent);
             if(!pFOEvent) break;
             if(pFOEvent)
-                trace("Processing FileOpenEvent for " +pFOEvent->file() + "\n");
+                xfl::trace("Processing FileOpenEvent for " +pFOEvent->file() + "\n");
 
 #ifdef Q_OS_MAC
 /*           // load licence settings at this point because macOS calls this event
@@ -346,15 +346,15 @@ void Flow5App::parseCmdLine(Flow5App &fl5app,
 
     if(parser.isSet(TraceOption))
     {
-        g_bTrace=true;
-        trace("Processing option -t", true);
-        trace("Trace logged in file: "+tracefilename);
+        xfl::g_bTrace=true;
+        xfl::trace("Processing option -t", true);
+        xfl::trace("Trace logged in file: "+tracefilename);
     }
 
     bScript = parser.isSet(ScriptOption);
     if(bScript)
     {
-        trace("Processing option -s", true);
+        xfl::trace("Processing option -s", true);
     }
     scriptfilename = parser.value("s");
 
@@ -364,7 +364,7 @@ void Flow5App::parseCmdLine(Flow5App &fl5app,
         bool bOK=false;
         int version = parser.value(OGLOption).toInt(&bOK);
         if(bOK) OGLVersion = version; else OGLVersion = -1;
-        trace("Processing option -o", OGLVersion);
+        xfl::trace("Processing option -o", OGLVersion);
     }
     else
     {
@@ -373,20 +373,19 @@ void Flow5App::parseCmdLine(Flow5App &fl5app,
 }
 
 
-
 void Flow5App::startTrace(QString const &filename)
 {
-    if(!g_bTrace) return;
+    if(!xfl::g_bTrace) return;
 
-    g_pTraceFile = new QFile(filename);
+    xfl::g_pTraceFile = new QFile(filename);
 
-    if (!g_pTraceFile->open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) g_bTrace = false;
-    g_pTraceFile->reset();
+    if (!xfl::g_pTraceFile->open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) xfl::g_bTrace = false;
+    xfl::g_pTraceFile->reset();
     std::cout<< "Trace file enabled: " << filename.toStdString().c_str() << std::endl;
     QString strange;
     QOperatingSystemVersion const &sys = QOperatingSystemVersion::current();
     strange = sys.name();
-    trace(strange+"\n");
+    xfl::trace(strange+"\n");
 
     QSysInfo sysInfo;
 
@@ -399,20 +398,20 @@ void Flow5App::startTrace(QString const &filename)
     strange += "   product name:    "  + sysInfo.prettyProductName() +"\n";
     strange += "   product type:    "  + sysInfo.productType() +"\n";
     strange += "   product version: "  + sysInfo.productVersion() +"\n\n";
-    trace(strange);
+    xfl::trace(strange);
 
     const char *qt_version = qVersion();
     strange = QString::asprintf("Qt version: %s\n\n", qt_version);
-    trace(strange);
+    xfl::trace(strange);
 
     strange = QString::asprintf("Ideal thread count: %d\n\n", QThread::idealThreadCount());
-    trace(strange);
+    xfl::trace(strange);
 
     strange = "OpenGL support:\n";
     strange += QString::asprintf("    Desktop OpenGL: %d\n", qApp->testAttribute(Qt::AA_UseDesktopOpenGL));
     strange += QString::asprintf("    OpenGL ES       %d\n", qApp->testAttribute(Qt::AA_UseOpenGLES));
     strange += QString::asprintf("    Software OpenGL %d\n", qApp->testAttribute(Qt::AA_UseSoftwareOpenGL));
-    trace(strange + "\n");
+    xfl::trace(strange + "\n");
 
 
     QString language = QLocale::languageToString(QLocale::system().language());
@@ -420,7 +419,7 @@ void Flow5App::startTrace(QString const &filename)
     strange += "   language:          "+language+"\n";
     strange += "   decimal separator: "+QString(QLocale::system().decimalPoint()) + "\n";
     strange += "   group separator:   "+QString(QLocale::system().groupSeparator()) + "\n";
-    trace(strange + "\n");
+    xfl::trace(strange + "\n");
 //qDebug("%s",strange.toStdString().c_str());
 }
 

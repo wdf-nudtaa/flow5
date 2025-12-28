@@ -962,7 +962,7 @@ void gl2dView::initializeGL()
     if(m_shadLine.log().length())
     {
         strange = QString::asprintf("%s", QString("Line vertex shader log:"+m_shadLine.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     gsrc = ":/shaders/line/line_GS.glsl";
@@ -970,7 +970,7 @@ void gl2dView::initializeGL()
     if(m_shadLine.log().length())
     {
         strange = QString::asprintf("%s", QString("Line geometry shader log:"+m_shadLine.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     fsrc = ":/shaders/line/line_FS.glsl";
@@ -978,7 +978,7 @@ void gl2dView::initializeGL()
     if(m_shadLine.log().length())
     {
         strange = QString::asprintf("%s", QString("Stipple fragment shader log:"+m_shadLine.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadLine.link();
@@ -1005,7 +1005,7 @@ void gl2dView::initializeGL()
     if(m_shadPoint.log().length())
     {
         strange = QString::asprintf("%s", QString("Point vertex shader log:"+m_shadPoint.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     gsrc = ":/shaders/point/point_GS.glsl";
@@ -1013,7 +1013,7 @@ void gl2dView::initializeGL()
     if(m_shadPoint.log().length())
     {
         strange = QString::asprintf("%s", QString("Point geometry shader log:"+m_shadPoint.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     fsrc = ":/shaders/point/point_FS.glsl";
@@ -1021,7 +1021,7 @@ void gl2dView::initializeGL()
     if(m_shadPoint.log().length())
     {
         strange = QString::asprintf("%s", QString("Point fragment shader log:"+m_shadPoint.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadPoint.link();
@@ -1050,7 +1050,7 @@ void gl2dView::initializeGL()
     if(m_shadPoint2.log().length())
     {
         strange = QString::asprintf("%s", QString("point2 vertex shader log:"+m_shadPoint2.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
 
@@ -1058,7 +1058,7 @@ void gl2dView::initializeGL()
     if(m_shadPoint2.log().length())
     {
         strange = QString::asprintf("%s", QString("point2 fragment shader log:"+m_shadPoint2.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadPoint2.link();
@@ -1081,14 +1081,14 @@ void gl2dView::initializeGL()
     if(m_shadSurf.log().length())
     {
         strange = QString::asprintf("%s", QString("Surface vertex shader log:"+m_shadSurf.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadSurf.addShaderFromSourceFile(QOpenGLShader::Fragment, fsrc);
     if(m_shadSurf.log().length())
     {
         strange = QString::asprintf("%s", QString("Surface fragment shader log:"+m_shadSurf.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadSurf.link();

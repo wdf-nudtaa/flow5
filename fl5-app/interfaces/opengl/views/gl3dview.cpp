@@ -180,7 +180,7 @@ void gl3dView::initializeGL()
     {
     }
 
-    if(g_bTrace)
+    if(xfl::g_bTrace)
     {
         QString log;
         log += "*************** initialized gl3dView Format ********************\n";
@@ -188,7 +188,7 @@ void gl3dView::initializeGL()
         {
             log += ("No Current context\n");
             log += ("**************** end gl3dView Format********************\n");
-            trace(log);
+            xfl::trace(log);
             return;
         }
 
@@ -211,7 +211,7 @@ void gl3dView::initializeGL()
         m_pOglLogger->startLogging();
         m_pOglLogger->enableMessages(); */
         log +="\n\n";
-        trace(log);
+        xfl::trace(log);
     }    
 
     QString vsrc, gsrc, fsrc;
@@ -225,7 +225,7 @@ void gl3dView::initializeGL()
     if(m_shadLine.log().length())
     {
         strange = QString::asprintf("%s", QString("Line vertex shader log:"+m_shadLine.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     gsrc = ":/shaders/line/line_GS.glsl";
@@ -233,7 +233,7 @@ void gl3dView::initializeGL()
     if(m_shadLine.log().length())
     {
         strange = QString::asprintf("%s", QString("Line geometry shader log:"+m_shadLine.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     fsrc = ":/shaders/line/line_FS.glsl";
@@ -241,7 +241,7 @@ void gl3dView::initializeGL()
     if(m_shadLine.log().length())
     {
         strange = QString::asprintf("%s", QString("Line fragment shader log:"+m_shadLine.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadLine.link();
@@ -270,14 +270,14 @@ void gl3dView::initializeGL()
     if(m_shadSurf.log().length())
     {
         strange = QString::asprintf("%s", QString("Surface vertex shader log:"+m_shadSurf.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadSurf.addShaderFromSourceFile(QOpenGLShader::Fragment, fsrc);
     if(m_shadSurf.log().length())
     {
         strange = QString::asprintf("%s", QString("Surface fragment shader log:"+m_shadSurf.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadSurf.link();
@@ -313,7 +313,7 @@ void gl3dView::initializeGL()
     if(m_shadPoint.log().length())
     {
         strange = QString::asprintf("%s", QString("Point vertex shader log:"+m_shadPoint.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     gsrc = ":/shaders/point/point_GS.glsl";
@@ -321,7 +321,7 @@ void gl3dView::initializeGL()
     if(m_shadPoint.log().length())
     {
         strange = QString::asprintf("%s", QString("Point geometry shader log:"+m_shadPoint.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     fsrc = ":/shaders/point/point_FS.glsl";
@@ -329,7 +329,7 @@ void gl3dView::initializeGL()
     if(m_shadPoint.log().length())
     {
         strange = QString::asprintf("%s", QString("Point fragment shader log:"+m_shadPoint.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadPoint.link();
@@ -358,7 +358,7 @@ void gl3dView::initializeGL()
     if(m_shadPoint2.log().length())
     {
         strange = QString::asprintf("%s", QString("point2 vertex shader log:"+m_shadPoint2.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
 
@@ -366,7 +366,7 @@ void gl3dView::initializeGL()
     if(m_shadPoint2.log().length())
     {
         strange = QString::asprintf("%s", QString("point2 fragment shader log:"+m_shadPoint2.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadPoint2.link();
@@ -390,14 +390,14 @@ void gl3dView::initializeGL()
     if(m_shadDepth.log().length())
     {
         QString strange = QString::asprintf("%s", QString("Depth vertex shader log:"+m_shadDepth.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadDepth.addShaderFromSourceFile(QOpenGLShader::Fragment, fsrc);
     if(m_shadDepth.log().length())
     {
         QString strange = QString::asprintf("%s", QString("Depth fragment shader log:"+m_shadDepth.log()).toStdString().c_str());
-        trace(strange);
+        xfl::trace(strange);
     }
 
     m_shadDepth.link();
@@ -450,7 +450,7 @@ void gl3dView::initDepthMap()
 
 void gl3dView::onOglLogMsg(QOpenGLDebugMessage const & logmsg)
 {
-    trace(logmsg.message()+"\n");
+    xfl::trace(logmsg.message()+"\n");
 }
 
 
@@ -1133,42 +1133,42 @@ void gl3dView::getGLError()
     switch(glGetError())
     {
         case GL_NO_ERROR:
-            trace("No error has been recorded. The value of this symbolic constant is guaranteed to be 0.\n");
+            xfl::trace("No error has been recorded. The value of this symbolic constant is guaranteed to be 0.\n");
             break;
 
         case GL_INVALID_ENUM:
-            trace("An unacceptable value is specified for an enumerated argument. "
+            xfl::trace("An unacceptable value is specified for an enumerated argument. "
                       "The offending command is ignored and has no other side effect than to set the error flag.\n");
             break;
 
         case GL_INVALID_VALUE:
-            trace("A numeric argument is out of range. The offending command is ignored and has no other "
+            xfl::trace("A numeric argument is out of range. The offending command is ignored and has no other "
                       "side effect than to set the error flag.\n");
             break;
 
         case GL_INVALID_OPERATION:
-            trace("The specified operation is not allowed in the current state. The offending command is "
+            xfl::trace("The specified operation is not allowed in the current state. The offending command is "
                       "ignored and has no other side effect than to set the error flag.\n");
             break;
 
         case GL_INVALID_FRAMEBUFFER_OPERATION:
-            trace("The command is trying to render to or read from the framebuffer while the currently "
+            xfl::trace("The command is trying to render to or read from the framebuffer while the currently "
                       "bound framebuffer is not framebuffer complete (i.e. the return value from glCheckFramebufferStatus "
                       "is not GL_FRAMEBUFFER_COMPLETE). The offending command is ignored and has no other side effect than "
                       "to set the error flag.\n");
             break;
 
         case GL_OUT_OF_MEMORY:
-            trace("There is not enough memory left to execute the command. The state of the GL is "
+            xfl::trace("There is not enough memory left to execute the command. The state of the GL is "
                       "undefined, except for the state of the error flags, after this error is recorded.\n");
             break;
 
         case GL_STACK_UNDERFLOW:
-            trace("An attempt has been made to perform an operation that would cause an internal stack to underflow.\n");
+            xfl::trace("An attempt has been made to perform an operation that would cause an internal stack to underflow.\n");
             break;
 
         case GL_STACK_OVERFLOW:
-            trace("An attempt has been made to perform an operation that would cause an internal stack to overflow.\n");
+            xfl::trace("An attempt has been made to perform an operation that would cause an internal stack to overflow.\n");
             break;
     }
 }

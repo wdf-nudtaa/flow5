@@ -27,14 +27,16 @@
 
 #include <fl5lib_global.h>
 
-extern bool FL5LIB_EXPORT g_bTrace;
-extern QFile FL5LIB_EXPORT *g_pTraceFile;
+namespace xfl
+{
+    extern bool FL5LIB_EXPORT g_bTrace;
+    extern QFile FL5LIB_EXPORT *g_pTraceFile;
 
-void FL5LIB_EXPORT trace(int n);
-void FL5LIB_EXPORT trace(QString const &msg);
-void FL5LIB_EXPORT trace(QString const &msg, bool b);
-void FL5LIB_EXPORT trace(QString const &msg, int n);
-void FL5LIB_EXPORT trace(QString const &msg, double f);
-void FL5LIB_EXPORT trace(QString const &msg, const QString &txt);
+    void FL5LIB_EXPORT trace(int n);
+    void FL5LIB_EXPORT trace(QString const &msg);
+    void FL5LIB_EXPORT trace(QString const &msg, bool b);
+    void FL5LIB_EXPORT trace(QString const &msg, int n);
+    void FL5LIB_EXPORT trace(QString const &msg, double f);
+    void FL5LIB_EXPORT trace(QString const &msg, const QString &txt);
 
-
+}
