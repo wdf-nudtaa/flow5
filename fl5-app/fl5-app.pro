@@ -59,7 +59,7 @@ linux-g++ {
 
     INTEL_MKL {
         #------------ MKL --------------------
-        #    MKL can use the c++ matrices in row major order order
+        #    MKL can use the c++ matrices in row major order
         DEFINES += INTEL_MKL
 
         #   Ensure that the paths to the include files and to the binary libraries
