@@ -77,7 +77,7 @@ void FoilRepanelDlg::resizeEvent(QResizeEvent *pEvent)
 
 void FoilRepanelDlg::setupLayout()
 {
-    setWindowTitle("Foil panel refinement");
+    setWindowTitle(tr("Foil panel refinement"));
 
     m_pBunchBox = new QFrame(m_pFoilWt);
     {
@@ -89,13 +89,13 @@ void FoilRepanelDlg::setupLayout()
         {
             QHBoxLayout *pNbLayout = new QHBoxLayout;
             {
-                QLabel *plabNPanels = new QLabel("Number of panels");
+                QLabel *plabNPanels = new QLabel(tr("Number of panels"));
                 plabNPanels->setPalette(m_Palette);
                 plabNPanels->setAttribute(Qt::WA_NoSystemBackground);
                 m_pieNPanels = new IntEdit;
-                QString tip= "<p>CAUTION: XFoil does not accept number of panels greater than 255. "
+                QString tip= tr("<p>CAUTION: XFoil does not accept number of panels greater than 255. "
                              "Adjust the number of panels and the bunching parameters to "
-                             "achieve the desired point distribution.</p>";
+                             "achieve the desired point distribution.</p>");
                 m_pieNPanels->setToolTip(tip);
 
                 m_plabWarning = new QLabel();
@@ -110,11 +110,11 @@ void FoilRepanelDlg::setupLayout()
 
             QGridLayout *pBunchLayout = new QGridLayout;
             {
-                QLabel *plabNoAmp = new QLabel("Uniform");
+                QLabel *plabNoAmp = new QLabel(tr("Uniform"));
                 plabNoAmp->setPalette(m_Palette);
                 plabNoAmp->setAttribute(Qt::WA_NoSystemBackground);
                 plabNoAmp->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
-                QLabel *plabAmp = new QLabel("Bunched");
+                QLabel *plabAmp = new QLabel(tr("Bunched"));
                 plabAmp->setPalette(m_Palette);
                 plabAmp->setAttribute(Qt::WA_NoSystemBackground);
                 plabAmp->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
@@ -163,7 +163,7 @@ void FoilRepanelDlg::onBufferStyle(LineStyle ls)
 void FoilRepanelDlg::onNPanels(int npanels)
 {
     if(npanels>255)
-        m_plabWarning->setText("<p><font color=red>XFoil requires NPanels&lt;255</font></p>");
+        m_plabWarning->setText(tr("<p><font color=red>XFoil requires NPanels&lt;255</font></p>"));
     else
         m_plabWarning->clear();
     onApply();
