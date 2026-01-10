@@ -67,5 +67,8 @@ BUILD_FIXES_SUMMARY.md
 # Local build stub (should not be committed)
 fl5-app/interfaces/mesh/gmesh_globals_stub.cpp
 
+# Local machine build helper
+build_flow5.ps1
+
 
 
