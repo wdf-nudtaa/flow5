@@ -1,5 +1,12 @@
+
+<!-- To run a script from the command line: -->
+<!-- flow5 -h -->
+<!-- flow5 -p -s script.xml -->
+
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE XFL_SCRIPT>
+
+
 <xflscript version="1.0">
     <!-- For convenience, all field names are case-insensitive, as an exception to the standard xml specification -->
     <!-- Where applicable, default values will be used for all undefined fields -->

@@ -1583,7 +1583,7 @@ void OptimPlaneDlg::readVariables(int &nActive, QString &log, QString const &pre
 void OptimPlaneDlg::onAnalysisDef()
 {
     T1234578PolarDlg wpDlg(this);
-    wpDlg.initPolar3dDlg(nullptr);
+    wpDlg.initPolar3dDlg(m_pPlaneXfl, nullptr);
 
     int res = wpDlg.exec();
 
