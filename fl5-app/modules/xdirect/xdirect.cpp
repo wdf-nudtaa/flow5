@@ -1142,9 +1142,9 @@ void XDirect::onAnalyze()
 {
     if(!s_pCurFoil || !s_pCurPolar) return;
 
-    if(s_pCurFoil->nNodes()>=255)
+    if(s_pCurFoil->nNodes()>IQX-2)
     {
-        s_pMainFrame->displayMessage("XFoil requires that NPanels<255\n\n", true);
+        s_pMainFrame->displayMessage(QString("XFoil requires that NPanels<%1").arg(IQX-2) + EOLch + EOLch, true) ;
         return;
     }
 

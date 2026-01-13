@@ -476,8 +476,6 @@ void gl3dWingView::glMakeWingSectionHighlight(WingXfl const *pWing, int iSection
 
 void gl3dWingView::glMakeWingSectionHighlight_seg(WingXfl const *pWing, int iSectionHighLight)
 {
-    Node node;
-
     if(iSectionHighLight<0 || iSectionHighLight>pWing->nSections())
     {
         m_vboSectionHighlight.destroy();
