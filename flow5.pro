@@ -1,4 +1,8 @@
 
+#    Compilation instructions:
+#    https://flow5.tech/docs/flow5_doc/Source/Compilation.html
+
+
 TEMPLATE = subdirs
 
 
