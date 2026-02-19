@@ -1650,8 +1650,8 @@ void PlaneXflDlg::onInsertElevator()
             pWing->scaleChord(chord/2.0);
             pWing->scaleSpan(span/5.0);
         }
-        m_pPlaneXfl->wing(n)->m_rx = 0.0;
-        m_pPlaneXfl->wing(n)->m_LE.set(span/3.0, 0.0, 0.0);
+        m_pPlaneXfl->wing(n)->setRx(0.0);
+        m_pPlaneXfl->wing(n)->setPosition(span/3.0, 0.0, 0.0);
     }
 
     updateData();
@@ -1685,8 +1685,8 @@ void PlaneXflDlg::onInsertFin()
             pWing->scaleChord(chord/2.0);
             pWing->scaleSpan(span/5.0);
         }
-        m_pPlaneXfl->m_Wing[n].m_rx = -90.0;
-        m_pPlaneXfl->m_Wing[n].m_LE.set(span/3.0, 0.0, 0.0);
+        m_pPlaneXfl->m_Wing[n].setRx(-90.0);
+        m_pPlaneXfl->m_Wing[n].setPosition(span/3.0, 0.0, 0.0);
     }
 
     updateData();

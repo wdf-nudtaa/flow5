@@ -1502,10 +1502,7 @@ void gl3dView::paintArcBall()
         {
             m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0, 3, 0);
             m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, m_matProj*m_matView*m_matModel);
-            if(DisplayOptions::isLightTheme())
-                m_shadLine.setUniformValue(m_locLine.m_UniColor, QColor(54,54,54,75));
-            else
-                m_shadLine.setUniformValue(m_locLine.m_UniColor, QColor(43,43,43,175));
+            m_shadLine.setUniformValue(m_locLine.m_UniColor, QColor(43,43,43,125));
             m_shadLine.setUniformValue(m_locLine.m_Pattern, gl::stipple(Line::SOLID));
             m_shadLine.setUniformValue(m_locLine.m_Thickness, 2.0f);
 
@@ -1518,7 +1515,7 @@ void gl3dView::paintArcBall()
         if(m_bCrossPoint)
         {
             QMatrix4x4 pvmCP(m_matProj);
-            float angle, xf, yf, zf;
+            float angle(0), xf(0), yf(0), zf(0);
             m_ArcBall.rotateCrossPoint(angle, xf, yf, zf);
             pvmCP.rotate(angle, xf, yf, zf);
             m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, pvmCP);

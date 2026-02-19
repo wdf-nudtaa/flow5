@@ -1730,10 +1730,12 @@ void BoatDlg::readData()
             pSail->setName(index.data().toString().toStdString());
 
             index = m_pSailModel->index(is,1, QModelIndex());
-            pSail->m_LE.x = index.data().toDouble()/Units::mtoUnit();
+            double x = index.data().toDouble()/Units::mtoUnit();
 
             index = m_pSailModel->index(is,2, QModelIndex());
-            pSail->m_LE.z = index.data().toDouble()/Units::mtoUnit();
+            double z = index.data().toDouble()/Units::mtoUnit();
+
+            pSail->setPosition(x, 0.0, z);
         }
     }
     for(int ib=0; ib<m_pHullModel->rowCount(); ib++)
@@ -1799,10 +1801,10 @@ void BoatDlg::fillSailList()
             m_pSailModel->setData(ind, QString::fromStdString(pSail->name()));
 
             ind = m_pSailModel->index(is, 1, QModelIndex());
-            m_pSailModel->setData(ind, pSail->m_LE.x * Units::mtoUnit());
+            m_pSailModel->setData(ind, pSail->position().x * Units::mtoUnit());
 
             ind = m_pSailModel->index(is, 2, QModelIndex());
-            m_pSailModel->setData(ind, pSail->m_LE.z * Units::mtoUnit());
+            m_pSailModel->setData(ind, pSail->position().z * Units::mtoUnit());
         }
     }
 }
