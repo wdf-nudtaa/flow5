@@ -1,4 +1,7 @@
 
+#    Compilation instructions:
+#    https://flow5.tech/docs/flow5_doc/Source/Compilation.html
+
 QT -= gui  # not using QColor
 
 TARGET = fl5-lib

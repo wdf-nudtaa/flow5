@@ -96,19 +96,13 @@ void PlaneXfl::makeDefaultPlane()
     m_Wing[2].makeDefaultFin();
     m_Wing[2].computeGeometry();
 
-    m_Wing[0].m_LE.x = 0.400;
-    m_Wing[0].m_LE.y = 0.000;
-    m_Wing[0].m_LE.z = 0.000;
+    m_Wing[0].setPosition(0.400, 0.000, 0.000);
 
-    m_Wing[1].m_LE.x = 1.350;
-    m_Wing[1].m_LE.y = 0.000;
-    m_Wing[1].m_LE.z = 0.025;
-    m_Wing[1].m_ry   = -1.5;
+    m_Wing[1].setPosition(1.350, 0.000, 0.025);
+    m_Wing[1].setRy(-1.5);
 
-    m_Wing[2].m_LE.x = 1.350;
-    m_Wing[2].m_LE.y = 0.000;
-    m_Wing[2].m_LE.z = 0.050;
-    m_Wing[2].m_rx = m_Wing[2].isFin() ? -90 : 0.0;
+    m_Wing[2].setPosition(1.350, 0.000, 0.050);
+    m_Wing[2].setRx(m_Wing[2].isFin() ? -90 : 0.0);
 
     m_Inertia.reset();
 
@@ -153,13 +147,13 @@ double PlaneXfl::tailVolumeHorizontal() const
         if (m_Wing[iw].wingType()==xfl::Main)
         {
             pMainWing = &m_Wing[iw];
-            MainWingLE = m_Wing[iw].m_LE;
+            MainWingLE = m_Wing[iw].position();
         }
 
         if (m_Wing[iw].wingType()==xfl::Elevator)
         {
             pStab = &m_Wing[iw];
-            StabLE = m_Wing[iw].m_LE;
+            StabLE = m_Wing[iw].position();
         }
     }
 
@@ -201,13 +195,13 @@ double PlaneXfl::tailVolumeVertical() const
         if (pWing->wingType()==xfl::Main)
         {
             pMainWing = pWing;
-            MainWingLE = pWing->m_LE;
+            MainWingLE = pWing->position();
         }
 
         if (pWing->wingType()==xfl::Fin)
         {
             pFin = pWing;
-            FinLE = pWing->m_LE;
+            FinLE = pWing->position();
         }
     }
 
@@ -601,8 +595,8 @@ bool PlaneXfl::serializePlaneXFL(QDataStream &ar, bool bIsStoring)
             if(fabs(pz)  >1000.0) pz = 0.0;
             if(fabs(dble)>1000.0) dble = 0.0;
 
-            m_Wing[iw].m_LE.set(px, py, pz);
-            m_Wing[iw].m_ry = dble;
+            m_Wing[iw].setPosition(px, py, pz);
+            m_Wing[iw].setRy(dble);
             if(m_Wing[iw].isFin())
             {
                 m_Wing[iw].setTwoSided(bDouble);
@@ -613,7 +607,7 @@ bool PlaneXfl::serializePlaneXFL(QDataStream &ar, bool bIsStoring)
         {
             //            m_Wing[3].isDoubleFin() = bDouble;
             //            m_Wing[3].setSymFin(bSym);
-            m_Wing[3].m_rx = -90.0;
+            m_Wing[3].setRx(-90.0);
         }
 
         ar >> bFuse;
@@ -1741,7 +1735,7 @@ void PlaneXfl::computeStructuralInertia()
     for(int iw=0; iw<nWings(); iw++)
     {
         WingXfl const &aWing = m_Wing.at(iw);
-        Vector3d d = (aWing.CoG_t()+aWing.m_LE) - cogs;
+        Vector3d d = (aWing.CoG_t()+aWing.position()) - cogs;
 
         ixx_s += aWing.Ixx_t() + aWing.totalMass()*(d.y*d.y+d.z*d.z);
         ixy_s += aWing.Ixy_t() + aWing.totalMass()*(d.x*d.y);

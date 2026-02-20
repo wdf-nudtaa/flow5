@@ -1583,7 +1583,7 @@ void OptimPlaneDlg::readVariables(int &nActive, QString &log, QString const &pre
 void OptimPlaneDlg::onAnalysisDef()
 {
     T1234578PolarDlg wpDlg(this);
-    wpDlg.initPolar3dDlg(nullptr);
+    wpDlg.initPolar3dDlg(m_pPlaneXfl, nullptr);
 
     int res = wpDlg.exec();
 
@@ -1635,7 +1635,7 @@ void OptimPlaneDlg::onRunAnalysis()
             strange += QString::asprintf("   Cl         = %11.3f      %11.3f\n",     wpolar.aeroForce(0).CL(), wpolar.aeroForce(1).CL());
             strange += QString::asprintf("   Cd         = %11.3f      %11.3f\n",     wpolar.aeroForce(0).CD(), wpolar.aeroForce(1).CD());
             strange += QString::asprintf("   Cl/CD      = %11.3f      %11.3f\n",     wpolar.aeroForce(0).CL()/wpolar.aeroForce(0).CD(),
-                                                                                   wpolar.aeroForce(1).CL()/wpolar.aeroForce(1).CD());
+                                                                                     wpolar.aeroForce(1).CL()/wpolar.aeroForce(1).CD());
             strange += QString::asprintf("   Cm         = %11.3f      %11.3f\n",     wpolar.aeroForce(0).Cm(), wpolar.aeroForce(1).Cm());
             strange += QString::asprintf("   m.g.Vz     = %11.3f      %11.3f W\n",   wpolar.m_Mass_var.at(0)*9.81*wpolar.Vz(0),
                                                                                      wpolar.m_Mass_var.at(1)*9.81*wpolar.Vz(1));

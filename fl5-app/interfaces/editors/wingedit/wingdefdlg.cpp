@@ -154,10 +154,10 @@ void WingDefDlg::setupLayout()
             {
                 QHBoxLayout *pSectionLayout = new QHBoxLayout;
                 {
-                    m_pchTwoSided   = new QCheckBox(tr("two-sided"));
-                    m_pchsymmetric  = new QCheckBox(tr("symmetric"));
-                    m_prbRightSide  = new QRadioButton(tr("Right Side"));
-                    m_prbLeftSide   = new QRadioButton(tr("Left Side"));
+                    m_pchTwoSided   = new QCheckBox("Two-sided");
+                    m_pchsymmetric  = new QCheckBox("Symmetric");
+                    m_prbRightSide  = new QRadioButton("Right side");
+                    m_prbLeftSide   = new QRadioButton("Left side");
 
                     m_pchCloseInnerSide = new QCheckBox(tr("Close inner side"));
 
@@ -209,9 +209,9 @@ void WingDefDlg::setupLayout()
             QHBoxLayout *pTipStripLayout = new QHBoxLayout;
             {
                 m_pieTipStrips = new IntEdit();
-                m_pieTipStrips->setToolTip(tr("Number of horizontal panel strips at the wing tips.\n"
-                                           "Recommendation 2-5."));
-                pTipStripLayout->addWidget(new QLabel(tr("Tip strips")));
+                m_pieTipStrips->setToolTip("<p>Number of horizontal panel strips at the wing tips.<br>"
+                                           "Recommendation: 1</p>");
+                pTipStripLayout->addWidget(new QLabel("Tip strips"));
                 pTipStripLayout->addWidget(m_pieTipStrips);
                 pTipStripLayout->addStretch();
             }
@@ -409,9 +409,6 @@ void WingDefDlg::onWingTableClicked(QModelIndex index)
         case 10:
         {
             QRect itemrect = m_pcptSections->visualRect(index);
-            /*                QPoint dlgpos = pos();
-            QPoint tablepos = m_pPartTable->pos();
-            QPoint menupos = dlgpos + tablepos +  itemrect.topLeft();*/
             QPoint menupos = m_pcptSections->mapToGlobal(itemrect.topLeft());
             QMenu *pWingTableRowMenu = new QMenu("Section", this);
             {

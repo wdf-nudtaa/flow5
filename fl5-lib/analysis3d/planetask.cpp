@@ -2707,7 +2707,7 @@ bool PlaneTask::computeSurfaceDragOTF(Surface const &surf, int iStartStation, do
         foilB.applyBase();
     }
 
-    // Process right side foil
+    // Process left side foil
     Polar LeftSidePolar;
     LeftSidePolar.setType(xfl::T1POLAR);
     LeftSidePolar.setReType(1);

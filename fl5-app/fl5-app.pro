@@ -1,4 +1,7 @@
 
+#    Compilation instructions:
+#    https://flow5.tech/docs/flow5_doc/Source/Compilation.html
+
 DEFINES += QT_DEPRECATED_WARNINGS
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
@@ -64,7 +67,7 @@ linux-g++ {
 
     INTEL_MKL {
         #------------ MKL --------------------
-        #    MKL can use the c++ matrices in row major order order
+        #    MKL can use the c++ matrices in row major order
         DEFINES += INTEL_MKL
 
         #   Ensure that the paths to the include files and to the binary libraries
